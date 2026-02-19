@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Abel&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #8ab414;
+  --color-secondary: #007bff;
+  --color-dark: #000000;
+  --color-light: #f4f4f4;
+
+  --font-sans: "Fira Sans", sans-serif;
+  --font-abel: "Abel", sans-serif;
+}
+
+:root {
+  --background: #f4f4f4;
+  --foreground: #000000;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+}
