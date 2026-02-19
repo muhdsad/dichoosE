@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
             const userCredential = await googleLogin();
             const user = userCredential.user;
 
-            if (adminEmails.includes(user.email)) {
+            if (adminEmails.includes(user.email.toLowerCase())) {
                 router.push('/admin');
             } else {
                 setError("Access Denied: You are not an authorized admin.");
@@ -43,11 +43,10 @@ export default function AdminLoginPage() {
             const user = userCredential.user;
 
             // 2. Check if Email is Allowed
-            if (adminEmails.includes(user.email)) {
+            if (adminEmails.includes(user.email.toLowerCase())) {
                 router.push('/admin');
             } else {
-                setError("Access Denied: You are not an authorize admin.");
-                // Optionally logout immediately if you want to prevent them from staying logged in as a regular user
+                setError("Access Denied: You are not an authorized admin.");
             }
         } catch (err) {
             console.error("Login failed", err);

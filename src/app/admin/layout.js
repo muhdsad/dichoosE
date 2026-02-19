@@ -22,7 +22,7 @@ export default function AdminLayout({ children }) {
 
         if (!user) {
             router.push('/admin/login');
-        } else if (!adminEmails.includes(user.email)) {
+        } else if (!adminEmails.includes(user.email.toLowerCase())) {
             // User logged in but not an admin
             // Optional: redirect to home or show specific unauthorized page
             router.push('/admin/login');
