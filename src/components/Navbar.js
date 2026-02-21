@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { FaShoppingCart, FaBars, FaTimes, FaPhone, FaSearch, FaUser, FaHeart, FaArrowRight } from 'react-icons/fa';
@@ -152,9 +153,17 @@ const Navbar = () => {
                                             <li key={category.value}>
                                                 <Link
                                                     href={`/products?category=${encodeURIComponent(category.value)}`}
-                                                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary transition font-abel font-bold uppercase text-sm"
+                                                    className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary transition font-abel font-bold uppercase text-sm"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
+                                                    <div className="w-8 h-8 mr-3 relative flex-shrink-0">
+                                                        <Image
+                                                            src={category.image}
+                                                            alt={category.name}
+                                                            fill
+                                                            className="object-cover rounded-full"
+                                                        />
+                                                    </div>
                                                     {category.name}
                                                 </Link>
                                             </li>
@@ -170,6 +179,7 @@ const Navbar = () => {
                             <Link href="/products" className="hover:text-primary transition uppercase">Shop</Link>
                             <Link href="/products?category=Vegetables" className="hover:text-primary transition uppercase">Vegetables</Link>
                             <Link href="/products?category=Fruits" className="hover:text-primary transition uppercase">Fruits</Link>
+                            <Link href="/products?category=Offer" className="hover:text-primary transition uppercase text-red-600">Offers</Link>
                             <Link href="/contact" className="hover:text-primary transition uppercase ml-auto">Contact</Link>
                         </div>
                     </div>
@@ -190,8 +200,9 @@ const Navbar = () => {
                             />
                         </form>
                         <Link href="/" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Home</Link>
-                        <Link href="/products" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Vegetables</Link>
-                        <Link href="/products" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Fruits</Link>
+                        <Link href="/products?category=Vegetables" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Vegetables</Link>
+                        <Link href="/products?category=Fruits" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Fruits</Link>
+                        <Link href="/products?category=Offer" className="block text-red-600 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Offers</Link>
                         <Link href="/about" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>About Us</Link>
                         <Link href="/contact" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Contact</Link>
                         {user ? (

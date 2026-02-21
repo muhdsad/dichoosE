@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../../lib/firebase';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { getDirectDriveLink } from '../../../utils/productUtils';
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
@@ -41,14 +42,6 @@ export default function ProductsPage() {
         }
     };
 
-    // Helper to convert Google Drive links to direct images for display
-    const getDirectDriveLink = (url) => {
-        if (url && url.includes('drive.google.com') && url.includes('/file/d/')) {
-            const id = url.split('/file/d/')[1].split('/')[0];
-            return `https://drive.google.com/uc?export=view&id=${id}`;
-        }
-        return url;
-    };
 
     const [searchTerm, setSearchTerm] = useState('');
 

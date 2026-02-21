@@ -4,6 +4,7 @@ import { useAuth } from '../../../../context/AuthContext';
 import { db } from '../../../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { getDirectDriveLink } from '../../../../utils/productUtils';
 import Link from 'next/link';
 
 export default function OrderDetailsPage({ params }) {
@@ -106,7 +107,7 @@ export default function OrderDetailsPage({ params }) {
                                 <div className="flex items-center mb-2 sm:mb-0">
                                     {/* Optional: Add Image here if available in item data */}
                                     {item.image && (
-                                        <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded mr-4" />
+                                        <img src={getDirectDriveLink(item.image)} alt={item.name} className="w-16 h-16 object-cover rounded mr-4" />
                                     )}
                                     <div>
                                         <p className="text-sm font-bold text-gray-900">{item.name}</p>

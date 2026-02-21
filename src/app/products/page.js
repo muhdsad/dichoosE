@@ -43,10 +43,17 @@ function ProductsContent() {
                     // This handles both explicit 'Offer' category and active time-based offers
                     // (because getCleanProduct keeps 'Offer' and offerPrice if the date is valid).
                     productsData = productsData.filter(product => {
-                        const hasOfferPrice = product.offerPrice !== null;
-                        const isExplicitlyOffer = (product.categories?.includes('Offer') || product.category === 'Offer');
+                        const hasOfferPrice = product.offerPrice && parseFloat(product.offerPrice) > 0;
+                        if (!hasOfferPrice) return false;
 
-                        return hasOfferPrice || isExplicitlyOffer;
+                        const now = new Date();
+                        const offerStart = product.offerStart ? new Date(product.offerStart) : null;
+                        const offerEnd = product.offerEnd ? new Date(product.offerEnd) : null;
+
+                        const isStarted = !offerStart || now >= offerStart;
+                        const isEnded = offerEnd && now > offerEnd;
+
+                        return isStarted && !isEnded;
                     });
                 } else {
                     // Standard Category Logic (Backward Compatible)

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '../../context/CartContext';
 import { FaTrash, FaMinus, FaPlus } from 'react-icons/fa';
+import { getDirectDriveLink } from '../../utils/productUtils';
 
 export default function CartPage() {
     const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -32,7 +33,7 @@ export default function CartPage() {
                                     <div className="flex-shrink-0">
                                         <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-md overflow-hidden bg-gray-100">
                                             <Image
-                                                src={product.image}
+                                                src={getDirectDriveLink(product.image)}
                                                 alt={product.name}
                                                 fill
                                                 className="object-cover object-center"

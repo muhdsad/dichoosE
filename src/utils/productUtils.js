@@ -36,3 +36,32 @@ export const getCleanProduct = (product) => {
 
     return product;
 };
+
+/**
+ * Converts a Google Drive share link into a direct image/thumbnail link.
+ * 
+ * @param {string} url - The original URL
+ * @returns {string} - The direct image/thumbnail URL
+ */
+export const getDirectDriveLink = (url) => {
+    if (!url) return '';
+
+    try {
+        // Handle standard view link: /file/d/ID/view
+        if (url.includes('drive.google.com') && url.includes('/file/d/')) {
+            const id = url.split('/file/d/')[1].split('/')[0];
+            return `https://drive.google.com/thumbnail?id=${id}&sz=w500`;
+        }
+
+        // Handle open link: open?id=ID
+        if (url.includes('drive.google.com') && url.includes('id=')) {
+            const searchParams = new URL(url).searchParams;
+            const id = searchParams.get('id');
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w500`;
+        }
+    } catch (e) {
+        console.error("Failed to parse drive URL:", url, e);
+    }
+
+    return url;
+};

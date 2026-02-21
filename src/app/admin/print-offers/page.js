@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { getDirectDriveLink } from '../../../utils/productUtils';
 
 export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
@@ -44,28 +45,6 @@ export default function PrintOffersPage() {
 
         fetchOfferProducts();
     }, []);
-
-    const getDirectDriveLink = (url) => {
-        if (!url) return '';
-
-        try {
-            // Handle standard view link: /file/d/ID/view
-            if (url.includes('drive.google.com') && url.includes('/file/d/')) {
-                const id = url.split('/file/d/')[1].split('/')[0];
-                return `https://drive.google.com/thumbnail?id=${id}&sz=w500`;
-            }
-
-            // Handle open link: open?id=ID
-            if (url.includes('drive.google.com') && url.includes('id=')) {
-                const id = new URL(url).searchParams.get('id');
-                if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w500`;
-            }
-        } catch (e) {
-            console.error("Failed to parse drive URL:", url, e);
-        }
-
-        return url;
-    };
 
     if (loading) return <div className="text-center p-10">Loading Offers...</div>;
 

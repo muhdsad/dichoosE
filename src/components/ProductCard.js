@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { FaShoppingCart, FaHeart, FaRegHeart } from 'react-icons/fa';
+import { getDirectDriveLink } from '../utils/productUtils';
 
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
@@ -48,7 +49,7 @@ const ProductCard = ({ product }) => {
             <div className="relative h-64 w-full bg-gray-200">
                 <Link href={`/products/${product.id}`} className="block w-full h-full">
                     <Image
-                        src={product.image}
+                        src={getDirectDriveLink(product.image)}
                         alt={product.name}
                         fill
                         className="object-cover object-center group-hover:opacity-75 transition-opacity"

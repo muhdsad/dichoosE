@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { use } from 'react';
 import { categories } from '../../../../../utils/categories';
+import { getDirectDriveLink } from '../../../../../utils/productUtils';
 
 export default function EditProductPage({ params }) {
     const router = useRouter();
@@ -86,14 +87,6 @@ export default function EditProductPage({ params }) {
         });
     };
 
-    // Helper to convert Google Drive links to direct images
-    const getDirectDriveLink = (url) => {
-        if (url && url.includes('drive.google.com') && url.includes('/file/d/')) {
-            const id = url.split('/file/d/')[1].split('/')[0];
-            return `https://drive.google.com/uc?export=view&id=${id}`;
-        }
-        return url;
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();

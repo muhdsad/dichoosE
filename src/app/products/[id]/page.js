@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { db } from '../../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { getCleanProduct } from '../../../utils/productUtils';
+import { getCleanProduct, getDirectDriveLink } from '../../../utils/productUtils';
 import Image from 'next/image';
 import { useCart } from '../../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
@@ -74,7 +74,7 @@ export default function ProductDetailPage() {
                         </div>
                         <div className="w-full aspect-w-1 aspect-h-1 relative h-96 rounded-lg bg-gray-100 overflow-hidden sm:h-[500px]">
                             <Image
-                                src={product.image}
+                                src={getDirectDriveLink(product.image)}
                                 alt={product.name}
                                 fill
                                 className="object-cover object-center"

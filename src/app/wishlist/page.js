@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useWishlist } from '../../context/WishlistContext';
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { getCleanProduct } from '../../utils/productUtils';
 import ProductCard from '../../components/ProductCard';
 import Link from 'next/link';
 import { FaHeart } from 'react-icons/fa';
@@ -29,7 +30,7 @@ export default function WishlistPage() {
 
                 const fetchedProducts = productSnapshots
                     .filter(snap => snap.exists())
-                    .map(snap => ({ id: snap.id, ...snap.data() }));
+                    .map(snap => getCleanProduct({ id: snap.id, ...snap.data() }));
 
                 setProducts(fetchedProducts);
             } catch (error) {
