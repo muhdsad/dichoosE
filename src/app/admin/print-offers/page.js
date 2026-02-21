@@ -77,23 +77,27 @@ export default function PrintOffersPage() {
             <div className="print:hidden p-4 bg-blue-50 border-b border-blue-200 mb-4 flex justify-between items-center">
                 <div>
                     <h1 className="text-xl font-bold text-blue-800">Offer Price List</h1>
-                    <p className="text-sm text-blue-600">Press <strong>Ctrl + P</strong> (or Cmd + P) to print.</p>
+                    <p className="text-sm text-blue-600">Press <strong>Ctrl + P</strong> (or Cmd + P) to print or save as PDF.</p>
                 </div>
                 <button
                     onClick={() => window.print()}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
                 >
-                    Print Now
+                    Print / Save as PDF
                 </button>
             </div>
 
             {/* A4 Container */}
             <div className="max-w-[210mm] mx-auto p-4 print:p-0 print:max-w-none">
+                <div className="hidden print:block text-center mb-8">
+                    <h1 className="text-4xl font-black text-primary uppercase tracking-wider">Offer Price List</h1>
+                    <div className="h-1 w-32 bg-primary mx-auto mt-2"></div>
+                </div>
                 <div className="grid grid-cols-3 gap-4">
                     {products.map((product, index) => (
                         <div
                             key={product.id}
-                            className="border border-gray-300 p-4 flex flex-col items-center justify-center text-center h-[240px] page-break-inside-avoid relative"
+                            className="border-4 border-black p-4 flex flex-col items-center justify-center text-center h-[240px] page-break-inside-avoid relative"
                             style={{
                                 // Force page break after every 12th item (4 rows x 3 cols)
                                 breakAfter: (index + 1) % 12 === 0 ? 'page' : 'auto'

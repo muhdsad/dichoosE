@@ -9,6 +9,7 @@ import ProductCard from "../components/ProductCard";
 import HeroSlider from "../components/HeroSlider";
 import Testimonials from "../components/Testimonials";
 
+import { getCleanProduct } from "../utils/productUtils";
 import { categories } from "../utils/categories";
 
 export default function Home() {
@@ -21,10 +22,13 @@ export default function Home() {
         // Fetch latest 8 products for the homepage
         const q = query(collection(db, "products"), limit(8));
         const querySnapshot = await getDocs(q);
-        const productsData = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        const productsData = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return getCleanProduct({
+            id: doc.id,
+            ...data
+          });
+        });
         setProducts(productsData);
       } catch (error) {
         console.error("Error fetching products:", error);

@@ -6,6 +6,8 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import ProductCard from '../../components/ProductCard';
 import { seedProducts } from '../../utils/seed';
 
+import { getCleanProduct } from '../../utils/productUtils';
+
 function ProductsContent() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,42 +24,29 @@ function ProductsContent() {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            // Fetch all products first (Client-side filtering handles the rest to support multi-category + legacy)
-            // Note: For larger datasets, this should use 'array-contains' query, but that requires data migration for old items.
             let q = collection(db, "products");
             const querySnapshot = await getDocs(q);
 
-            let productsData = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            let productsData = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return getCleanProduct({
+                    id: doc.id,
+                    ...data
+                });
+            });
 
             // Filter by Category
             if (categoryFilter) {
                 if (categoryFilter === 'Offer') {
-                    // "Offer" Logic: Check for active time-based offer
+                    // "Offer" Logic: Since we already cleaned products with getCleanProduct,
+                    // we just need to check if 'Offer' is still in categories or is the main category.
+                    // This handles both explicit 'Offer' category and active time-based offers
+                    // (because getCleanProduct keeps 'Offer' and offerPrice if the date is valid).
                     productsData = productsData.filter(product => {
-                        const now = new Date();
-                        const hasOfferPrice = product.offerPrice;
-                        const offerStart = product.offerStart ? new Date(product.offerStart) : null;
-                        const offerEnd = product.offerEnd ? new Date(product.offerEnd) : null;
-
-                        const isStarted = !offerStart || now >= offerStart;
-                        const isEnded = offerEnd && now > offerEnd; // Strictly ended
-
-                        const hasActiveTimeOffer = hasOfferPrice && isStarted && !isEnded;
-
-                        // "Offer" Category Rules:
-                        // 1. Explicitly in "Offer" category AND NOT Expired (if end date exists)
-                        // 2. OR Has a valid active time-based offer
-
+                        const hasOfferPrice = product.offerPrice !== null;
                         const isExplicitlyOffer = (product.categories?.includes('Offer') || product.category === 'Offer');
-                        const isDatesExpired = offerEnd && now > offerEnd;
 
-                        if (isExplicitlyOffer && !isDatesExpired) return true;
-                        if (hasActiveTimeOffer) return true;
-
-                        return false;
+                        return hasOfferPrice || isExplicitlyOffer;
                     });
                 } else {
                     // Standard Category Logic (Backward Compatible)

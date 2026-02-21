@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { db } from '../../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { getCleanProduct } from '../../../utils/productUtils';
 import Image from 'next/image';
 import { useCart } from '../../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
@@ -23,7 +24,8 @@ export default function ProductDetailPage() {
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    setProduct({ id: docSnap.id, ...docSnap.data() });
+                    const data = docSnap.data();
+                    setProduct(getCleanProduct({ id: docSnap.id, ...data }));
                 } else {
                     console.log("No such product!");
                 }
