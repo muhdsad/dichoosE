@@ -68,21 +68,21 @@ export default function PrintOffersPage() {
 
             {/* A4 Container */}
             <div className="max-w-[210mm] mx-auto p-4 print:p-0 print:max-w-none">
-                <div className="hidden print:block text-center mb-8">
+                <div className="hidden text-center mb-8">
                     <h1 className="text-4xl font-black text-primary uppercase tracking-wider">Offer Price List</h1>
                     <div className="h-1 w-32 bg-primary mx-auto mt-2"></div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-2 print:gap-2">
                     {products.map((product, index) => (
                         <div
                             key={product.id}
-                            className="border-4 border-black p-4 flex flex-col items-center justify-center text-center h-[240px] page-break-inside-avoid relative"
+                            className="border-2 border-black p-2 flex flex-col items-center justify-center text-center h-[210px] page-break-inside-avoid relative"
                             style={{
                                 // Force page break after every 12th item (4 rows x 3 cols)
                                 breakAfter: (index + 1) % 12 === 0 ? 'page' : 'auto'
                             }}
                         >
-                            <div className="relative w-32 h-32 mb-2">
+                            <div className="relative w-28 h-28 mb-1">
                                 <img
                                     src={getDirectDriveLink(product.image)}
                                     alt={product.name}
@@ -90,21 +90,21 @@ export default function PrintOffersPage() {
                                     referrerPolicy="no-referrer"
                                 />
                                 {/* MRP Top Left Overlay */}
-                                <span className="absolute top-0 left-0 bg-white bg-opacity-90 px-1 rounded text-xs font-bold text-gray-500 line-through border border-gray-200 shadow-sm">
+                                <span className="absolute top-0 left-0 bg-white bg-opacity-90 px-1 rounded text-[10px] font-bold text-gray-500 line-through border border-gray-200 shadow-sm">
                                     MRP: ₹{product.mrp || product.price}
                                 </span>
                             </div>
-                            <h2 className="text-lg font-bold leading-tight mb-2 line-clamp-2 h-12 overflow-hidden flex items-center justify-center">
+                            <h2 className="text-base font-bold leading-tight mb-1 line-clamp-2 h-10 overflow-hidden flex items-center justify-center">
                                 {product.name}
                             </h2>
                             <div className="mt-auto">
-                                <p className="text-4xl font-extrabold text-black tracking-tight">
+                                <p className="text-3xl font-extrabold text-black tracking-tight">
                                     ₹{product.offerPrice}
                                 </p>
                             </div>
 
                             {/* Optional: Add unit if needed */}
-                            {product.unit && <span className="absolute top-2 right-2 text-xs bg-gray-100 px-1 rounded">{product.unit}</span>}
+                            {product.unit && <span className="absolute top-1 right-1 text-[10px] bg-gray-100 px-1 rounded">{product.unit}</span>}
                         </div>
                     ))}
                 </div>
