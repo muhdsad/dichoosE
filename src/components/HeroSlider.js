@@ -6,7 +6,7 @@ import Image from 'next/image';
 const slides = [
     {
         id: 1,
-        image: '/final-banner.jpg', // Using same image for now, user can change later
+        image: '/bannar1.jpg',
         title: "Fresh & Organic",
         subtitle: "Farm fresh vegetables delivered to your doorstep",
         cta: "Shop Vegetables",
@@ -14,7 +14,7 @@ const slides = [
     },
     {
         id: 2,
-        image: '/final-banner.jpg',
+        image: '/bannar2.jpg',
         title: "Juicy Fruits",
         subtitle: "start your day with healthy & sweet fruits",
         cta: "Shop Fruits",
@@ -22,7 +22,7 @@ const slides = [
     },
     {
         id: 3,
-        image: '/final-banner.jpg',
+        image: '/bannar3.jpg',
         title: "Weekly Exclusive Deals",
         subtitle: "Save big on your favorite items this week",
         cta: "View Offers",
@@ -46,18 +46,21 @@ const HeroSlider = () => {
             {slides.map((slide, index) => (
                 <div
                     key={slide.id}
-                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'
+                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                         }`}
                 >
                     {/* Background Image */}
                     <div className="relative w-full h-full">
-                        <img
+                        <Image
                             src={slide.image}
                             alt={slide.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            priority={index === 0}
+                            unoptimized
+                            className="object-cover"
                         />
-                        {/* Dark Overlay for text readability */}
-                        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                        {/* Improved Dark Overlay for text readability */}
+                        <div className="absolute inset-0 bg-black/40"></div>
                     </div>
 
                     {/* Content */}
