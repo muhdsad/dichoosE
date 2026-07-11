@@ -73,14 +73,18 @@ export default function ProductDetailPage() {
                             {/* Thumbnails could go here */}
                         </div>
                         <div className="w-full aspect-w-1 aspect-h-1 relative h-96 rounded-lg bg-gray-100 overflow-hidden sm:h-[500px]">
-                            <Image
-                                src={getDirectDriveLink(product.image)}
-                                alt={product.name}
-                                fill
-                                className="object-cover object-center"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                priority
-                            />
+                            {product.image ? (
+                                <Image
+                                    src={getDirectDriveLink(product.image)}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover object-center"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    priority
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-lg font-medium">No Image</div>
+                            )}
                         </div>
                     </div>
 
@@ -91,12 +95,12 @@ export default function ProductDetailPage() {
                         <div className="mt-3">
                             <h2 className="sr-only">Product information</h2>
                             <div className="flex items-end">
-                                <p className="text-3xl text-gray-900">₹{product.price.toFixed(2)}</p>
-                                {product.mrp && product.mrp > product.price && (
+                                <p className="text-3xl text-gray-900">₹{Number(product.price || 0).toFixed(2)}</p>
+                                {product.mrp && Number(product.mrp) > Number(product.price || 0) && (
                                     <>
-                                        <p className="ml-2 text-lg text-gray-500 line-through">₹{product.mrp.toFixed(2)}</p>
+                                        <p className="ml-2 text-lg text-gray-500 line-through">₹{Number(product.mrp).toFixed(2)}</p>
                                         <p className="ml-2 text-sm text-green-600 font-bold">
-                                            {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
+                                            {Math.round(((Number(product.mrp) - Number(product.price || 0)) / Number(product.mrp)) * 100)}% OFF
                                         </p>
                                     </>
                                 )}

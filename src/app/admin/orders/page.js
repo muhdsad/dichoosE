@@ -83,7 +83,7 @@ export default function OrdersPage() {
                                                 <span className="text-xs">{order.customer?.email}</span>
                                             </div>
                                         </td>
-                                        <td className="py-3 px-6 font-bold">₹{order.total?.toFixed(2)}</td>
+                                        <td className="py-3 px-6 font-bold">₹{Number(order.total || 0).toFixed(2)}</td>
                                         <td className="py-3 px-6">
                                             <span className={`py-1 px-3 rounded-full text-xs font-semibold capitalize
                                                 ${order.status === 'delivered' ? 'bg-green-200 text-green-800' :

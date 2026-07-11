@@ -26,8 +26,8 @@ const ProductCard = ({ product }) => {
 
     // Check for active time-based offer
     const now = new Date();
-    let displayPrice = product.price;
-    let oldPrice = product.mrp;
+    let displayPrice = Number(product.price) || 0;
+    let oldPrice = product.mrp ? Number(product.mrp) : null;
     let hasOffer = false;
 
     if (product.offerPrice) {
@@ -38,23 +38,31 @@ const ProductCard = ({ product }) => {
         const isEnded = offerEnd && now > offerEnd;
 
         if (isStarted && !isEnded) {
-            displayPrice = product.offerPrice;
-            oldPrice = product.price; // The regular selling price becomes the "old" price
+            displayPrice = Number(product.offerPrice) || 0;
+            oldPrice = Number(product.price) || 0;
             hasOffer = true;
         }
     }
+
+    const imageUrl = product.image ? getDirectDriveLink(product.image) : null;
 
     return (
         <div className="group block h-full bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 transform hover:-translate-y-1 hover:shadow-xl relative">
             <div className="relative h-64 w-full bg-gray-200">
                 <Link href={`/products/${product.id}`} className="block w-full h-full">
-                    <Image
-                        src={getDirectDriveLink(product.image)}
-                        alt={product.name}
-                        fill
-                        className="object-cover object-center group-hover:opacity-75 transition-opacity"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
+                    {imageUrl ? (
+                        <Image
+                            src={imageUrl}
+                            alt={product.name}
+                            fill
+                            className="object-cover object-center group-hover:opacity-75 transition-opacity"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">
+                            No Image
+                        </div>
+                    )}
                 </Link>
 
                 {/* Wishlist Button */}
@@ -99,9 +107,9 @@ const ProductCard = ({ product }) => {
                 </div>
                 <div className="mt-2 flex items-center justify-between">
                     <div>
-                        <span className="text-xl font-bold text-gray-900">₹{displayPrice.toFixed(2)}</span>
+                        <span className="text-xl font-bold text-gray-900">₹{Number(displayPrice || 0).toFixed(2)}</span>
                         {oldPrice && oldPrice > displayPrice && (
-                            <span className="ml-2 text-sm text-gray-500 line-through">₹{oldPrice.toFixed(2)}</span>
+                            <span className="ml-2 text-sm text-gray-500 line-through">₹{Number(oldPrice || 0).toFixed(2)}</span>
                         )}
                     </div>
                     {oldPrice && oldPrice > displayPrice && (

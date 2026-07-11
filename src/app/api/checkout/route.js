@@ -53,11 +53,11 @@ export async function POST(req) {
         <ul>
           ${order.items.map(item => `
             <li>
-              <strong>${item.name}</strong> x ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}
+              <strong>${item.name}</strong> x ${item.quantity} - $${Number(item.price * item.quantity || 0).toFixed(2)}
             </li>
           `).join('')}
         </ul>
-        <h3>Total: $${order.total.toFixed(2)}</h3>
+        <h3>Total: $${Number(order.total || 0).toFixed(2)}</h3>
       `,
         };
 

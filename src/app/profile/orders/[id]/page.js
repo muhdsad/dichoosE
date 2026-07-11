@@ -119,7 +119,7 @@ export default function OrderDetailsPage({ params }) {
                                         ₹{item.price} x {item.quantity}
                                     </p>
                                     <p className="text-sm font-bold text-gray-900">
-                                        ₹{(item.price * item.quantity).toFixed(2)}
+                                        ₹{Number(item.price * item.quantity || 0).toFixed(2)}
                                     </p>
                                 </div>
                             </li>
@@ -147,7 +147,7 @@ export default function OrderDetailsPage({ params }) {
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <div className="flex justify-between py-1">
                                     <span className="text-gray-600">Subtotal</span>
-                                    <span className="font-medium">₹{order.total.toFixed(2)}</span>
+                                    <span className="font-medium">₹{Number(order.total || 0).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between py-1">
                                     <span className="text-gray-600">Shipping</span>
@@ -155,7 +155,7 @@ export default function OrderDetailsPage({ params }) {
                                 </div>
                                 <div className="flex justify-between py-3 border-t border-gray-300 mt-2">
                                     <span className="text-lg font-bold text-gray-900">Total Amount</span>
-                                    <span className="text-lg font-bold text-primary">₹{order.total.toFixed(2)}</span>
+                                    <span className="text-lg font-bold text-primary">₹{Number(order.total || 0).toFixed(2)}</span>
                                 </div>
                                 <div className="mt-2 text-center text-xs text-gray-500 bg-white p-2 border rounded">
                                     Payment Method: Cash on Delivery

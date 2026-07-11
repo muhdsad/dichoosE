@@ -144,7 +144,7 @@ export default function OrderDetailsPage() {
                                             </div>
                                         </div>
                                         <div className="text-sm font-medium text-gray-900">
-                                            ₹{(item.price * item.quantity).toFixed(2)}
+                                            ₹{Number(item.price * item.quantity || 0).toFixed(2)}
                                         </div>
                                     </div>
                                 </li>
@@ -153,7 +153,7 @@ export default function OrderDetailsPage() {
                     </div>
                     <div className="bg-gray-50 px-4 py-4 sm:px-6 flex justify-end">
                         <div className="text-lg font-bold text-gray-900">
-                            Total: ₹{order.total?.toFixed(2)}
+                            Total: ₹{Number(order.total || 0).toFixed(2)}
                         </div>
                     </div>
                 </div>
@@ -215,7 +215,7 @@ export default function OrderDetailsPage() {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{item.quantity}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">₹{item.price}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">₹{(item.price * item.quantity).toFixed(2)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">₹{Number(item.price * item.quantity || 0).toFixed(2)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -228,11 +228,11 @@ export default function OrderDetailsPage() {
                         <div className="w-full sm:w-1/2 lg:w-1/3">
                             <div className="flex justify-between py-2">
                                 <span className="text-gray-600">Subtotal</span>
-                                <span className="text-gray-900 font-medium">₹{order.total.toFixed(2)}</span>
+                                <span className="text-gray-900 font-medium">₹{Number(order.total || 0).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between py-2 border-t border-gray-200">
                                 <span className="text-lg font-bold text-gray-900">Total</span>
-                                <span className="text-lg font-bold text-indigo-600">₹{order.total.toFixed(2)}</span>
+                                <span className="text-lg font-bold text-indigo-600">₹{Number(order.total || 0).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>

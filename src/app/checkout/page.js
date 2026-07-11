@@ -115,7 +115,7 @@ export default function CheckoutPage() {
                         <dl className="sm:divide-y sm:divide-gray-200">
                             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt className="text-sm font-medium text-gray-500">Total Amount</dt>
-                                <dd className="mt-1 text-sm font-bold text-gray-900 sm:mt-0 sm:col-span-2">₹{cartTotal.toFixed(2)}</dd>
+                                <dd className="mt-1 text-sm font-bold text-gray-900 sm:mt-0 sm:col-span-2">₹{Number(cartTotal || 0).toFixed(2)}</dd>
                             </div>
                         </dl>
                     </div>

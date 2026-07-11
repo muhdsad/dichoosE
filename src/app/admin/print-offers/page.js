@@ -7,6 +7,7 @@ import { getDirectDriveLink } from '../../../utils/productUtils';
 export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [layout, setLayout] = useState('landscape'); // 'portrait' | 'landscape'
 
     useEffect(() => {
         const fetchOfferProducts = async () => {
@@ -58,63 +59,102 @@ export default function PrintOffersPage() {
                     <h1 className="text-xl font-bold text-blue-800">Offer Price List</h1>
                     <p className="text-sm text-blue-600">Press <strong>Ctrl + P</strong> (or Cmd + P) to print or save as PDF.</p>
                 </div>
-                <button
-                    onClick={() => window.print()}
-                    className="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
-                >
-                    Print / Save as PDF
-                </button>
+                <div className="flex gap-4 items-center">
+                    <button
+                        onClick={() => setLayout('portrait')}
+                        className={`px-4 py-2 rounded-lg font-bold transition-all shadow-md ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                    >
+                        3x6 Portrait (18 Tags)
+                    </button>
+                    <button
+                        onClick={() => setLayout('landscape')}
+                        className={`px-4 py-2 rounded-lg font-bold transition-all shadow-md ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                    >
+                        4x4 Landscape (16 Tags)
+                    </button>
+                    <button
+                        onClick={() => window.print()}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md ml-4"
+                    >
+                        Print / Save as PDF
+                    </button>
+                </div>
             </div>
 
             {/* A4 Container */}
-            <div className="max-w-[210mm] mx-auto p-4 print:p-0 print:max-w-none">
-                <div className="hidden text-center mb-8">
-                    <h1 className="text-4xl font-black text-primary uppercase tracking-wider">Offer Price List</h1>
-                    <div className="h-1 w-32 bg-primary mx-auto mt-2"></div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 print:gap-2">
-                    {products.map((product, index) => (
-                        <div
-                            key={product.id}
-                            className="border-2 border-black p-2 flex flex-col items-center justify-center text-center h-[210px] page-break-inside-avoid relative"
-                            style={{
-                                // Force page break after every 12th item (4 rows x 3 cols)
-                                breakAfter: (index + 1) % 12 === 0 ? 'page' : 'auto'
-                            }}
-                        >
-                            <div className="relative w-28 h-28 mb-1">
-                                <img
-                                    src={getDirectDriveLink(product.image)}
-                                    alt={product.name}
-                                    className="w-full h-full object-contain"
-                                    referrerPolicy="no-referrer"
-                                />
-                                {/* MRP Top Left Overlay */}
-                                <span className="absolute top-0 left-0 bg-white bg-opacity-90 px-1 rounded text-[10px] font-bold text-gray-500 line-through border border-gray-200 shadow-sm">
-                                    MRP: ₹{product.mrp || product.price}
-                                </span>
-                            </div>
-                            <h2 className="text-base font-bold leading-tight mb-1 line-clamp-2 h-10 overflow-hidden flex items-center justify-center">
-                                {product.name}
-                            </h2>
-                            <div className="mt-auto">
-                                <p className="text-3xl font-extrabold text-black tracking-tight">
-                                    ₹{product.offerPrice}
-                                </p>
-                            </div>
+            <div className={`mx-auto print:p-0 print:max-w-none ${layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2'}`}>
+                <div className={`grid gap-0 print:gap-0 border-t-[1.5px] border-l-[1.5px] border-black ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                    {products.map((product, index) => {
+                        const itemsPerPage = layout === 'landscape' ? 16 : 18;
+                        const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
+                        const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
+                        const hasSavings = savings > 0;
+                        const cardHeight = layout === 'landscape' ? '52.5mm' : '49.5mm';
 
-                            {/* Optional: Add unit if needed */}
-                            {product.unit && <span className="absolute top-1 right-1 text-[10px] bg-gray-100 px-1 rounded">{product.unit}</span>}
-                        </div>
-                    ))}
+                        return (
+                            <div
+                                key={product.id}
+                                className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white"
+                                style={{
+                                    height: cardHeight,
+                                    breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
+                                }}
+                            >
+                                {/* MRP Badge */}
+                                {(product.mrp || product.price) && (
+                                    <div className="absolute top-[3px] left-[3px] z-[3] bg-[#ffff00] text-black border border-black px-[4px] py-[2px] text-[10px] sm:text-[11px] font-bold uppercase line-through leading-none tracking-wide">
+                                        MRP {product.mrp || product.price}
+                                    </div>
+                                )}
+                                
+                                {/* Save Badge */}
+                                {hasSavings && (
+                                    <div className="absolute top-[3px] right-[3px] z-[3] bg-[#ff0000] text-white border border-[#ff0000] px-[4px] py-[2px] text-[10px] sm:text-[11px] font-bold uppercase leading-none tracking-wide">
+                                        SMILE SAVE ₹{savings}
+                                    </div>
+                                )}
+
+                                {/* Image Wrapper */}
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[60%] z-[1]">
+                                    <img
+                                        src={getDirectDriveLink(product.image)}
+                                        alt={product.name}
+                                        className="w-full h-full object-contain"
+                                        referrerPolicy="no-referrer"
+                                    />
+                                </div>
+
+                                {/* Details Wrapper */}
+                                <div className="w-full h-full flex flex-col items-center justify-between z-[2] relative">
+                                    <h2 className="font-anton text-[28px] sm:text-[34px] md:text-[36px] leading-[1.2] uppercase text-black w-full pt-4 px-1"
+                                        style={{ WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}>
+                                        {product.name}
+                                    </h2>
+                                    
+                                    <div className="flex items-baseline justify-center w-full mt-auto mb-[-4px]">
+                                        <span className="font-anton text-[48px] sm:text-[58px] md:text-[68px] leading-none text-black tracking-tighter"
+                                              style={{ WebkitTextStroke: '1.5px white', textShadow: '0 0 4px white, 0 0 4px white' }}>
+                                            {product.offerPrice}
+                                        </span>
+                                        {product.unit && (
+                                            <span className="font-anton text-[14px] sm:text-[16px] text-black ml-1 uppercase"
+                                                  style={{ WebkitTextStroke: '0.5px white' }}>
+                                                /{product.unit}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
             <style jsx global>{`
                 @media print {
                     @page {
-                        size: A4;
-                        margin: 10mm;
+                        size: ${layout === 'landscape' ? 'A4 landscape' : 'A4 portrait'};
+                        margin: 0;
                     }
                     body {
                         background: white;

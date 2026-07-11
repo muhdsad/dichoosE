@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint } from 'react-icons/fa';
+import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint, FaUpload, FaPlusCircle } from 'react-icons/fa';
 
 const AdminSidebar = () => {
     const pathname = usePathname();
@@ -11,6 +11,8 @@ const AdminSidebar = () => {
         { name: 'Products', href: '/admin/products', icon: FaBox },
         { name: 'Orders', href: '/admin/orders', icon: FaShoppingBag },
         { name: 'Print Offers', href: '/admin/print-offers', icon: FaPrint },
+        { name: 'Bulk Edit (Offers/Cats)', href: '/admin/bulk-offers', icon: FaUpload },
+        { name: 'Add Products (Bulk)', href: '/admin/bulk-products', icon: FaPlusCircle },
         { name: 'Back to Store', href: '/', icon: FaHome },
     ];
 

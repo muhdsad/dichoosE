@@ -51,7 +51,7 @@ export default function CartPage() {
                                                         </Link>
                                                     </h3>
                                                 </div>
-                                                <p className="mt-1 text-sm font-medium text-gray-900">₹{product.price.toFixed(2)}</p>
+                                                <p className="mt-1 text-sm font-medium text-gray-900">₹{Number(product.price || 0).toFixed(2)}</p>
                                             </div>
 
                                             <div className="mt-4 sm:mt-0 sm:pr-9">
@@ -95,7 +95,7 @@ export default function CartPage() {
                         <dl className="mt-6 space-y-4">
                             <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                                 <dt className="text-base font-medium text-gray-900">Order Total</dt>
-                                <dd className="text-base font-medium text-gray-900">₹{cartTotal.toFixed(2)}</dd>
+                                <dd className="text-base font-medium text-gray-900">₹{Number(cartTotal || 0).toFixed(2)}</dd>
                             </div>
                         </dl>
 

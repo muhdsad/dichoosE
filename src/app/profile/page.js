@@ -81,7 +81,7 @@ export default function ProfilePage() {
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-500">Total</p>
-                                        <p className="text-sm font-bold text-gray-900">₹{order.total?.toFixed(2)}</p>
+                                        <p className="text-sm font-bold text-gray-900">₹{Number(order.total || 0).toFixed(2)}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-500">Order #</p>
@@ -107,7 +107,7 @@ export default function ProfilePage() {
                                                     <span className="text-sm text-gray-800 font-medium">{item.name}</span>
                                                     <span className="ml-2 text-sm text-gray-500">x {item.quantity}</span>
                                                 </div>
-                                                <span className="text-sm text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                                <span className="text-sm text-gray-900">₹{Number(item.price * item.quantity || 0).toFixed(2)}</span>
                                             </li>
                                         ))}
                                         {order.items.length > 2 && (
