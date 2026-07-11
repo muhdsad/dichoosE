@@ -26,7 +26,15 @@ export default function AdminLoginPage() {
             }
         } catch (err) {
             console.error("Google Login failed", err);
-            setError("Google Login failed. Please try again.");
+            let errMsg = err.message || "Please try again.";
+            if (err.code === 'auth/unauthorized-domain') {
+                errMsg = "This domain is not authorized in Firebase. Please add this deployment URL to your Firebase Console -> Authentication -> Settings -> Authorized domains.";
+            } else if (err.code === 'auth/configuration-not-found') {
+                errMsg = "Google Sign-In is not enabled. Please enable it in Firebase Console -> Authentication -> Sign-in method.";
+            } else if (err.code === 'auth/popup-blocked') {
+                errMsg = "Popup blocked by your browser. Please allow popups and try again.";
+            }
+            setError(`Google Login failed: ${errMsg}`);
         } finally {
             setLoading(false);
         }
