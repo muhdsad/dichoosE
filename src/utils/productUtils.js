@@ -65,3 +65,35 @@ export const getDirectDriveLink = (url) => {
 
     return url;
 };
+
+/**
+ * Calculates the active price and MRP for a product based on its time-based offers.
+ * 
+ * @param {Object} product - The product object
+ * @returns {Object} - An object containing the active price, old MRP, and whether there is an active offer
+ */
+export const getProductPricing = (product) => {
+    if (!product) return { price: 0, mrp: null, hasOffer: false };
+
+    const now = new Date();
+    let price = Number(product.price) || 0;
+    let mrp = product.mrp ? Number(product.mrp) : null;
+    let hasOffer = false;
+
+    if (product.offerPrice) {
+        const offerStart = product.offerStart ? new Date(product.offerStart) : null;
+        const offerEnd = product.offerEnd ? new Date(product.offerEnd) : null;
+
+        const isStarted = !offerStart || now >= offerStart;
+        const isEnded = offerEnd && now > offerEnd;
+
+        if (isStarted && !isEnded) {
+            price = Number(product.offerPrice) || 0;
+            mrp = Number(product.price) || 0;
+            hasOffer = true;
+        }
+    }
+
+    return { price, mrp, hasOffer };
+};
+

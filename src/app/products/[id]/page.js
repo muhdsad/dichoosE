@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { db } from '../../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { getCleanProduct, getDirectDriveLink } from '../../../utils/productUtils';
+import { getCleanProduct, getDirectDriveLink, getProductPricing } from '../../../utils/productUtils';
 import Image from 'next/image';
 import { useCart } from '../../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
@@ -52,9 +52,9 @@ export default function ProductDetailPage() {
             if (!id) return;
             try {
                 const docRef = doc(db, "products", id);
-                const docSnap = await getDoc(docRef);
+                const docSnap = await docRef ? await getDoc(docRef) : null;
 
-                if (docSnap.exists()) {
+                if (docSnap && docSnap.exists()) {
                     const data = docSnap.data();
                     setProduct(getCleanProduct({ id: docSnap.id, ...data }));
                 } else {
@@ -93,6 +93,12 @@ export default function ProductDetailPage() {
             </div>
         );
     }
+
+    // Resolve active pricing
+    const pricing = getProductPricing(product);
+    const displayPrice = pricing.price;
+    const oldPrice = pricing.mrp;
+    const hasOffer = pricing.hasOffer;
 
     return (
         <div className="bg-white min-h-screen py-12">
@@ -134,19 +140,19 @@ export default function ProductDetailPage() {
                         <div className="mt-3">
                             <h2 className="sr-only">Product information</h2>
                             <div className="flex items-end">
-                                <p className="text-3xl text-gray-900">₹{Number(product.price || 0).toFixed(2)}</p>
-                                {product.mrp && Number(product.mrp) > Number(product.price || 0) && (
+                                <p className="text-3xl text-gray-900 font-bold">₹{Number(displayPrice || 0).toFixed(2)}</p>
+                                {oldPrice && Number(oldPrice) > Number(displayPrice || 0) && (
                                     <>
-                                        <p className="ml-2 text-lg text-gray-500 line-through">₹{Number(product.mrp).toFixed(2)}</p>
+                                        <p className="ml-2 text-lg text-gray-500 line-through">₹{Number(oldPrice).toFixed(2)}</p>
                                         <p className="ml-2 text-sm text-green-600 font-bold">
-                                            {Math.round(((Number(product.mrp) - Number(product.price || 0)) / Number(product.mrp)) * 100)}% OFF
+                                            {Math.round(((Number(oldPrice) - Number(displayPrice || 0)) / Number(oldPrice)) * 100)}% OFF
                                         </p>
                                     </>
                                 )}
                             </div>
                             {product.unit && <p className="mt-1 text-sm text-gray-500">Per {product.unit}</p>}
 
-                            <div className="mt-2">
+                            <div className="mt-2 flex items-center gap-2">
                                 {product.stock > 0 ? (
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                         In Stock
@@ -154,6 +160,11 @@ export default function ProductDetailPage() {
                                 ) : (
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                         Out of Stock
+                                    </span>
+                                )}
+                                {hasOffer && (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-150 text-red-800 border border-red-200">
+                                        LIMITED TIME OFFER
                                     </span>
                                 )}
                             </div>
