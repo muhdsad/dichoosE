@@ -121,9 +121,28 @@ export default function EditProductPage({ params }) {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setProduct({
-            ...product,
-            [name]: type === 'checkbox' ? checked : value
+        setProduct(prev => {
+            const updated = {
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            };
+
+            // Auto-check "Offer" category when offer price is entered
+            if (name === 'offerPrice') {
+                const val = parseFloat(value);
+                const hasOffer = !isNaN(val) && val > 0;
+                let cats = prev.categories || [];
+                if (hasOffer) {
+                    if (!cats.includes('Offer')) {
+                        cats = [...cats, 'Offer'];
+                    }
+                } else {
+                    cats = cats.filter(c => c !== 'Offer');
+                }
+                updated.categories = cats;
+            }
+
+            return updated;
         });
     };
 
@@ -498,6 +517,32 @@ export default function EditProductPage({ params }) {
                                             onChange={handleChange}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-3 border text-black"
                                         />
+                                    </div>
+                                </div>
+                                <div className="border-t border-yellow-250/60 pt-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-sm font-bold text-gray-700">Categories (Select Multiple) *</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsCatModalOpen(true)}
+                                            className="text-xs text-primary font-bold hover:underline flex items-center gap-1 bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 transition shadow-sm"
+                                        >
+                                            <FaPlus className="w-2.5 h-2.5" /> Add New Category
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white p-4 rounded-xl border border-gray-200 max-h-48 overflow-y-auto">
+                                        {categories.map((cat) => (
+                                            <label key={cat.value} className={`flex items-center space-x-2.5 cursor-pointer p-2.5 rounded-lg border transition ${product.categories?.includes(cat.value) ? 'bg-primary/5 border-primary' : 'bg-white border-gray-200 hover:bg-gray-50'}`}>
+                                                <input
+                                                    type="checkbox"
+                                                    value={cat.value}
+                                                    checked={product.categories?.includes(cat.value)}
+                                                    onChange={() => toggleCategory(cat.value)}
+                                                    className="rounded text-primary focus:ring-primary h-4.5 w-4.5 border-gray-300"
+                                                />
+                                                <span className="text-xs font-semibold text-gray-755">{cat.name}</span>
+                                            </label>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
