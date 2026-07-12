@@ -23,6 +23,7 @@ export default function CheckoutPage() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -31,7 +32,7 @@ export default function CheckoutPage() {
     }, [user, authLoading, router]);
 
     useEffect(() => {
-        if (cart.length === 0) {
+        if (cart.length === 0 && !isSubmitted) {
             router.push('/cart');
         }
 
@@ -45,7 +46,7 @@ export default function CheckoutPage() {
                 email: user.email || ''
             }));
         }
-    }, [cart, router, user]);
+    }, [cart, router, user, isSubmitted]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -84,9 +85,11 @@ export default function CheckoutPage() {
 
             if (!response.ok) throw new Error('Failed to place order');
 
+            const data = await response.json();
+            setIsSubmitted(true);
             localStorage.setItem('dichoos-customer', JSON.stringify(formData));
             clearCart();
-            router.push(`/checkout/success?orderId=${orderRef.id}`);
+            router.push(`/checkout/success?orderId=${data.orderId}`);
         } catch (err) {
             setError(err.message || 'Something went wrong');
         } finally {
@@ -94,7 +97,7 @@ export default function CheckoutPage() {
         }
     };
 
-    if (authLoading || !user || cart.length === 0) return null;
+    if (authLoading || !user || (cart.length === 0 && !isSubmitted)) return null;
 
     return (
         <div className="bg-white min-h-screen py-12 px-4 sm:px-6 lg:px-8">
