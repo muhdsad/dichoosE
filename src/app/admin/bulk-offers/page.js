@@ -763,38 +763,38 @@ export default function BulkOffersPage() {
                                                     </td>
 
                                                     {/* Offer Price Input */}
-                                                    <td className="p-4">
+                                                    <td className="p-4 text-center">
                                                         <input
                                                             type="number"
                                                             step="0.01"
                                                             value={p.offerPrice || ''}
                                                             onChange={(e) => handleFieldChange(p.id, 'offerPrice', e.target.value)}
                                                             placeholder="None"
-                                                            className={`w-full text-center font-bold rounded-lg border text-sm p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                            className={`w-32 mx-auto text-center font-bold rounded-lg border text-sm p-2 text-black focus:ring-1 focus:ring-primary ${
                                                                 isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
                                                             }`}
                                                         />
                                                     </td>
 
                                                     {/* Offer Start Date */}
-                                                    <td className="p-4">
+                                                    <td className="p-4 text-center">
                                                         <input
                                                             type="datetime-local"
                                                             value={p.offerStart || ''}
                                                             onChange={(e) => handleFieldChange(p.id, 'offerStart', e.target.value)}
-                                                            className={`w-full rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                            className={`w-48 mx-auto rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
                                                                 isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
                                                             }`}
                                                         />
                                                     </td>
 
                                                     {/* Offer End Date */}
-                                                    <td className="p-4">
+                                                    <td className="p-4 text-center">
                                                         <input
                                                             type="datetime-local"
                                                             value={p.offerEnd || ''}
                                                             onChange={(e) => handleFieldChange(p.id, 'offerEnd', e.target.value)}
-                                                            className={`w-full rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                            className={`w-48 mx-auto rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
                                                                 isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
                                                             }`}
                                                         />
