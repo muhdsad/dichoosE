@@ -24,8 +24,7 @@ export default function BulkOffersPage() {
     const [loading, setLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     
-    // UI tabs & states
-    const [activeSubTab, setActiveSubTab] = useState('interactive'); // 'interactive', 'excel'
+    // UI states
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [statusFilter, setStatusFilter] = useState('All'); // 'All', 'Active', 'Scheduled', 'Expired', 'None'
@@ -487,58 +486,153 @@ export default function BulkOffersPage() {
 
     return (
         <div className="bg-gray-50 min-h-screen p-6 md:p-8 text-black">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto space-y-8">
                 
                 {/* Header Banner */}
-                <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-indigo-950 text-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-800 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-indigo-950 text-white rounded-3xl p-6 md:p-8 shadow-xl border border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <span className="bg-indigo-500/20 text-indigo-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-indigo-500/30">Admin Panel</span>
                             <span className="bg-yellow-500/20 text-yellow-400 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-yellow-500/30">Campaigns</span>
                         </div>
                         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Campaign & Special Offers</h1>
-                        <p className="text-gray-400 text-sm mt-1">Configure time-based discount offers, set item-level pricing campaigns, and manage catalog rates.</p>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                        <button
-                            onClick={() => { setActiveSubTab('interactive'); setPreviewUpdates([]); }}
-                            className={`px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 border transition ${
-                                activeSubTab === 'interactive' 
-                                ? 'bg-primary text-white border-transparent shadow-lg' 
-                                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
-                            }`}
-                        >
-                            <FaPercentage /> Interactive Search & Apply
-                        </button>
-                        <button
-                            onClick={() => setActiveSubTab('excel')}
-                            className={`px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 border transition ${
-                                activeSubTab === 'excel' 
-                                ? 'bg-primary text-white border-transparent shadow-lg' 
-                                : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700'
-                            }`}
-                        >
-                            <FaUpload /> Excel Bulk Updates
-                        </button>
+                        <p className="text-gray-400 text-sm mt-1 font-medium">Configure time-based discount offers, set item-level pricing campaigns, and manage catalog rates.</p>
                     </div>
                 </div>
 
-                {/* Floating Batch Save Panel */}
-                {editedIds.size > 0 && activeSubTab === 'interactive' && (
-                    <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-4 md:p-6 mb-8 shadow-md flex flex-col sm:flex-row justify-between items-center gap-4 animate-fadeIn sticky top-4 z-40">
+                {/* Section 1: Excel Bulk Import/Export */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Export / Template Card */}
+                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-blue-50 p-3 rounded-2xl text-blue-600">
+                                    <FaDownload className="w-5 h-5" />
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-850">1. Download Campaign Template</h2>
+                            </div>
+                            <p className="text-gray-500 text-sm mb-4">Download your catalog to Excel. Easily insert or update the `OfferPrice` column, then re-upload below.</p>
+                            
+                            <div className="mb-4">
+                                <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Category Filter</label>
+                                <select 
+                                    value={selectedDownloadCategory}
+                                    onChange={(e) => setSelectedDownloadCategory(e.target.value)}
+                                    className="block w-full border border-gray-300 rounded-xl p-3 bg-white text-sm focus:ring-primary focus:border-primary text-black"
+                                >
+                                    {uniqueCategories.map(cat => (
+                                        <option key={cat} value={cat}>{cat === 'All' ? 'All Categories' : cat}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-3 mt-4">
+                            <button 
+                                onClick={downloadTemplate}
+                                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm"
+                            >
+                                <FaDownload /> Download Products Template (Excel)
+                            </button>
+                            <button 
+                                onClick={clearAllOffers}
+                                disabled={isUpdating}
+                                className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl font-bold text-sm hover:bg-red-100 transition flex items-center justify-center gap-2"
+                            >
+                                <FaTrash /> Remove All Store Campaign Offers
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Excel Upload Card */}
+                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-green-50 p-3 rounded-2xl text-green-600">
+                                    <FaUpload className="w-5 h-5" />
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-850">2. Upload Modified Template</h2>
+                            </div>
+                            <p className="text-gray-500 text-sm mb-4">Upload your edited spreadsheet file here. The system will detect and preview changes before modifying the database.</p>
+                            
+                            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                                <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Excel file (.xlsx, .xls, .csv)</label>
+                                <input 
+                                    type="file" 
+                                    accept=".xlsx, .xls, .csv" 
+                                    onChange={handleFileUpload}
+                                    ref={fileInputRef}
+                                    className="block w-full text-sm text-gray-500 mt-2
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-xl file:border-0
+                                        file:text-xs file:font-bold
+                                        file:bg-primary file:text-white
+                                        hover:file:bg-green-700 cursor-pointer border border-gray-300 rounded-xl p-2 bg-white"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 2: Excel Upload Preview Table */}
+                {previewUpdates.length > 0 && (
+                    <div className="bg-white border border-gray-250 rounded-3xl shadow-md overflow-hidden animate-fadeIn">
+                        <div className="p-5 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h3 className="font-extrabold text-gray-800 text-lg">Excel Update Preview</h3>
+                                <p className="text-gray-500 text-xs mt-0.5">Found changes in <span className="font-bold">{previewUpdates.length}</span> item(s). Confirm to save edits.</p>
+                            </div>
+                            <button 
+                                onClick={applyExcelUpdates}
+                                disabled={isUpdating}
+                                className="w-full sm:w-auto bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-opacity-95 transition shadow-md flex items-center justify-center gap-2"
+                            >
+                                <FaSave /> {isUpdating ? 'Updating Database...' : 'Confirm & Apply Excel Changes'}
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto max-h-[500px]">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gray-100 sticky top-0 z-10 shadow-sm border-b border-gray-200">
+                                    <tr>
+                                        <th className="p-4 font-bold text-gray-700">Product Name</th>
+                                        <th className="p-4 font-bold text-gray-700">Old Categories</th>
+                                        <th className="p-4 font-bold text-blue-700">New Categories</th>
+                                        <th className="p-4 font-bold text-gray-700">Old Offer</th>
+                                        <th className="p-4 font-bold text-green-700">New Offer</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {previewUpdates.map((u, idx) => (
+                                        <tr key={idx} className="hover:bg-gray-50/50">
+                                            <td className="p-4 max-w-[300px] font-bold text-gray-800">{u.name}</td>
+                                            <td className="p-4 text-gray-400 text-xs font-semibold">{u.oldCategory}</td>
+                                            <td className="p-4 font-bold text-blue-600 text-xs">{u.newCategory}</td>
+                                            <td className="p-4 text-red-400 line-through font-medium">{u.oldOffer}</td>
+                                            <td className="p-4 font-extrabold text-green-600 text-base">{u.newOffer}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Floating Batch Save Panel (for interactive edit mode) */}
+                {editedIds.size > 0 && (
+                    <div className="bg-yellow-50 border border-yellow-250 rounded-2xl p-4 md:p-6 shadow-md flex flex-col sm:flex-row justify-between items-center gap-4 animate-fadeIn sticky top-4 z-40">
                         <div className="flex items-center gap-3">
-                            <div className="bg-yellow-400 p-2.5 rounded-xl text-yellow-900">
+                            <div className="bg-yellow-400 p-2.5 rounded-xl text-yellow-950">
                                 <FaExclamationTriangle className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="font-extrabold text-yellow-950 text-base">Unsaved Campaign Modifications</h3>
+                                <h3 className="font-extrabold text-yellow-950 text-base">Unsaved Grid Modifications</h3>
                                 <p className="text-yellow-800 text-xs mt-0.5">You have edited offer pricing or schedules for <span className="font-bold">{editedIds.size}</span> item(s). Save all to apply.</p>
                             </div>
                         </div>
                         <div className="flex gap-3 w-full sm:w-auto">
                             <button
                                 onClick={discardAllChanges}
-                                className="flex-1 sm:flex-initial px-5 py-2.5 border-2 border-yellow-300 rounded-xl font-bold text-sm text-yellow-800 hover:bg-yellow-100 transition"
+                                className="flex-1 sm:flex-initial px-5 py-2.5 border border-yellow-300 rounded-xl font-bold text-sm text-yellow-800 hover:bg-yellow-100 transition bg-white"
                             >
                                 Discard Edits
                             </button>
@@ -553,175 +647,180 @@ export default function BulkOffersPage() {
                     </div>
                 )}
 
-                {/* Tab Content 1: Interactive Campaigns Board */}
-                {activeSubTab === 'interactive' && (
-                    <div className="bg-white rounded-3xl border border-gray-200 shadow-md p-6 md:p-8 space-y-6">
-                        
-                        {/* Live Filter Controls */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-150">
-                            <div className="relative col-span-1 md:col-span-2">
-                                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
-                                    <FaSearch />
-                                </span>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search by product name, brand, or barcode..."
-                                    className="w-full bg-white rounded-xl border border-gray-300 pl-10 pr-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black placeholder-gray-400"
-                                />
-                            </div>
+                {/* Section 3: Interactive Campaigns Grid */}
+                <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 md:p-8 space-y-6">
+                    <div className="border-b border-gray-150 pb-4">
+                        <h2 className="text-2xl font-extrabold text-gray-805 flex items-center gap-2">
+                            <FaPercentage className="text-primary" /> Search & Manage Campaign Offers
+                        </h2>
+                        <p className="text-gray-500 text-xs mt-1">Search for individual items by name, category or status, and update their offers immediately below.</p>
+                    </div>
 
-                            <div>
-                                <select
-                                    value={selectedCategory}
-                                    onChange={(e) => setSelectedCategory(e.target.value)}
-                                    className="w-full bg-white rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black"
-                                >
-                                    <option value="All">All Categories</option>
-                                    {uniqueCategories.filter(cat => cat !== 'All').map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <select
-                                    value={statusFilter}
-                                    onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="w-full bg-white rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black"
-                                >
-                                    <option value="All">All Statuses</option>
-                                    <option value="Active">🟢 Active Campaigns</option>
-                                    <option value="Scheduled">🔵 Scheduled Campaigns</option>
-                                    <option value="Expired">🔴 Expired Campaigns</option>
-                                    <option value="None">⚪ Standard Price (No Offer)</option>
-                                </select>
-                            </div>
+                    {/* Live Filter Controls */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-150">
+                        <div className="relative col-span-1 md:col-span-2">
+                            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                                <FaSearch />
+                            </span>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search by product name, brand, or barcode..."
+                                className="w-full bg-white rounded-xl border border-gray-300 pl-10 pr-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black placeholder-gray-400"
+                            />
                         </div>
 
-                        {/* Interactive Data List */}
-                        <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                            <div className="overflow-x-auto max-h-[600px]">
-                                <table className="w-full text-left text-sm border-collapse">
-                                    <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 border-b border-gray-200 shadow-sm">
-                                        <tr>
-                                            <th className="p-4 w-[280px]">Product Information</th>
-                                            <th className="p-4 w-[110px] text-center">Regular Rate</th>
-                                            <th className="p-4 w-[120px] text-center">Offer Price (₹)</th>
-                                            <th className="p-4 w-[220px]">Campaign Start Time</th>
-                                            <th className="p-4 w-[220px]">Campaign End Time</th>
-                                            <th className="p-4 w-[130px] text-center">Live Status</th>
-                                            <th className="p-4 text-right w-[150px]">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-150">
-                                        {filteredProducts.length > 0 ? (
-                                            filteredProducts.map((p) => {
-                                                const statusInfo = getOfferStatusInfo(p);
-                                                const isEdited = editedIds.has(p.id);
-                                                const rowSaveState = rowSaveStates[p.id] || 'idle';
+                        <div>
+                            <select
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                className="w-full bg-white rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black"
+                            >
+                                <option value="All">All Categories</option>
+                                {uniqueCategories.filter(cat => cat !== 'All').map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
 
-                                                return (
-                                                    <tr 
-                                                        key={p.id} 
-                                                        className={`hover:bg-gray-50/50 transition-colors ${
-                                                            isEdited ? 'bg-yellow-50/20' : ''
-                                                        }`}
-                                                    >
-                                                        {/* Product Info */}
-                                                        <td className="p-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="relative w-12 h-12 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
-                                                                    <img 
-                                                                        src={p.image || '/categories/default.png'} 
-                                                                        alt={p.name}
-                                                                        className="w-full h-full object-cover"
-                                                                        onError={(e) => { e.target.src = '/categories/default.png'; }}
-                                                                    />
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <h4 className="font-bold text-gray-800 truncate text-sm">{p.name}</h4>
-                                                                    <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[11px] text-gray-500 font-semibold">
-                                                                        <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{p.unit}</span>
-                                                                        {p.brand && (
-                                                                            <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-150">{p.brand}</span>
-                                                                        )}
-                                                                        {p.barcode && (
-                                                                            <span className="font-mono text-gray-400">#{p.barcode}</span>
-                                                                        )}
-                                                                    </div>
+                        <div>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="w-full bg-white rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black"
+                            >
+                                <option value="All">All Statuses</option>
+                                <option value="Active">🟢 Active Campaigns</option>
+                                <option value="Scheduled">🔵 Scheduled Campaigns</option>
+                                <option value="Expired">🔴 Expired Campaigns</option>
+                                <option value="None">⚪ Standard Price (No Offer)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Interactive Data List */}
+                    <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto max-h-[600px]">
+                            <table className="w-full text-left text-sm border-collapse">
+                                <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 border-b border-gray-200 shadow-sm">
+                                    <tr>
+                                        <th className="p-4 w-[280px]">Product Information</th>
+                                        <th className="p-4 w-[110px] text-center">Regular Rate</th>
+                                        <th className="p-4 w-[120px] text-center">Offer Price (₹)</th>
+                                        <th className="p-4 w-[220px]">Campaign Start Time</th>
+                                        <th className="p-4 w-[220px]">Campaign End Time</th>
+                                        <th className="p-4 w-[130px] text-center">Live Status</th>
+                                        <th className="p-4 text-right w-[150px]">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-150">
+                                    {filteredProducts.length > 0 ? (
+                                        filteredProducts.map((p) => {
+                                            const statusInfo = getOfferStatusInfo(p);
+                                            const isEdited = editedIds.has(p.id);
+                                            const rowSaveState = rowSaveStates[p.id] || 'idle';
+
+                                            return (
+                                                <tr 
+                                                    key={p.id} 
+                                                    className={`hover:bg-gray-50/50 transition-colors ${
+                                                        isEdited ? 'bg-yellow-50/20' : ''
+                                                    }`}
+                                                >
+                                                    {/* Product Info */}
+                                                    <td className="p-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="relative w-12 h-12 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
+                                                                <img 
+                                                                    src={p.image || '/categories/default.png'} 
+                                                                    alt={p.name}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => { e.target.src = '/categories/default.png'; }}
+                                                                />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <h4 className="font-bold text-gray-800 truncate text-sm">{p.name}</h4>
+                                                                <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[11px] text-gray-500 font-semibold">
+                                                                    <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{p.unit}</span>
+                                                                    {p.brand && (
+                                                                        <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-150">{p.brand}</span>
+                                                                    )}
+                                                                    {p.barcode && (
+                                                                        <span className="font-mono text-gray-400">#{p.barcode}</span>
+                                                                    )}
                                                                 </div>
                                                             </div>
-                                                        </td>
+                                                        </div>
+                                                    </td>
 
-                                                        {/* Base price */}
-                                                        <td className="p-4 text-center font-bold text-gray-700">
-                                                            <div>₹{p.price}</div>
-                                                            {p.mrp && p.mrp > p.price && (
-                                                                <div className="text-xs text-gray-400 line-through font-medium mt-0.5">MRP: ₹{p.mrp}</div>
-                                                            )}
-                                                        </td>
+                                                    {/* Base price */}
+                                                    <td className="p-4 text-center font-bold text-gray-700">
+                                                        <div>₹{p.price}</div>
+                                                        {p.mrp && p.mrp > p.price && (
+                                                            <div className="text-xs text-gray-400 line-through font-medium mt-0.5">MRP: ₹{p.mrp}</div>
+                                                        )}
+                                                    </td>
 
-                                                        {/* Offer Price Input */}
-                                                        <td className="p-4">
-                                                            <input
-                                                                type="number"
-                                                                step="0.01"
-                                                                value={p.offerPrice || ''}
-                                                                onChange={(e) => handleFieldChange(p.id, 'offerPrice', e.target.value)}
-                                                                placeholder="None"
-                                                                className={`w-full text-center font-bold rounded-lg border text-sm p-2 text-black focus:ring-1 focus:ring-primary ${
-                                                                    isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                    {/* Offer Price Input */}
+                                                    <td className="p-4">
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            value={p.offerPrice || ''}
+                                                            onChange={(e) => handleFieldChange(p.id, 'offerPrice', e.target.value)}
+                                                            placeholder="None"
+                                                            className={`w-full text-center font-bold rounded-lg border text-sm p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                                isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                            }`}
+                                                        />
+                                                    </td>
+
+                                                    {/* Offer Start Date */}
+                                                    <td className="p-4">
+                                                        <input
+                                                            type="datetime-local"
+                                                            value={p.offerStart || ''}
+                                                            onChange={(e) => handleFieldChange(p.id, 'offerStart', e.target.value)}
+                                                            className={`w-full rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                                isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                            }`}
+                                                        />
+                                                    </td>
+
+                                                    {/* Offer End Date */}
+                                                    <td className="p-4">
+                                                        <input
+                                                            type="datetime-local"
+                                                            value={p.offerEnd || ''}
+                                                            onChange={(e) => handleFieldChange(p.id, 'offerEnd', e.target.value)}
+                                                            className={`w-full rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                                isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                            }`}
+                                                        />
+                                                    </td>
+
+                                                    {/* Status */}
+                                                    <td className="p-4 text-center">
+                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${statusInfo.badgeClass}`}>
+                                                            {statusInfo.label}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* Row Actions */}
+                                                    <td className="p-4 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            {/* Save Single Row */}
+                                                            <button
+                                                                onClick={() => saveSingleProductOffer(p)}
+                                                                disabled={!isEdited || rowSaveState === 'saving'}
+                                                                className={`p-2 rounded-lg border font-bold text-xs flex items-center justify-center gap-1 transition ${
+                                                                    isEdited 
+                                                                    ? 'bg-primary hover:bg-green-700 text-white border-transparent shadow-sm' 
+                                                                    : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
                                                                 }`}
-                                                            />
-                                                        </td>
-
-                                                        {/* Offer Start Date */}
-                                                        <td className="p-4">
-                                                            <input
-                                                                type="datetime-local"
-                                                                value={p.offerStart || ''}
-                                                                onChange={(e) => handleFieldChange(p.id, 'offerStart', e.target.value)}
-                                                                className={`w-full rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
-                                                                    isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
-                                                                }`}
-                                                            />
-                                                        </td>
-
-                                                        {/* Offer End Date */}
-                                                        <td className="p-4">
-                                                            <input
-                                                                type="datetime-local"
-                                                                value={p.offerEnd || ''}
-                                                                onChange={(e) => handleFieldChange(p.id, 'offerEnd', e.target.value)}
-                                                                className={`w-full rounded-lg border text-xs p-2 text-black focus:ring-1 focus:ring-primary ${
-                                                                    isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
-                                                                }`}
-                                                            />
-                                                        </td>
-
-                                                        {/* Status */}
-                                                        <td className="p-4 text-center">
-                                                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${statusInfo.badgeClass}`}>
-                                                                {statusInfo.label}
-                                                            </span>
-                                                        </td>
-
-                                                        {/* Row Actions */}
-                                                        <td className="p-4 text-right">
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                {/* Save Single Row */}
-                                                                <button
-                                                                    onClick={() => saveSingleProductOffer(p)}
-                                                                    disabled={!isEdited || rowSaveState === 'saving'}
-                                                                    className={`p-2 rounded-lg border font-bold text-xs flex items-center justify-center gap-1 transition ${
-                                                                        isEdited 
-                                                                        ? 'bg-primary hover:bg-green-700 text-white border-transparent shadow-sm' 
-                                                                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
-                                                                    }`}
-                                                                    title="Save Changes for this item"
-                                                                >
+                                                                title="Save Changes for this item"
+                                                            >
                                                                     {rowSaveState === 'saving' ? (
                                                                         <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
                                                                     ) : rowSaveState === 'saved' ? (
@@ -729,167 +828,47 @@ export default function BulkOffersPage() {
                                                                     ) : (
                                                                         <FaSave className="w-3.5 h-3.5" />
                                                                     )}
-                                                                    <span>{rowSaveState === 'saving' ? 'Saving' : rowSaveState === 'saved' ? 'Saved' : 'Save'}</span>
+                                                                <span>{rowSaveState === 'saving' ? 'Saving' : rowSaveState === 'saved' ? 'Saved' : 'Save'}</span>
+                                                            </button>
+
+                                                            {/* Clear Offer Fields */}
+                                                            {p.offerPrice && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (confirm(`Remove campaign offer from "${p.name}"?`)) {
+                                                                            clearSingleProductOffer(p);
+                                                                        }
+                                                                    }}
+                                                                    disabled={rowSaveState === 'saving'}
+                                                                    className="p-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition"
+                                                                    title="Clear Offer Campaign"
+                                                                >
+                                                                    <FaTrash className="w-3.5 h-3.5" />
                                                                 </button>
-
-                                                                {/* Clear Offer Fields */}
-                                                                {p.offerPrice && (
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            if (confirm(`Remove campaign offer from "${p.name}"?`)) {
-                                                                                clearSingleProductOffer(p);
-                                                                            }
-                                                                        }}
-                                                                        disabled={rowSaveState === 'saving'}
-                                                                        className="p-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition"
-                                                                        title="Clear Offer Campaign"
-                                                                    >
-                                                                        <FaTrash className="w-3.5 h-3.5" />
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="7" className="p-10 text-center text-gray-500 font-semibold">
-                                                    No products found matching filters.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
-                            <p>Showing {filteredProducts.length} of {products.length} products</p>
-                            <p>🟢 Active Now items automatically display discount badge to store customers.</p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Tab Content 2: Excel Import/Export Panel */}
-                {activeSubTab === 'excel' && (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
-                            {/* Export / Template Card */}
-                            <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="bg-blue-50 p-3 rounded-2xl text-blue-600">
-                                            <FaDownload className="w-5 h-5" />
-                                        </div>
-                                        <h2 className="text-xl font-bold text-gray-800">1. Download Campaign Template</h2>
-                                    </div>
-                                    <p className="text-gray-500 text-sm mb-6">Download your catalog to Excel. Easily insert or update the `OfferPrice` column, then re-upload.</p>
-                                    
-                                    <div className="mb-6">
-                                        <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Category Filter</label>
-                                        <select 
-                                            value={selectedDownloadCategory}
-                                            onChange={(e) => setSelectedDownloadCategory(e.target.value)}
-                                            className="block w-full border border-gray-300 rounded-xl p-3 bg-white text-sm focus:ring-primary focus:border-primary"
-                                        >
-                                            {uniqueCategories.map(cat => (
-                                                <option key={cat} value={cat}>{cat === 'All' ? 'All Categories' : cat}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col gap-3 mt-4">
-                                    <button 
-                                        onClick={downloadTemplate}
-                                        className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-blue-750 transition flex items-center justify-center gap-2 shadow-sm"
-                                    >
-                                        <FaDownload /> Download Products Template (Excel)
-                                    </button>
-                                    <button 
-                                        onClick={clearAllOffers}
-                                        disabled={isUpdating}
-                                        className="bg-red-50 text-red-650 border border-red-200 px-5 py-3 rounded-xl font-bold text-sm hover:bg-red-100 transition flex items-center justify-center gap-2"
-                                    >
-                                        <FaTrash /> Remove All Store Campaign Offers
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Excel Upload Card */}
-                            <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="bg-green-50 p-3 rounded-2xl text-green-600">
-                                        <FaUpload className="w-5 h-5" />
-                                    </div>
-                                    <h2 className="text-xl font-bold text-gray-800">2. Upload Modified Template</h2>
-                                </div>
-                                <p className="text-gray-500 text-sm mb-6">Upload your edited spreadsheet file. The system will detect and preview changes before modifying the database.</p>
-                                
-                                <div className="border-2 border-dashed border-gray-250 rounded-2xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                                    <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Excel file (.xlsx, .xls, .csv)</label>
-                                    <input 
-                                        type="file" 
-                                        accept=".xlsx, .xls, .csv" 
-                                        onChange={handleFileUpload}
-                                        ref={fileInputRef}
-                                        className="block w-full text-sm text-gray-500 mt-2
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-xl file:border-0
-                                            file:text-xs file:font-bold
-                                            file:bg-primary file:text-white
-                                            hover:file:bg-green-700 cursor-pointer border border-gray-300 rounded-xl p-2 bg-white"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Excel Upload Preview Table */}
-                        {previewUpdates.length > 0 && (
-                            <div className="bg-white border border-gray-250 rounded-3xl shadow-md overflow-hidden animate-fadeIn">
-                                <div className="p-5 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                    <div>
-                                        <h3 className="font-extrabold text-gray-800 text-lg">Excel Update Preview</h3>
-                                        <p className="text-gray-500 text-xs mt-0.5">Found changes in <span className="font-bold">{previewUpdates.length}</span> item(s). Confirm to save edits.</p>
-                                    </div>
-                                    <button 
-                                        onClick={applyExcelUpdates}
-                                        disabled={isUpdating}
-                                        className="w-full sm:w-auto bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-opacity-95 transition shadow-md flex items-center justify-center gap-2"
-                                    >
-                                        <FaSave /> {isUpdating ? 'Updating Database...' : 'Confirm & Apply Excel Changes'}
-                                    </button>
-                                </div>
-                                <div className="overflow-x-auto max-h-[500px]">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-gray-105 sticky top-0 z-10 shadow-sm border-b border-gray-200">
-                                            <tr>
-                                                <th className="p-4 font-bold text-gray-700">Product Name</th>
-                                                <th className="p-4 font-bold text-gray-700">Old Categories</th>
-                                                <th className="p-4 font-bold text-blue-700">New Categories</th>
-                                                <th className="p-4 font-bold text-gray-700">Old Offer</th>
-                                                <th className="p-4 font-bold text-green-700">New Offer</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {previewUpdates.map((u, idx) => (
-                                                <tr key={idx} className="hover:bg-gray-50/50">
-                                                    <td className="p-4 max-w-[300px] font-bold text-gray-800">{u.name}</td>
-                                                    <td className="p-4 text-gray-400 text-xs font-semibold">{u.oldCategory}</td>
-                                                    <td className="p-4 font-bold text-blue-600 text-xs">{u.newCategory}</td>
-                                                    <td className="p-4 text-red-400 line-through font-medium">{u.oldOffer}</td>
-                                                    <td className="p-4 font-extrabold text-green-600 text-base">{u.newOffer}</td>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="7" className="p-10 text-center text-gray-500 font-semibold">
+                                                No products found matching filters.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                )}
+
+                    <div className="flex justify-between items-center text-xs text-gray-500 font-medium">
+                        <p>Showing {filteredProducts.length} of {products.length} products</p>
+                        <p>🟢 Active Now items automatically display discount badge to store customers.</p>
+                    </div>
+                </div>
+
             </div>
         </div>
     );
