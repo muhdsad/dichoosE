@@ -8,6 +8,37 @@ import Image from 'next/image';
 import { useCart } from '../../../context/CartContext';
 import { FaShoppingCart, FaCheck } from 'react-icons/fa';
 
+const DietaryIndicator = ({ type }) => {
+    if (!type || type === 'None') return null;
+    
+    let borderColor = 'border-green-600';
+    let dotColor = 'bg-green-600';
+    let label = 'Veg';
+    
+    if (type === 'Non-Veg') {
+        borderColor = 'border-red-600';
+        dotColor = 'bg-red-600';
+        label = 'Non-Veg';
+    } else if (type === 'Egg') {
+        borderColor = 'border-yellow-600';
+        dotColor = 'bg-yellow-600';
+        label = 'Contains Egg';
+    } else if (type === 'Vegan') {
+        borderColor = 'border-green-800';
+        dotColor = 'bg-green-800';
+        label = 'Vegan';
+    }
+
+    return (
+        <span className="inline-flex items-center gap-1.5" title={label}>
+            <span className={`w-5 h-5 border-2 ${borderColor} flex items-center justify-center p-0.5 rounded bg-white`}>
+                <span className={`w-2.5 h-2.5 rounded-full ${dotColor}`}></span>
+            </span>
+            <span className={`text-sm font-semibold ${dotColor.replace('bg-', 'text-')}`}>{label}</span>
+        </span>
+    );
+};
+
 export default function ProductDetailPage() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
@@ -90,7 +121,15 @@ export default function ProductDetailPage() {
 
                     {/* Product Info */}
                     <div className="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
-                        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{product.name}</h1>
+                        {product.brand && (
+                            <p className="text-xs font-bold uppercase tracking-widest text-indigo-600 mb-1">{product.brand}</p>
+                        )}
+                        <div className="flex items-center gap-4 mb-4">
+                            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">{product.name}</h1>
+                            {product.dietary && product.dietary !== 'None' && (
+                                <DietaryIndicator type={product.dietary} />
+                            )}
+                        </div>
 
                         <div className="mt-3">
                             <h2 className="sr-only">Product information</h2>
@@ -127,13 +166,31 @@ export default function ProductDetailPage() {
                             </div>
                         </div>
 
-                        <div className="mt-6">
+                        <div className="mt-6 border-t border-gray-150 pt-4 space-y-3">
                             <div className="flex items-center">
-                                <span className="mr-2 text-gray-500">Category:</span>
-                                <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium">
-                                    {product.category}
+                                <span className="mr-2 text-gray-500 text-sm">Categories:</span>
+                                <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium uppercase">
+                                    {product.categories && product.categories.length > 0
+                                        ? product.categories.join(', ')
+                                        : product.category}
                                 </span>
                             </div>
+                            {product.location && (
+                                <div className="flex items-center">
+                                    <span className="mr-2 text-gray-500 text-sm">Aisle / Shelf Location:</span>
+                                    <span className="px-3 py-1 bg-indigo-50 text-indigo-800 rounded-full text-xs font-medium">
+                                        {product.location}
+                                    </span>
+                                </div>
+                            )}
+                            {product.barcode && (
+                                <div className="flex items-center">
+                                    <span className="mr-2 text-gray-500 text-sm">Barcode:</span>
+                                    <span className="font-mono text-xs text-gray-700 bg-gray-50 px-2 py-0.5 rounded border">
+                                        {product.barcode}
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
                         <div className="mt-10">

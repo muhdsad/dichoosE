@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint, FaUpload, FaPlusCircle } from 'react-icons/fa';
+import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint, FaUpload, FaPlusCircle, FaListUl } from 'react-icons/fa';
 
 const AdminSidebar = () => {
     const pathname = usePathname();
@@ -9,6 +9,7 @@ const AdminSidebar = () => {
     const navItems = [
         { name: 'Dashboard', href: '/admin', icon: FaTachometerAlt },
         { name: 'Products', href: '/admin/products', icon: FaBox },
+        { name: 'Manage Categories', href: '/admin/categories', icon: FaListUl },
         { name: 'Orders', href: '/admin/orders', icon: FaShoppingBag },
         { name: 'Print Offers', href: '/admin/print-offers', icon: FaPrint },
         { name: 'Bulk Edit (Offers/Cats)', href: '/admin/bulk-offers', icon: FaUpload },

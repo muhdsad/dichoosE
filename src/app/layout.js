@@ -17,6 +17,7 @@ export const metadata = {
 };
 
 import { AuthContextProvider } from "../context/AuthContext";
+import { CategoryProvider } from "../context/CategoryContext";
 import { CartProvider } from "../context/CartContext";
 import { WishlistProvider } from "../context/WishlistContext";
 import Navbar from "../components/Navbar";
@@ -28,20 +29,22 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} flex flex-col min-h-screen`} suppressHydrationWarning>
         <AuthContextProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <div className="print:hidden">
-                <Navbar />
-              </div>
-              <main className="flex-grow">
-                {children}
-              </main>
-              <div className="print:hidden">
-                <WhatsAppButton />
-                <Footer />
-              </div>
-            </WishlistProvider>
-          </CartProvider>
+          <CategoryProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <div className="print:hidden">
+                  <Navbar />
+                </div>
+                <main className="flex-grow">
+                  {children}
+                </main>
+                <div className="print:hidden">
+                  <WhatsAppButton />
+                  <Footer />
+                </div>
+              </WishlistProvider>
+            </CartProvider>
+          </CategoryProvider>
         </AuthContextProvider>
       </body>
     </html>

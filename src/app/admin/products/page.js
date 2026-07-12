@@ -5,11 +5,20 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { getDirectDriveLink } from '../../../utils/productUtils';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaExclamationTriangle, FaEye, FaEyeSlash, FaSearch, FaBarcode } from 'react-icons/fa';
+
+const DietDot = ({ type }) => {
+    if (!type || type === 'None') return null;
+    let color = 'bg-green-600';
+    if (type === 'Non-Veg') color = 'bg-red-600';
+    else if (type === 'Egg') color = 'bg-yellow-500';
+    return <span className={`inline-block w-2.5 h-2.5 rounded-full ${color} border border-white ml-1`} title={`Dietary: ${type}`}></span>;
+};
 
 export default function ProductsPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchProducts();
@@ -42,102 +51,178 @@ export default function ProductsPage() {
         }
     };
 
-
-    const [searchTerm, setSearchTerm] = useState('');
-
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = products.filter(product => {
+        const term = searchTerm.toLowerCase().trim();
+        if (!term) return true;
+        const matchesName = product.name?.toLowerCase().includes(term);
+        const matchesBrand = product.brand?.toLowerCase().includes(term);
+        const matchesBarcode = product.barcode?.toLowerCase().includes(term);
+        const matchesCategory = (product.categories && product.categories.join(' ').toLowerCase().includes(term)) || product.category?.toLowerCase().includes(term);
+        const matchesSubcategory = product.subcategory?.toLowerCase().includes(term);
+        return matchesName || matchesBrand || matchesBarcode || matchesCategory || matchesSubcategory;
+    });
 
     if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
+        return <div className="flex justify-center items-center h-64 text-gray-500 font-bold">Loading Products List...</div>;
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-gray-800">Products</h1>
-                <Link href="/admin/products/add" className="bg-primary text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center">
-                    <FaPlus className="mr-2" /> Add New Product
+                <div>
+                    <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Store Catalog</h1>
+                    <p className="text-sm text-gray-500 mt-1">Manage product lists, stock thresholds, expiry, and active status.</p>
+                </div>
+                <Link href="/admin/products/add" className="bg-primary text-white px-5 py-2.5 rounded-xl hover:bg-green-700 shadow-md transition flex items-center gap-2 font-bold text-sm">
+                    <FaPlus /> Add New Product
                 </Link>
             </div>
 
             {/* Search Bar */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-150 flex items-center gap-3">
+                <FaSearch className="text-gray-400" />
                 <input
                     type="text"
-                    placeholder="Search products..."
+                    placeholder="Search by name, brand, barcode (EAN), or category..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full md:w-1/2 px-3 py-2 border border-gray-250 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
             </div>
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-150 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 text-gray-600 text-sm uppercase leading-normal">
-                                <th className="py-3 px-6">Image</th>
-                                <th className="py-3 px-6">Name</th>
-                                <th className="py-3 px-6">Category</th>
-                                <th className="py-3 px-6">Stock</th>
-                                <th className="py-3 px-6">Price</th>
-                                <th className="py-3 px-6 text-center">Actions</th>
+                            <tr className="bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-gray-150">
+                                <th className="py-4 px-6 w-16">Image</th>
+                                <th className="py-4 px-6">Product Details</th>
+                                <th className="py-4 px-6">Category & Status</th>
+                                <th className="py-4 px-6">Inventory status</th>
+                                <th className="py-4 px-6">Pricing</th>
+                                <th className="py-4 px-6 text-center">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="text-gray-600 text-sm font-light">
+                        <tbody className="text-gray-700 text-sm">
                             {filteredProducts.length === 0 ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-4">No products found.</td>
+                                    <td colSpan="6" className="text-center py-8 text-gray-500 font-medium">No products found in catalog.</td>
                                 </tr>
                             ) : (
-                                filteredProducts.map((product) => (
-                                    <tr key={product.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                        <td className="py-3 px-6">
-                                            {product.image && (
-                                                <div className="relative h-8 w-8 rounded-md overflow-hidden">
-                                                    <Image
-                                                        src={getDirectDriveLink(product.image)}
-                                                        alt={product.name}
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="32px"
-                                                    />
+                                filteredProducts.map((product) => {
+                                    const reorder = product.reorderLevel !== undefined ? Number(product.reorderLevel) : 5;
+                                    const isOutOfStock = product.stock === undefined || product.stock === '' || Number(product.stock) <= 0;
+                                    const isLowStock = !isOutOfStock && Number(product.stock) <= reorder;
+
+                                    return (
+                                        <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50/70 transition">
+                                            <td className="py-4 px-6">
+                                                {product.image ? (
+                                                    <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+                                                        <Image
+                                                            src={getDirectDriveLink(product.image)}
+                                                            alt={product.name}
+                                                            fill
+                                                            className="object-cover"
+                                                            sizes="48px"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="h-12 w-12 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400 bg-gray-50 font-semibold">No Image</div>
+                                                )}
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="font-bold text-gray-800 text-base">{product.name}</span>
+                                                    {product.dietary && product.dietary !== 'None' && (
+                                                        <DietDot type={product.dietary} />
+                                                    )}
                                                 </div>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-6 font-medium">{product.name}</td>
-                                        <td className="py-3 px-6">
-                                            {product.categories && product.categories.length > 0
-                                                ? product.categories.join(', ')
-                                                : product.category}
-                                        </td>
-                                        <td className="py-3 px-6">
-                                            {product.stock !== undefined ? (
-                                                <span className={`font-bold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                    {product.stock}
-                                                </span>
-                                            ) : (
-                                                <span className="text-gray-400">N/A</span>
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-6 font-bold">₹{product.price}</td>
-                                        <td className="py-3 px-6 text-center">
-                                            <div className="flex item-center justify-center space-x-4">
-                                                <Link href={`/admin/products/edit/${product.id}`} className="text-blue-500 hover:text-blue-700 transform hover:scale-110 transition">
-                                                    <FaEdit size={18} />
-                                                </Link>
-                                                <button
-                                                    onClick={() => handleDelete(product.id)}
-                                                    className="text-red-500 hover:text-red-700 transform hover:scale-110 transition"
-                                                >
-                                                    <FaTrash size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
+                                                {product.brand && (
+                                                    <span className="text-[10px] font-bold text-primary uppercase tracking-wide block mt-0.5">{product.brand}</span>
+                                                )}
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    {product.barcode && (
+                                                        <span className="text-[10px] bg-gray-100 border border-gray-200 text-gray-500 font-mono px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                            <FaBarcode size={8} /> {product.barcode}
+                                                        </span>
+                                                    )}
+                                                    {product.location && (
+                                                        <span className="text-[10px] bg-indigo-50 border border-indigo-100 text-indigo-650 px-1.5 py-0.5 rounded font-semibold">
+                                                            Aisle: {product.location}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="text-xs font-semibold text-gray-600 uppercase">
+                                                    {product.categories && product.categories.length > 0
+                                                        ? product.categories.join(', ')
+                                                        : product.category || 'Unassigned'}
+                                                </div>
+                                                {product.subcategory && (
+                                                    <div className="mt-1">
+                                                        <span className="inline-block text-[9px] text-gray-500 font-extrabold bg-gray-100 border border-gray-250 px-2 py-0.5 rounded">
+                                                            Sub: {product.subcategory}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div className="mt-1.5">
+                                                    {product.isPublished !== false ? (
+                                                        <span className="inline-flex items-center gap-1 text-[10px] bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 rounded-full font-bold">
+                                                            <FaEye size={10} /> Published
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 text-[10px] bg-yellow-50 border border-yellow-250 text-yellow-700 px-2 py-0.5 rounded-full font-bold">
+                                                            <FaEyeSlash size={10} /> Draft
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                {isOutOfStock ? (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 border border-red-200 text-red-700">
+                                                        Out of Stock (0)
+                                                    </span>
+                                                ) : isLowStock ? (
+                                                    <div className="space-y-1">
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 border border-amber-250 text-amber-700" title={`Reorder Alert: <= ${reorder}`}>
+                                                            <FaExclamationTriangle className="text-amber-500" /> Low Stock ({product.stock})
+                                                        </span>
+                                                        <span className="block text-[10px] text-gray-400 pl-1">Threshold: {reorder}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-green-50 border border-green-205 text-green-700">
+                                                        In Stock ({product.stock})
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="py-4 px-6">
+                                                <div className="font-bold text-gray-900 text-base">₹{Number(product.price || 0).toFixed(2)}</div>
+                                                {product.mrp && Number(product.mrp) > Number(product.price) && (
+                                                    <div className="text-[10px] text-gray-400 line-through mt-0.5">MRP: ₹{Number(product.mrp).toFixed(2)}</div>
+                                                )}
+                                                {product.unit && (
+                                                    <span className="text-[10px] text-gray-450 font-semibold uppercase mt-1 block">Per {product.unit}</span>
+                                                )}
+                                            </td>
+                                            <td className="py-4 px-6 text-center">
+                                                <div className="flex items-center justify-center space-x-3">
+                                                    <Link href={`/admin/products/edit/${product.id}`} className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition" title="Edit Product">
+                                                        <FaEdit size={16} />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => handleDelete(product.id)}
+                                                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
+                                                        title="Delete Product"
+                                                    >
+                                                        <FaTrash size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>

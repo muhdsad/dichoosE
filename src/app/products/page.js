@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { db } from '../../lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import ProductCard from '../../components/ProductCard';
 import { seedProducts } from '../../utils/seed';
-
 import { getCleanProduct } from '../../utils/productUtils';
+import { useCategories } from '../../context/CategoryContext';
 
 function ProductsContent() {
     const [products, setProducts] = useState([]);
@@ -14,12 +14,16 @@ function ProductsContent() {
     const [seeding, setSeeding] = useState(false);
 
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const { categories } = useCategories();
+
     const categoryFilter = searchParams.get('category');
+    const subcategoryFilter = searchParams.get('subcategory');
     const searchTerm = searchParams.get('search');
 
     useEffect(() => {
         fetchProducts();
-    }, [categoryFilter, searchTerm]); // Refetch/Re-filter when URL changes
+    }, [categoryFilter, subcategoryFilter, searchTerm]); // Refetch/Re-filter when URL changes
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -33,7 +37,7 @@ function ProductsContent() {
                     id: doc.id,
                     ...data
                 });
-            });
+            }).filter(product => product.isPublished !== false);
 
             // Filter by Category
             if (categoryFilter) {
@@ -64,6 +68,11 @@ function ProductsContent() {
                 }
             }
 
+            // Filter by Subcategory
+            if (subcategoryFilter) {
+                productsData = productsData.filter(product => product.subcategory === subcategoryFilter);
+            }
+
             // Client-side filtering for search (starts with, case-insensitive)
             if (searchTerm) {
                 const lowerTerm = searchTerm.toLowerCase();
@@ -87,15 +96,30 @@ function ProductsContent() {
         setSeeding(false);
     };
 
+    const handleSubcategoryClick = (subVal) => {
+        const params = new URLSearchParams(window.location.search);
+        if (subVal) {
+            params.set('subcategory', subVal);
+        } else {
+            params.delete('subcategory');
+        }
+        router.push(`/products?${params.toString()}`);
+    };
+
+    const activeCategory = categories.find(c => c.value === categoryFilter || c.name === categoryFilter);
+    const subcategories = activeCategory ? (activeCategory.subcategories || []) : [];
+
     return (
         <div className="bg-white min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <h1 className="text-3xl font-bold text-gray-900">
                         {searchTerm
                             ? `Search Results for "${searchTerm}"`
                             : categoryFilter
-                                ? `${categoryFilter} Products`
+                                ? subcategoryFilter
+                                    ? `${categoryFilter} > ${subcategoryFilter}`
+                                    : `${categoryFilter} Products`
                                 : 'All Products'}
                     </h1>
                     {products.length === 0 && !loading && !searchTerm && !categoryFilter && (
@@ -108,6 +132,30 @@ function ProductsContent() {
                         </button>
                     )}
                 </div>
+
+                {/* Subcategory Filter Chips */}
+                {categoryFilter && categoryFilter !== 'Offer' && subcategories.length > 0 && (
+                    <div className="mb-8 border-b border-gray-100 pb-4">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">Filter by Subcategory</span>
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+                            <button
+                                onClick={() => handleSubcategoryClick(null)}
+                                className={`px-4 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition border ${!subcategoryFilter ? 'bg-primary text-white border-primary shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}
+                            >
+                                All {categoryFilter}
+                            </button>
+                            {subcategories.map(sub => (
+                                <button
+                                    key={sub.value}
+                                    onClick={() => handleSubcategoryClick(sub.value)}
+                                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap transition border ${subcategoryFilter === sub.value ? 'bg-primary text-white border-primary shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}
+                                >
+                                    {sub.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {loading ? (
                     <div className="flex justify-center items-center h-64">
@@ -122,7 +170,7 @@ function ProductsContent() {
                 ) : (
                     <div className="text-center py-20 text-gray-500">
                         <p className="text-xl">No products found.</p>
-                        <p className="mt-2 text-sm">Click "Seed Sample Data" to get started.</p>
+                        <p className="mt-2 text-sm">Please check other categories or search terms.</p>
                     </div>
                 )}
             </div>

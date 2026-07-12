@@ -10,9 +10,10 @@ import HeroSlider from "../components/HeroSlider";
 import Testimonials from "../components/Testimonials";
 
 import { getCleanProduct } from "../utils/productUtils";
-import { categories } from "../utils/categories";
+import { useCategories } from "../context/CategoryContext";
 
 export default function Home() {
+  const { categories } = useCategories();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +30,8 @@ export default function Home() {
             ...data
           });
         });
-        setProducts(productsData);
+        // Filter out unpublished products
+        setProducts(productsData.filter(product => product.isPublished !== false));
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

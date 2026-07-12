@@ -3,14 +3,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { FaShoppingCart, FaBars, FaTimes, FaPhone, FaSearch, FaUser, FaHeart, FaArrowRight } from 'react-icons/fa';
+import { FaShoppingCart, FaBars, FaTimes, FaPhone, FaSearch, FaUser, FaHeart, FaArrowRight, FaChevronRight } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { categories } from '../utils/categories';
-
+import { useCategories } from '../context/CategoryContext';
 import { useWishlist } from '../context/WishlistContext';
 
 const Navbar = () => {
+    const { categories } = useCategories();
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -150,7 +150,7 @@ const Navbar = () => {
                                 <div className="absolute top-12 left-0 w-full bg-white shadow-lg z-50 rounded-b-sm border border-t-0 border-gray-200">
                                     <ul className="py-2">
                                         {categories.map((category) => (
-                                            <li key={category.value}>
+                                            <li key={category.value} className="relative group/sub">
                                                 <Link
                                                     href={`/products?category=${encodeURIComponent(category.value)}`}
                                                     className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary transition font-abel font-bold uppercase text-sm"
@@ -164,8 +164,30 @@ const Navbar = () => {
                                                             className="object-cover rounded-full"
                                                         />
                                                     </div>
-                                                    {category.name}
+                                                    <span>{category.name}</span>
+                                                    {category.subcategories && category.subcategories.length > 0 && (
+                                                        <FaChevronRight size={10} className="ml-auto text-gray-400 group-hover/sub:text-primary transition-transform" />
+                                                    )}
                                                 </Link>
+
+                                                {/* Subcategory Hover Flyout */}
+                                                {category.subcategories && category.subcategories.length > 0 && (
+                                                    <div className="absolute top-0 left-full w-64 bg-white shadow-xl border border-gray-200 border-l-2 border-l-primary rounded-r-sm py-2 z-50 hidden group-hover/sub:block">
+                                                        <ul>
+                                                            {category.subcategories.map((sub) => (
+                                                                <li key={sub.value}>
+                                                                    <Link
+                                                                        href={`/products?category=${encodeURIComponent(category.value)}&subcategory=${encodeURIComponent(sub.value)}`}
+                                                                        className="block px-5 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-primary transition font-abel font-semibold text-xs uppercase"
+                                                                        onClick={() => setIsDropdownOpen(false)}
+                                                                    >
+                                                                        {sub.name}
+                                                                    </Link>
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
                                             </li>
                                         ))}
                                     </ul>

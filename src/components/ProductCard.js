@@ -5,6 +5,36 @@ import { useWishlist } from '../context/WishlistContext';
 import { FaShoppingCart, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { getDirectDriveLink } from '../utils/productUtils';
 
+const DietaryIndicator = ({ type }) => {
+    if (!type || type === 'None') return null;
+    
+    let borderColor = 'border-green-600';
+    let dotColor = 'bg-green-600';
+    let label = 'Veg';
+    
+    if (type === 'Non-Veg') {
+        borderColor = 'border-red-600';
+        dotColor = 'bg-red-600';
+        label = 'Non-Veg';
+    } else if (type === 'Egg') {
+        borderColor = 'border-yellow-600';
+        dotColor = 'bg-yellow-600';
+        label = 'Contains Egg';
+    } else if (type === 'Vegan') {
+        borderColor = 'border-green-800';
+        dotColor = 'bg-green-800';
+        label = 'Vegan';
+    }
+
+    return (
+        <span className="inline-flex items-center gap-1.5" title={label}>
+            <span className={`w-4 h-4 border-2 ${borderColor} flex items-center justify-center p-0.5 rounded-sm bg-white`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`}></span>
+            </span>
+        </span>
+    );
+};
+
 const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -92,12 +122,25 @@ const ProductCard = ({ product }) => {
                 )}
             </div>
             <div className="p-4">
+                {/* Brand & Dietary Tag */}
+                <div className="flex items-center justify-between mb-1">
+                    {product.brand ? (
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                            {product.brand}
+                        </span>
+                    ) : (
+                        <span />
+                    )}
+                    {product.dietary && product.dietary !== 'None' && (
+                        <DietaryIndicator type={product.dietary} />
+                    )}
+                </div>
                 <Link href={`/products/${product.id}`} className="block">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors cursor-pointer">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors cursor-pointer line-clamp-1">
                         {product.name}
                     </h3>
                 </Link>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-xs text-gray-500">
                     {product.categories && product.categories.length > 0
                         ? product.categories.join(', ')
                         : product.category}
