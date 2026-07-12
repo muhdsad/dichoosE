@@ -706,8 +706,8 @@ export default function BulkOffersPage() {
                                 <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 border-b border-gray-200 shadow-sm">
                                     <tr>
                                         <th className="p-4 w-[280px]">Product Information</th>
-                                        <th className="p-4 w-[110px] text-center">Regular Rate</th>
-                                        <th className="p-4 w-[120px] text-center">Offer Price (₹)</th>
+                                        <th className="p-4 w-[120px] text-center">Regular Rate</th>
+                                        <th className="p-4 w-[160px] text-center">Offer Price (₹)</th>
                                         <th className="p-4 w-[220px]">Campaign Start Time</th>
                                         <th className="p-4 w-[220px]">Campaign End Time</th>
                                         <th className="p-4 w-[130px] text-center">Live Status</th>
