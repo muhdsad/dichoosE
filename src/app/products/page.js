@@ -19,11 +19,12 @@ function ProductsContent() {
 
     const categoryFilter = searchParams.get('category');
     const subcategoryFilter = searchParams.get('subcategory');
+    const brandFilter = searchParams.get('brand');
     const searchTerm = searchParams.get('search');
 
     useEffect(() => {
         fetchProducts();
-    }, [categoryFilter, subcategoryFilter, searchTerm]); // Refetch/Re-filter when URL changes
+    }, [categoryFilter, subcategoryFilter, brandFilter, searchTerm]); // Refetch/Re-filter when URL changes
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -73,11 +74,16 @@ function ProductsContent() {
                 productsData = productsData.filter(product => product.subcategory === subcategoryFilter);
             }
 
-            // Client-side filtering for search (starts with, case-insensitive)
+            // Filter by Brand
+            if (brandFilter) {
+                productsData = productsData.filter(product => product.brand && product.brand.toLowerCase() === brandFilter.toLowerCase());
+            }
+
+            // Client-side filtering for search (substring match, case-insensitive)
             if (searchTerm) {
                 const lowerTerm = searchTerm.toLowerCase();
                 productsData = productsData.filter(product =>
-                    product.name.toLowerCase().startsWith(lowerTerm)
+                    product.name.toLowerCase().includes(lowerTerm)
                 );
             }
 
@@ -116,13 +122,15 @@ function ProductsContent() {
                     <h1 className="text-3xl font-bold text-gray-900">
                         {searchTerm
                             ? `Search Results for "${searchTerm}"`
-                            : categoryFilter
-                                ? subcategoryFilter
-                                    ? `${categoryFilter} > ${subcategoryFilter}`
-                                    : `${categoryFilter} Products`
-                                : 'All Products'}
+                            : brandFilter
+                                ? `Brand: ${brandFilter}`
+                                : categoryFilter
+                                    ? subcategoryFilter
+                                        ? `${categoryFilter} > ${subcategoryFilter}`
+                                        : `${categoryFilter} Products`
+                                    : 'All Products'}
                     </h1>
-                    {products.length === 0 && !loading && !searchTerm && !categoryFilter && (
+                    {products.length === 0 && !loading && !searchTerm && !categoryFilter && !brandFilter && (
                         <button
                             onClick={handleSeed}
                             disabled={seeding}

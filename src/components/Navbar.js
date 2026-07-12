@@ -9,10 +9,26 @@ import { useAuth } from '../context/AuthContext';
 import { useCategories } from '../context/CategoryContext';
 import { useWishlist } from '../context/WishlistContext';
 
+const POPULAR_BRANDS = [
+    "Amul",
+    "Bakers",
+    "Boost",
+    "Britannia",
+    "Double Horse",
+    "Eastern",
+    "Elite",
+    "Gold Winner",
+    "Himalaya",
+    "India Gate",
+    "Nirapara",
+    "Pepsi"
+];
+
 const Navbar = () => {
     const { categories } = useCategories();
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isMobileBrandsOpen, setIsMobileBrandsOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const { cartCount } = useCart();
@@ -202,6 +218,9 @@ const Navbar = () => {
                             <Link href="/products?category=Vegetables" className="hover:text-primary transition uppercase">Vegetables</Link>
                             <Link href="/products?category=Fruits" className="hover:text-primary transition uppercase">Fruits</Link>
                             <Link href="/products?category=Offer" className="hover:text-primary transition uppercase text-red-600">Offers</Link>
+                            
+                            <Link href="/brands" className="hover:text-primary transition uppercase">Brands</Link>
+
                             <Link href="/contact" className="hover:text-primary transition uppercase ml-auto">Contact</Link>
                         </div>
                     </div>
@@ -225,6 +244,9 @@ const Navbar = () => {
                         <Link href="/products?category=Vegetables" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Vegetables</Link>
                         <Link href="/products?category=Fruits" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Fruits</Link>
                         <Link href="/products?category=Offer" className="block text-red-600 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Offers</Link>
+                        
+                        <Link href="/brands" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Brands</Link>
+
                         <Link href="/about" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>About Us</Link>
                         <Link href="/contact" className="block text-gray-700 hover:text-primary py-2 font-abel font-bold uppercase" onClick={toggleMenu}>Contact</Link>
                         {user ? (
