@@ -457,7 +457,7 @@ export default function PrintOffersPage() {
                                     <div
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
-                                        className={`border-r-2 border-b-2 border-black p-2 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white group ${
+                                        className={`border-r-2 border-b-2 border-black p-2 flex flex-col items-center justify-between text-center relative overflow-visible bg-white group ${
                                             // Eliminate right border on right column (index is odd)
                                             (index % 2 === 1) ? 'border-r-0' : ''
                                         } ${
@@ -477,26 +477,37 @@ export default function PrintOffersPage() {
                                             <>
                                                 {/* MRP Badge */}
                                                 {(product.mrp || product.price) && (
-                                                    <div className="absolute top-[4px] left-[4px] z-[10] bg-[#ffff00] text-black border border-black px-[5px] py-[2.5px] text-[10px] sm:text-[11px] font-extrabold uppercase line-through leading-none tracking-wide">
+                                                    <div 
+                                                        className="absolute z-[10] bg-[#ffff00] text-black border border-black px-[6px] py-[3.5px] text-[10px] sm:text-[11px] font-extrabold uppercase line-through leading-tight tracking-wide"
+                                                        style={{ top: '8px', left: '8px' }}
+                                                    >
                                                         MRP {product.mrp || product.price}
                                                     </div>
                                                 )}
                                                 
                                                 {/* Save Badge */}
                                                 {hasSavings && (
-                                                    <div className="absolute top-[4px] right-[4px] z-[10] bg-[#ff0000] text-white border border-[#ff0000] px-[5px] py-[2.5px] text-[10px] sm:text-[11px] font-extrabold uppercase leading-none tracking-wide">
+                                                    <div 
+                                                        className="absolute z-[10] bg-[#ff0000] text-white border border-[#ff0000] px-[6px] py-[3.5px] text-[10px] sm:text-[11px] font-extrabold uppercase leading-tight tracking-wide"
+                                                        style={{ top: '8px', right: '8px' }}
+                                                    >
                                                         SMILE SAVE ₹{savings}
                                                     </div>
                                                 )}
 
                                                 {/* Product Title (H2) */}
-                                                <h2 className="absolute top-7 left-2 right-2 z-[5] text-center font-anton text-[30px] sm:text-[34px] md:text-[38px] leading-[1.1] uppercase text-black"
-                                                    style={{ WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}>
+                                                <h2 
+                                                    className="absolute z-[5] text-center font-anton text-[30px] sm:text-[34px] md:text-[38px] leading-[1.1] uppercase text-black"
+                                                    style={{ top: '14%', left: '8px', right: '8px', WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}
+                                                >
                                                     {product.name}
                                                 </h2>
 
                                                 {/* Image Wrapper */}
-                                                <div className="absolute top-16 bottom-18 left-2 right-2 z-[1] flex items-center justify-center">
+                                                <div 
+                                                    className="absolute z-[1] flex items-center justify-center"
+                                                    style={{ top: '34%', bottom: '26%', left: '8px', right: '8px' }}
+                                                >
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
@@ -506,8 +517,11 @@ export default function PrintOffersPage() {
                                                 </div>
 
                                                 {/* Price Block */}
-                                                <div className="absolute bottom-2 left-0 right-0 z-[5] flex items-baseline justify-center w-full">
-                                                    <span className="font-anton text-[52px] sm:text-[62px] md:text-[72px] leading-none text-black tracking-tighter"
+                                                <div 
+                                                    className="absolute z-[5] flex items-baseline justify-center w-full"
+                                                    style={{ top: '76%', left: '0', right: '0' }}
+                                                >
+                                                    <span className="font-anton text-[46px] sm:text-[54px] md:text-[64px] leading-none text-black tracking-tighter"
                                                           style={{ WebkitTextStroke: '1.5px white', textShadow: '0 0 4px white, 0 0 4px white' }}>
                                                         {product.offerPrice}
                                                     </span>
@@ -549,7 +563,7 @@ export default function PrintOffersPage() {
                                 <div
                                     key={product.id}
                                     id={`offer-card-${product.id}`}
-                                    className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
+                                    className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-visible bg-white group"
                                     style={{
                                         height: cardHeight,
                                         breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
@@ -557,26 +571,37 @@ export default function PrintOffersPage() {
                                 >
                                     {/* MRP Badge */}
                                     {(product.mrp || product.price) && (
-                                        <div className="absolute top-[3px] left-[3px] z-[10] bg-[#ffff00] text-black border border-black px-[4px] py-[2px] text-[10px] sm:text-[11px] font-bold uppercase line-through leading-none tracking-wide">
+                                        <div 
+                                            className="absolute z-[10] bg-[#ffff00] text-black border border-black px-[5px] py-[3px] text-[10px] sm:text-[11px] font-bold uppercase line-through leading-tight tracking-wide"
+                                            style={{ top: '6px', left: '6px' }}
+                                        >
                                             MRP {product.mrp || product.price}
                                         </div>
                                     )}
                                     
                                     {/* Save Badge */}
                                     {hasSavings && (
-                                        <div className="absolute top-[3px] right-[3px] z-[10] bg-[#ff0000] text-white border border-[#ff0000] px-[4px] py-[2px] text-[10px] sm:text-[11px] font-bold uppercase leading-none tracking-wide">
+                                        <div 
+                                            className="absolute z-[10] bg-[#ff0000] text-white border border-[#ff0000] px-[5px] py-[3px] text-[10px] sm:text-[11px] font-bold uppercase leading-tight tracking-wide"
+                                            style={{ top: '6px', right: '6px' }}
+                                        >
                                             SMILE SAVE ₹{savings}
                                         </div>
                                     )}
 
                                     {/* Product Title (H2) */}
-                                    <h2 className="absolute top-6 left-1 right-1 z-[5] text-center font-anton text-[28px] sm:text-[34px] md:text-[36px] leading-[1.2] uppercase text-black"
-                                        style={{ WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}>
+                                    <h2 
+                                        className="absolute z-[5] text-center font-anton text-[26px] sm:text-[32px] md:text-[34px] leading-[1.2] uppercase text-black"
+                                        style={{ top: '12%', left: '4px', right: '4px', WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}
+                                    >
                                         {product.name}
                                     </h2>
 
                                     {/* Image Wrapper */}
-                                    <div className="absolute top-14 bottom-15 left-1 right-1 z-[1] flex items-center justify-center">
+                                    <div 
+                                        className="absolute z-[1] flex items-center justify-center"
+                                        style={{ top: '32%', bottom: '28%', left: '4px', right: '4px' }}
+                                    >
                                         <img
                                             src={getProxiedImageUrl(product.image)}
                                             alt={product.name}
@@ -586,8 +611,11 @@ export default function PrintOffersPage() {
                                     </div>
 
                                     {/* Price Block */}
-                                    <div className="absolute bottom-1 left-0 right-0 z-[5] flex items-baseline justify-center w-full">
-                                        <span className="font-anton text-[48px] sm:text-[58px] md:text-[68px] leading-none text-black tracking-tighter"
+                                    <div 
+                                        className="absolute z-[5] flex items-baseline justify-center w-full"
+                                        style={{ top: '74%', left: '0', right: '0' }}
+                                    >
+                                        <span className="font-anton text-[36px] sm:text-[42px] md:text-[46px] leading-none text-black tracking-tighter"
                                               style={{ WebkitTextStroke: '1.5px white', textShadow: '0 0 4px white, 0 0 4px white' }}>
                                             {product.offerPrice}
                                         </span>
