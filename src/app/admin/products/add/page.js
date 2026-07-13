@@ -19,6 +19,26 @@ const PASTEL_COLORS = [
     { name: "Gray", value: "bg-gray-50 border-gray-200 text-gray-700" }
 ];
 
+const getTodayDateTimeString = () => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+};
+
+const getNextDay1145PMString = () => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yyyy = tomorrow.getFullYear();
+    const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const dd = String(tomorrow.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T23:45`;
+};
+
 export default function AddProductPage() {
     const { categories, addCategory } = useCategories();
     const [product, setProduct] = useState({
@@ -72,6 +92,12 @@ export default function AddProductPage() {
                 if (hasOffer) {
                     if (!cats.includes('Offer')) {
                         cats = [...cats, 'Offer'];
+                    }
+                    if (!prev.offerStart || prev.offerStart === '') {
+                        updated.offerStart = getTodayDateTimeString();
+                    }
+                    if (!prev.offerEnd || prev.offerEnd === '') {
+                        updated.offerEnd = getNextDay1145PMString();
                     }
                 } else {
                     cats = cats.filter(c => c !== 'Offer');

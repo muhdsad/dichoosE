@@ -19,6 +19,26 @@ import {
     FaTimesCircle
 } from 'react-icons/fa';
 
+const getTodayDateTimeString = () => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+};
+
+const getNextDay1145PMString = () => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yyyy = tomorrow.getFullYear();
+    const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const dd = String(tomorrow.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T23:45`;
+};
+
 export default function BulkOffersPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -78,7 +98,16 @@ export default function BulkOffersPage() {
     const handleFieldChange = (productId, field, value) => {
         setProducts(prev => prev.map(p => {
             if (p.id === productId) {
-                return { ...p, [field]: value };
+                const updated = { ...p, [field]: value };
+                if (field === 'offerPrice' && value && String(value).trim() !== '') {
+                    if (!p.offerStart || p.offerStart === '') {
+                        updated.offerStart = getTodayDateTimeString();
+                    }
+                    if (!p.offerEnd || p.offerEnd === '') {
+                        updated.offerEnd = getNextDay1145PMString();
+                    }
+                }
+                return updated;
             }
             return p;
         }));
