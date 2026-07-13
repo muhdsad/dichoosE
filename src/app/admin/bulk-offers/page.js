@@ -141,6 +141,7 @@ export default function BulkOffersPage() {
         try {
             const docRef = doc(db, "products", p.id);
             const offerPriceVal = p.offerPrice ? parseFloat(p.offerPrice) : null;
+            const priceVal = p.price ? parseFloat(p.price) : 0;
 
             // Auto-check / update category list to maintain the "Offer" category tag
             let updatedCategories = [...(p.categories || [])];
@@ -153,6 +154,7 @@ export default function BulkOffersPage() {
             }
 
             const updatePayload = {
+                price: priceVal,
                 offerPrice: offerPriceVal,
                 offerStart: p.offerStart || null,
                 offerEnd: p.offerEnd || null,
@@ -756,10 +758,21 @@ export default function BulkOffersPage() {
                                                     </td>
 
                                                     {/* Base price */}
-                                                    <td className="p-4 text-center font-bold text-gray-700">
-                                                        <div>₹{p.price}</div>
+                                                    <td className="p-4 text-center">
+                                                        <div className="relative flex items-center justify-center">
+                                                            <span className="absolute left-2 text-gray-450 font-bold text-xs">₹</span>
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                value={p.price || ''}
+                                                                onChange={(e) => handleFieldChange(p.id, 'price', e.target.value)}
+                                                                className={`w-24 text-center pl-5 font-bold rounded-lg border text-sm p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                                    isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                                }`}
+                                                            />
+                                                        </div>
                                                         {p.mrp && p.mrp > p.price && (
-                                                            <div className="text-xs text-gray-400 line-through font-medium mt-0.5">MRP: ₹{p.mrp}</div>
+                                                            <div className="text-[10px] text-gray-400 line-through font-medium mt-1">MRP: ₹{p.mrp}</div>
                                                         )}
                                                     </td>
 
@@ -910,10 +923,18 @@ export default function BulkOffersPage() {
                                             {/* Pricing and Input Details */}
                                             <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
                                                 <div>
-                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider">Regular Rate</span>
-                                                    <span className="font-bold text-gray-700 text-sm">₹{p.price}</span>
+                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Regular Rate (₹)</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={p.price || ''}
+                                                        onChange={(e) => handleFieldChange(p.id, 'price', e.target.value)}
+                                                        className={`w-full font-bold rounded-lg border text-xs p-1.5 text-black focus:ring-1 focus:ring-primary ${
+                                                            isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                        }`}
+                                                    />
                                                     {p.mrp && p.mrp > p.price && (
-                                                        <div className="text-[10px] text-gray-400 line-through font-medium">MRP: ₹{p.mrp}</div>
+                                                        <div className="text-[10px] text-gray-400 line-through font-medium mt-1">MRP: ₹{p.mrp}</div>
                                                     )}
                                                 </div>
                                                 <div>
