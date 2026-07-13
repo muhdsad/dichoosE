@@ -5,6 +5,16 @@ import { collection, getDocs } from 'firebase/firestore';
 import { getDirectDriveLink } from '../../../utils/productUtils';
 import { FaImage, FaTrash, FaCheck, FaTimes, FaUndo } from 'react-icons/fa';
 
+const getProxiedImageUrl = (url) => {
+    if (!url) return '/categories/default.png';
+    const directLink = getDirectDriveLink(url);
+    if (!directLink) return '/categories/default.png';
+    if (directLink.startsWith('/') || directLink.startsWith('data:')) {
+        return directLink;
+    }
+    return `/api/proxy-image?url=${encodeURIComponent(directLink)}`;
+};
+
 export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -373,7 +383,7 @@ export default function PrintOffersPage() {
                                             }`}
                                         >
                                             <div className="relative w-9 h-9 bg-gray-50 rounded-lg overflow-hidden border border-gray-150 flex-shrink-0">
-                                                <img src={getDirectDriveLink(p.image)} className="w-full h-full object-cover" />
+                                                <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-xs font-bold text-gray-800 truncate leading-snug">{p.name}</p>
@@ -481,7 +491,7 @@ export default function PrintOffersPage() {
                                                 {/* Image Wrapper */}
                                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[58%] z-[1]">
                                                     <img
-                                                        src={getDirectDriveLink(product.image)}
+                                                        src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
                                                         className="w-full h-full object-contain"
                                                         referrerPolicy="no-referrer"
@@ -562,7 +572,7 @@ export default function PrintOffersPage() {
                                     {/* Image Wrapper */}
                                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] h-[60%] z-[1]">
                                         <img
-                                            src={getDirectDriveLink(product.image)}
+                                            src={getProxiedImageUrl(product.image)}
                                             alt={product.name}
                                             className="w-full h-full object-contain"
                                             referrerPolicy="no-referrer"
