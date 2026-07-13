@@ -52,12 +52,10 @@ export default function AdminLayout({ children }) {
     // Protected Admin Layout
     return (
         <div className="flex min-h-screen bg-gray-100 font-sans print:bg-white">
-            <div className="hidden xl:block print:hidden flex-shrink-0">
-                <AdminSidebar />
-            </div>
+            {/* Dropdown navigation is used for all screen sizes (desktop, tablet, mobile) */}
             <div className="flex-1 flex flex-col overflow-hidden print:overflow-visible">
-                {/* Responsive Header for Mobile Screens */}
-                <header className="bg-white shadow-sm z-30 p-4 flex justify-between items-center xl:hidden print:hidden relative border-b border-gray-200">
+                {/* Header for All Screen Sizes */}
+                <header className="bg-white shadow-sm z-30 p-4 flex justify-between items-center print:hidden relative border-b border-gray-200">
                     <span className="font-bold text-gray-800 text-base">Admin Panel</span>
                     
                     {/* Mobile Menu Dropdown Button */}

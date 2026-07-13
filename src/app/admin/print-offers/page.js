@@ -8,6 +8,7 @@ export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [layout, setLayout] = useState('landscape'); // 'portrait' | 'landscape'
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const fetchOfferProducts = async () => {
@@ -47,6 +48,66 @@ export default function PrintOffersPage() {
         fetchOfferProducts();
     }, []);
 
+    const handleSaveCardAsPng = async (productId, productName) => {
+        setSaving(true);
+        try {
+            const html2canvas = (await import('html2canvas')).default;
+            const element = document.getElementById(`offer-card-${productId}`);
+            if (!element) {
+                alert("Error: Card element not found.");
+                return;
+            }
+
+            const canvas = await html2canvas(element, {
+                scale: 3, // High resolution
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `${productName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-offer.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error("Error saving card as PNG:", error);
+            alert("Failed to save card as PNG. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSaveAllAsPng = async () => {
+        setSaving(true);
+        try {
+            const html2canvas = (await import('html2canvas')).default;
+            const element = document.getElementById('print-offers-container');
+            if (!element) {
+                alert("Error: Print container not found.");
+                return;
+            }
+
+            const canvas = await html2canvas(element, {
+                scale: 2, // 2x scale for sheet is perfect
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
+
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `offers-sheet-${layout}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error("Error saving sheet as PNG:", error);
+            alert("Failed to save sheet as PNG. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     if (loading) return <div className="text-center p-10">Loading Offers...</div>;
 
     if (products.length === 0) return <div className="text-center p-10">No active offers found to print.</div>;
@@ -62,19 +123,26 @@ export default function PrintOffersPage() {
                 <div className="flex gap-4 items-center">
                     <button
                         onClick={() => setLayout('portrait')}
-                        className={`px-4 py-2 rounded-lg font-bold transition-all shadow-md ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                        className={`px-4 py-2 rounded-lg font-bold transition-all shadow-md cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
                     >
                         3x6 Portrait (18 Tags)
                     </button>
                     <button
                         onClick={() => setLayout('landscape')}
-                        className={`px-4 py-2 rounded-lg font-bold transition-all shadow-md ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                        className={`px-4 py-2 rounded-lg font-bold transition-all shadow-md cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
                     >
                         4x4 Landscape (16 Tags)
                     </button>
                     <button
+                        onClick={handleSaveAllAsPng}
+                        disabled={saving}
+                        className="bg-purple-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-purple-700 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                    >
+                        {saving ? 'Saving...' : 'Save Sheet as PNG'}
+                    </button>
+                    <button
                         onClick={() => window.print()}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md ml-4"
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md cursor-pointer"
                     >
                         Print / Save as PDF
                     </button>
@@ -82,7 +150,7 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Container */}
-            <div className={`mx-auto print:p-0 print:max-w-none ${layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2'}`}>
+            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2'}`}>
                 <div className={`grid gap-0 print:gap-0 border-t-[1.5px] border-l-[1.5px] border-black ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
                     {products.map((product, index) => {
                         const itemsPerPage = layout === 'landscape' ? 16 : 18;
@@ -94,7 +162,8 @@ export default function PrintOffersPage() {
                         return (
                             <div
                                 key={product.id}
-                                className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white"
+                                id={`offer-card-${product.id}`}
+                                className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
                                 style={{
                                     height: cardHeight,
                                     breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
@@ -144,6 +213,16 @@ export default function PrintOffersPage() {
                                         )}
                                     </div>
                                 </div>
+
+                                {/* Individual Save as PNG Button (Hidden during print, visible on hover) */}
+                                <button
+                                    data-html2canvas-ignore
+                                    onClick={() => handleSaveCardAsPng(product.id, product.name)}
+                                    disabled={saving}
+                                    className="absolute bottom-2 right-2 z-10 bg-primary hover:bg-green-700 text-white text-[10px] font-bold py-1 px-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                >
+                                    Save PNG
+                                </button>
                             </div>
                         );
                     })}
@@ -154,14 +233,37 @@ export default function PrintOffersPage() {
                 @media print {
                     @page {
                         size: ${layout === 'landscape' ? 'A4 landscape' : 'A4 portrait'};
-                        margin: 0;
+                        margin: 0 !important;
                     }
-                    body {
-                        background: white;
+                    html, body {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        background: white !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
-                    /* Ensure grid layout holds in print */
+                    /* Container takes full width, no padding or max-width constraint */
+                    #print-offers-container {
+                        width: 100% !important;
+                        max-width: none !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                    }
+                    /* Grid holds layout and spans full width */
                     .grid {
                         display: grid !important;
+                        width: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        border-top: 1.5px solid black !important;
+                        border-left: 1.5px solid black !important;
+                    }
+                    /* Ensure page breaks are clean */
+                    .page-break-inside-avoid {
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
                     }
                 }
             `}</style>

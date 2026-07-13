@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { db } from '../../../lib/firebase';
 import { collection, getDocs, writeBatch, doc, updateDoc } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
+import { getDirectDriveLink } from '../../../utils/productUtils';
 import { 
     FaSearch, 
     FaFilter, 
@@ -765,10 +766,10 @@ export default function BulkOffersPage() {
                                                         <div className="flex items-center gap-3">
                                                             <div className="relative w-12 h-12 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
                                                                 <img 
-                                                                    src={p.image || '/categories/default.png'} 
+                                                                    src={getDirectDriveLink(p.image) || '/categories/default.png'} 
                                                                     alt={p.name}
                                                                     className="w-full h-full object-cover"
-                                                                    onError={(e) => { e.target.src = '/categories/default.png'; }}
+                                                                    onError={(e) => { e.target.onerror = null; e.target.src = '/categories/default.png'; }}
                                                                 />
                                                             </div>
                                                             <div className="min-w-0">
@@ -924,10 +925,10 @@ export default function BulkOffersPage() {
                                             <div className="flex items-start gap-3">
                                                 <div className="relative w-12 h-12 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
                                                     <img 
-                                                        src={p.image || '/categories/default.png'} 
+                                                        src={getDirectDriveLink(p.image) || '/categories/default.png'} 
                                                         alt={p.name}
                                                         className="w-full h-full object-cover"
-                                                        onError={(e) => { e.target.src = '/categories/default.png'; }}
+                                                        onError={(e) => { e.target.onerror = null; e.target.src = '/categories/default.png'; }}
                                                     />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
