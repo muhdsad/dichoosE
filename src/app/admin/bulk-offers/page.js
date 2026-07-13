@@ -67,10 +67,12 @@ export default function BulkOffersPage() {
         setLoading(true);
         try {
             const querySnapshot = await getDocs(collection(db, "products"));
-            const allProducts = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            const allProducts = querySnapshot.docs
+                .map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }))
+                .filter(p => p.name && p.name.trim() !== '');
             // Sort alphabetically by name
             allProducts.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             setProducts(allProducts);
