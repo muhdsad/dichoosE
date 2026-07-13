@@ -52,18 +52,18 @@ export default function AdminLayout({ children }) {
     // Protected Admin Layout
     return (
         <div className="flex min-h-screen bg-gray-100 font-sans print:bg-white">
-            <div className="hidden md:block print:hidden flex-shrink-0">
+            <div className="hidden xl:block print:hidden flex-shrink-0">
                 <AdminSidebar />
             </div>
             <div className="flex-1 flex flex-col overflow-hidden print:overflow-visible">
                 {/* Responsive Header for Mobile Screens */}
-                <header className="bg-white shadow-sm z-30 p-4 flex justify-between items-center md:hidden print:hidden relative border-b border-gray-200">
+                <header className="bg-white shadow-sm z-30 p-4 flex justify-between items-center xl:hidden print:hidden relative border-b border-gray-200">
                     <span className="font-bold text-gray-800 text-base">Admin Panel</span>
                     
                     {/* Mobile Menu Dropdown Button */}
                     <div className="relative">
                         <button 
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="flex items-center gap-2 px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-100 transition-all cursor-pointer shadow-sm"
                         >
                             {currentNavItem && <currentNavItem.icon className="text-primary text-sm" />}
@@ -100,7 +100,7 @@ export default function AdminLayout({ children }) {
                                             setIsMobileMenuOpen(false);
                                             logout();
                                         }}
-                                        className="flex items-center w-full px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                                        className="flex items-center w-full px-3 py-2 text-xs font-bold text-red-650 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
                                     >
                                         <FaSignOutAlt className="mr-2.5 text-base text-red-500" />
                                         <span>Logout</span>
@@ -111,7 +111,7 @@ export default function AdminLayout({ children }) {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6 print:p-0 print:bg-white print:overflow-visible">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 xl:p-6 print:p-0 print:bg-white print:overflow-visible">
                     {children}
                 </main>
             </div>

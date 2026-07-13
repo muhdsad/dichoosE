@@ -704,7 +704,7 @@ export default function BulkOffersPage() {
                     {/* Interactive Data List */}
                     <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto max-h-[600px]">
+                        <div className="hidden xl:block overflow-x-auto max-h-[600px]">
                             <table className="w-full text-left text-sm border-collapse">
                                 <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 border-b border-gray-200 shadow-sm">
                                     <tr>
@@ -727,7 +727,7 @@ export default function BulkOffersPage() {
                                             return (
                                                 <tr 
                                                     key={p.id} 
-                                                    className={`hover:bg-gray-50/50 transition-colors ${
+                                                    className={`hover:bg-gray-55/50 transition-colors ${
                                                         isEdited ? 'bg-yellow-50/20' : ''
                                                     }`}
                                                 >
@@ -760,7 +760,7 @@ export default function BulkOffersPage() {
                                                     {/* Base price */}
                                                     <td className="p-4 text-center">
                                                         <div className="relative flex items-center justify-center">
-                                                            <span className="absolute left-2 text-gray-450 font-bold text-xs">₹</span>
+                                                            <span className="absolute left-2 text-gray-455 font-bold text-xs">₹</span>
                                                             <input
                                                                 type="number"
                                                                 step="0.01"
@@ -854,7 +854,7 @@ export default function BulkOffersPage() {
                                                                         }
                                                                     }}
                                                                     disabled={rowSaveState === 'saving'}
-                                                                    className="p-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition"
+                                                                    className="p-2 bg-red-50 hover:bg-red-100 text-red-655 border border-red-200 rounded-lg transition"
                                                                     title="Clear Offer Campaign"
                                                                 >
                                                                     <FaTrash className="w-3.5 h-3.5" />
@@ -877,7 +877,7 @@ export default function BulkOffersPage() {
                         </div>
 
                         {/* Mobile Card List View */}
-                        <div className="block md:hidden max-h-[600px] overflow-y-auto p-2 space-y-4 bg-gray-50/50">
+                        <div className="block xl:hidden max-h-[600px] overflow-y-auto p-2 space-y-4 bg-gray-50/50">
                             {filteredProducts.length > 0 ? (
                                 filteredProducts.map((p) => {
                                     const statusInfo = getOfferStatusInfo(p);

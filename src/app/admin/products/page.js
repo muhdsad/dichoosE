@@ -92,7 +92,7 @@ export default function ProductsPage() {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-155 overflow-hidden animate-fadeIn">
                 {/* Desktop Table View */}
-                <div className="hidden md:block overflow-x-auto">
+                <div className="hidden xl:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-gray-150">
@@ -230,7 +230,7 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Mobile Card List View */}
-                <div className="block md:hidden divide-y divide-gray-150">
+                <div className="block xl:hidden divide-y divide-gray-150">
                     {filteredProducts.length === 0 ? (
                         <div className="p-8 text-center text-gray-500 font-medium bg-white">No products found in catalog.</div>
                     ) : (
