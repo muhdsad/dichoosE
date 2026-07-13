@@ -12,7 +12,8 @@ const getProxiedImageUrl = (url) => {
     if (directLink.startsWith('/') || directLink.startsWith('data:')) {
         return directLink;
     }
-    return `/api/proxy-image?url=${encodeURIComponent(directLink)}`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    return `${origin}/api/proxy-image?url=${encodeURIComponent(directLink)}`;
 };
 
 export default function PrintOffersPage() {
@@ -143,7 +144,7 @@ export default function PrintOffersPage() {
                 scale: 3, // High resolution
                 useCORS: true,
                 backgroundColor: '#ffffff',
-                logging: false
+                logging: true
             });
 
             const dataUrl = canvas.toDataURL('image/png');
@@ -173,7 +174,7 @@ export default function PrintOffersPage() {
                 scale: 2, // 2x scale for sheet is perfect
                 useCORS: true,
                 backgroundColor: '#ffffff',
-                logging: false
+                logging: true
             });
 
             const dataUrl = canvas.toDataURL('image/png');
