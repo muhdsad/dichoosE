@@ -90,8 +90,9 @@ export default function ProductsPage() {
                 />
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-150 overflow-hidden">
-                <div className="overflow-x-auto">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-155 overflow-hidden animate-fadeIn">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider border-b border-gray-150">
@@ -115,7 +116,7 @@ export default function ProductsPage() {
                                     const isLowStock = !isOutOfStock && Number(product.stock) <= reorder;
 
                                     return (
-                                        <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50/70 transition">
+                                        <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-55 transition">
                                             <td className="py-4 px-6">
                                                 {product.image ? (
                                                     <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
@@ -226,6 +227,132 @@ export default function ProductsPage() {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card List View */}
+                <div className="block md:hidden divide-y divide-gray-150">
+                    {filteredProducts.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500 font-medium bg-white">No products found in catalog.</div>
+                    ) : (
+                        filteredProducts.map((product) => {
+                            const reorder = product.reorderLevel !== undefined ? Number(product.reorderLevel) : 5;
+                            const isOutOfStock = product.stock === undefined || product.stock === '' || Number(product.stock) <= 0;
+                            const isLowStock = !isOutOfStock && Number(product.stock) <= reorder;
+
+                            return (
+                                <div key={product.id} className="p-4.5 space-y-3.5 bg-white hover:bg-gray-50 transition">
+                                    {/* Product Details Header */}
+                                    <div className="flex items-start gap-3.5">
+                                        {product.image ? (
+                                            <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50 flex-shrink-0">
+                                                <img
+                                                    src={getDirectDriveLink(product.image)}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="h-12 w-12 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-[10px] text-gray-400 bg-gray-50 font-bold flex-shrink-0">No Image</div>
+                                        )}
+                                        
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-1">
+                                                <span className="font-extrabold text-gray-800 text-sm leading-snug">{product.name}</span>
+                                                {product.dietary && product.dietary !== 'None' && (
+                                                    <DietDot type={product.dietary} />
+                                                )}
+                                            </div>
+                                            {product.brand && (
+                                                <span className="text-[9px] font-extrabold text-primary uppercase tracking-wide block mt-0.5">{product.brand}</span>
+                                            )}
+                                            <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                                {product.barcode && (
+                                                    <span className="text-[9px] bg-gray-100 border border-gray-200 text-gray-500 font-mono px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                                        <FaBarcode size={8} /> {product.barcode}
+                                                    </span>
+                                                )}
+                                                {product.location && (
+                                                    <span className="text-[9px] bg-indigo-50 border border-indigo-100 text-indigo-650 px-1.5 py-0.5 rounded font-semibold">
+                                                        Aisle: {product.location}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+                                            <span className="font-extrabold text-gray-900 text-sm">₹{Number(product.price || 0).toFixed(2)}</span>
+                                            {product.mrp && Number(product.mrp) > Number(product.price) && (
+                                                <span className="text-[9px] text-gray-400 line-through">MRP: ₹{Number(product.mrp).toFixed(2)}</span>
+                                            )}
+                                            {product.unit && (
+                                                <span className="text-[9px] text-gray-450 font-semibold uppercase">Per {product.unit}</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Category and Stock Badges */}
+                                    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-2 text-xs">
+                                        <div>
+                                            <div className="text-[10px] font-bold text-gray-500 uppercase">
+                                                {product.categories && product.categories.length > 0
+                                                    ? product.categories.join(', ')
+                                                    : product.category || 'Unassigned'}
+                                            </div>
+                                            {product.subcategory && (
+                                                <span className="inline-block text-[8px] text-gray-500 font-bold bg-gray-100 border border-gray-250 px-1.5 py-0.5 rounded mt-0.5">
+                                                    Sub: {product.subcategory}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-2">
+                                            {/* Publish status */}
+                                            {product.isPublished !== false ? (
+                                                <span className="inline-flex items-center gap-0.5 text-[9px] bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 rounded-full font-bold">
+                                                    <FaEye size={8} /> Published
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-0.5 text-[9px] bg-yellow-50 border border-yellow-250 text-yellow-700 px-2 py-0.5 rounded-full font-bold">
+                                                    <FaEyeSlash size={8} /> Draft
+                                                </span>
+                                            )}
+
+                                            {/* Stock status */}
+                                            {isOutOfStock ? (
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-red-50 border border-red-200 text-red-700">
+                                                    Out of Stock (0)
+                                                </span>
+                                            ) : isLowStock ? (
+                                                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-50 border border-amber-250 text-amber-700 animate-pulse" title={`Reorder Alert: <= ${reorder}`}>
+                                                    <FaExclamationTriangle className="text-amber-500" size={8} /> Low ({product.stock})
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-50 border border-green-205 text-green-700">
+                                                    Stock: {product.stock}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-2 border-t border-gray-100 pt-2.5">
+                                        <Link 
+                                            href={`/admin/products/edit/${product.id}`} 
+                                            className="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition font-bold text-xs flex items-center justify-center gap-1 border border-blue-150 shadow-sm"
+                                        >
+                                            <FaEdit size={12} /> Edit Product
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(product.id)}
+                                            className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl transition font-bold text-xs flex items-center justify-center gap-1 border border-red-150"
+                                        >
+                                            <FaTrash size={12} /> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
                 </div>
             </div>
         </div>

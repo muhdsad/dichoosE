@@ -1,21 +1,23 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
 import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint, FaUpload, FaPlusCircle, FaListUl } from 'react-icons/fa';
+
+export const navItems = [
+    { name: 'Dashboard', href: '/admin', icon: FaTachometerAlt },
+    { name: 'Products', href: '/admin/products', icon: FaBox },
+    { name: 'Manage Categories', href: '/admin/categories', icon: FaListUl },
+    { name: 'Orders', href: '/admin/orders', icon: FaShoppingBag },
+    { name: 'Print Offers', href: '/admin/print-offers', icon: FaPrint },
+    { name: 'Bulk Edit (Offers/Cats)', href: '/admin/bulk-offers', icon: FaUpload },
+    { name: 'Add Products (Bulk)', href: '/admin/bulk-products', icon: FaPlusCircle },
+    { name: 'Back to Store', href: '/', icon: FaHome },
+];
 
 const AdminSidebar = () => {
     const pathname = usePathname();
-
-    const navItems = [
-        { name: 'Dashboard', href: '/admin', icon: FaTachometerAlt },
-        { name: 'Products', href: '/admin/products', icon: FaBox },
-        { name: 'Manage Categories', href: '/admin/categories', icon: FaListUl },
-        { name: 'Orders', href: '/admin/orders', icon: FaShoppingBag },
-        { name: 'Print Offers', href: '/admin/print-offers', icon: FaPrint },
-        { name: 'Bulk Edit (Offers/Cats)', href: '/admin/bulk-offers', icon: FaUpload },
-        { name: 'Add Products (Bulk)', href: '/admin/bulk-products', icon: FaPlusCircle },
-        { name: 'Back to Store', href: '/', icon: FaHome },
-    ];
+    const { logout } = useAuth();
 
     return (
         <div className="bg-gray-900 text-white w-64 min-h-screen flex flex-col transition-all duration-300">
@@ -44,7 +46,10 @@ const AdminSidebar = () => {
             </nav>
 
             <div className="p-4 border-t border-gray-800">
-                <button className="flex items-center w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-red-600 rounded transition-colors">
+                <button 
+                    onClick={logout}
+                    className="flex items-center w-full px-4 py-2 text-gray-300 hover:text-white hover:bg-red-600 rounded transition-colors cursor-pointer"
+                >
                     <FaSignOutAlt className="mr-3" />
                     <span>Logout</span>
                 </button>

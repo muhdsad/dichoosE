@@ -701,7 +701,8 @@ export default function BulkOffersPage() {
 
                     {/* Interactive Data List */}
                     <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                        <div className="overflow-x-auto max-h-[600px]">
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block overflow-x-auto max-h-[600px]">
                             <table className="w-full text-left text-sm border-collapse">
                                 <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 border-b border-gray-200 shadow-sm">
                                     <tr>
@@ -860,6 +861,146 @@ export default function BulkOffersPage() {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Card List View */}
+                        <div className="block md:hidden max-h-[600px] overflow-y-auto p-2 space-y-4 bg-gray-50/50">
+                            {filteredProducts.length > 0 ? (
+                                filteredProducts.map((p) => {
+                                    const statusInfo = getOfferStatusInfo(p);
+                                    const isEdited = editedIds.has(p.id);
+                                    const rowSaveState = rowSaveStates[p.id] || 'idle';
+
+                                    return (
+                                        <div 
+                                            key={p.id} 
+                                            className={`bg-white rounded-2xl border p-4 space-y-4 shadow-sm transition-all relative ${
+                                                isEdited ? 'border-yellow-400 bg-yellow-50/5' : 'border-gray-200'
+                                            }`}
+                                        >
+                                            {/* Product Info Block */}
+                                            <div className="flex items-start gap-3">
+                                                <div className="relative w-12 h-12 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
+                                                    <img 
+                                                        src={p.image || '/categories/default.png'} 
+                                                        alt={p.name}
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => { e.target.src = '/categories/default.png'; }}
+                                                    />
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <h4 className="font-bold text-gray-800 text-sm leading-snug">{p.name}</h4>
+                                                    <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-gray-500 font-semibold">
+                                                        <span className="bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">{p.unit}</span>
+                                                        {p.brand && (
+                                                            <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-150">{p.brand}</span>
+                                                        )}
+                                                        {p.barcode && (
+                                                            <span className="font-mono text-gray-400">#{p.barcode}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="flex-shrink-0">
+                                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusInfo.badgeClass}`}>
+                                                        {statusInfo.label}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Pricing and Input Details */}
+                                            <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
+                                                <div>
+                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider">Regular Rate</span>
+                                                    <span className="font-bold text-gray-700 text-sm">₹{p.price}</span>
+                                                    {p.mrp && p.mrp > p.price && (
+                                                        <div className="text-[10px] text-gray-400 line-through font-medium">MRP: ₹{p.mrp}</div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider">Offer Price (₹)</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={p.offerPrice || ''}
+                                                        onChange={(e) => handleFieldChange(p.id, 'offerPrice', e.target.value)}
+                                                        placeholder="None"
+                                                        className={`w-full font-bold rounded-lg border text-xs p-1.5 text-black focus:ring-1 focus:ring-primary ${
+                                                            isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                        }`}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Scheduling Inputs */}
+                                            <div className="space-y-2 bg-gray-50 p-2.5 rounded-xl border border-gray-150">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-[10px] font-bold text-gray-500 flex items-center gap-1"><FaCalendarAlt className="text-gray-400" /> Start Time</span>
+                                                    <input
+                                                        type="datetime-local"
+                                                        value={p.offerStart || ''}
+                                                        onChange={(e) => handleFieldChange(p.id, 'offerStart', e.target.value)}
+                                                        className={`w-40 rounded-lg border text-[11px] p-1 text-black focus:ring-1 focus:ring-primary bg-white ${
+                                                            isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                        }`}
+                                                    />
+                                                </div>
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-[10px] font-bold text-gray-500 flex items-center gap-1"><FaCalendarAlt className="text-gray-400" /> End Time</span>
+                                                    <input
+                                                        type="datetime-local"
+                                                        value={p.offerEnd || ''}
+                                                        onChange={(e) => handleFieldChange(p.id, 'offerEnd', e.target.value)}
+                                                        className={`w-40 rounded-lg border text-[11px] p-1 text-black focus:ring-1 focus:ring-primary bg-white ${
+                                                            isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                        }`}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="flex gap-2 border-t border-gray-100 pt-3">
+                                                <button
+                                                    onClick={() => saveSingleProductOffer(p)}
+                                                    disabled={!isEdited || rowSaveState === 'saving'}
+                                                    className={`flex-1 py-2 rounded-lg border font-bold text-xs flex items-center justify-center gap-1 transition ${
+                                                        isEdited 
+                                                        ? 'bg-primary hover:bg-green-700 text-white border-transparent shadow-sm' 
+                                                        : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    {rowSaveState === 'saving' ? (
+                                                        <span className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white"></span>
+                                                    ) : rowSaveState === 'saved' ? (
+                                                        <FaCheckCircle className="w-3.5 h-3.5" />
+                                                    ) : (
+                                                        <FaSave className="w-3.5 h-3.5" />
+                                                    )}
+                                                    <span>{rowSaveState === 'saving' ? 'Saving' : rowSaveState === 'saved' ? 'Saved' : 'Save'}</span>
+                                                </button>
+
+                                                {p.offerPrice && (
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm(`Remove campaign offer from "${p.name}"?`)) {
+                                                                clearSingleProductOffer(p);
+                                                            }
+                                                        }}
+                                                        disabled={rowSaveState === 'saving'}
+                                                        className="p-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg transition"
+                                                        title="Clear Offer Campaign"
+                                                    >
+                                                        <FaTrash className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="p-10 text-center text-gray-500 font-semibold bg-white rounded-2xl border border-gray-200">
+                                    No products found matching filters.
+                                </div>
+                            )}
                         </div>
                     </div>
 
