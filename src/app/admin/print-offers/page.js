@@ -14,6 +14,61 @@ const getProxiedImageUrl = (url) => {
     }
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     return `${origin}/api/proxy-image?url=${encodeURIComponent(directLink)}`;
+};const getDynamicTitleStyle = (name) => {
+    const len = (name || '').length;
+    let fontSize = '13px';
+    if (len <= 10) {
+        fontSize = '26px';
+    } else if (len <= 18) {
+        fontSize = '22px';
+    } else if (len <= 28) {
+        fontSize = '17px';
+    } else if (len <= 40) {
+        fontSize = '14px';
+    } else {
+        fontSize = '12px';
+    }
+    return {
+        fontSize,
+        fontWeight: '900',
+        lineHeight: '1.35',
+        paddingBottom: '4px',
+        color: '#030712',
+        position: 'relative',
+        zIndex: '20',
+        textTransform: 'uppercase'
+    };
+};
+
+const getPosterDynamicTitleStyle = (name, baseSizeClass) => {
+    const len = (name || '').length;
+    let sizeFactor = 1.0;
+    if (len > 30) {
+        sizeFactor = 0.65;
+    } else if (len > 18) {
+        sizeFactor = 0.8;
+    }
+    
+    let basePx = 20;
+    if (baseSizeClass.includes('[22px]') || baseSizeClass.includes('[26px]')) {
+        basePx = 26;
+    } else if (baseSizeClass.includes('[18px]') || baseSizeClass.includes('[22px]')) {
+        basePx = 22;
+    } else {
+        basePx = 18;
+    }
+    
+    const finalSize = Math.round(basePx * sizeFactor);
+    return {
+        fontSize: `${finalSize}px`,
+        fontWeight: '900',
+        lineHeight: '1.35',
+        paddingBottom: '4px',
+        color: '#030712',
+        position: 'relative',
+        zIndex: '20',
+        textTransform: 'uppercase'
+    };
 };
 
 export default function PrintOffersPage() {
@@ -27,8 +82,10 @@ export default function PrintOffersPage() {
     const [posterLayout, setPosterLayout] = useState('6'); // '4' | '6' | '8'
     const [selectedProductIds, setSelectedProductIds] = useState(new Set());
     const [bannerImage, setBannerImage] = useState(null);
+    const [textBannerBgImage, setTextBannerBgImage] = useState(null);
+    const [bannerType, setBannerType] = useState('text'); // 'text' | 'image'
     const [posterTitle, setPosterTitle] = useState('SMILE HYPERMARKET');
-    const [posterSubtitle, setPosterSubtitle] = useState('WEEKEND SPECIAL OFFERS');
+    const [posterSubtitle, setPosterSubtitle] = useState('OFFER VALIDITY: 14TH TO 20TH JULY');
 
     useEffect(() => {
         const fetchOfferProducts = async () => {
@@ -130,6 +187,17 @@ export default function PrintOffersPage() {
         }
     };
 
+    const handleTextBannerBgUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setTextBannerBgImage(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSaveCardAsPng = async (productId, productName) => {
         setSaving(true);
         try {
@@ -215,31 +283,31 @@ export default function PrintOffersPage() {
 
     const posterLayoutConfigs = {
         '4': {
-            titleTop: '14%',
-            titleFontSize: 'text-[30px] sm:text-[34px] md:text-[38px]',
-            imageTop: '34%',
-            imageBottom: '26%',
-            priceTop: '76%',
-            priceFontSize: 'text-[46px] sm:text-[54px] md:text-[64px]',
-            unitFontSize: 'text-[14px] sm:text-[16px]'
+            imageTop: '50px',
+            imageBottom: '135px',
+            titleFontSize: 'text-[22px] sm:text-[24px] md:text-[26px]',
+            priceFontSize: 'text-[26px] sm:text-[30px] md:text-[34px]',
+            oldPriceFontSize: 'text-base sm:text-lg',
+            unitFontSize: 'text-sm sm:text-base',
+            discountFontSize: 'text-xs sm:text-sm'
         },
         '6': {
-            titleTop: '11%',
-            titleFontSize: 'text-[24px] sm:text-[28px] md:text-[30px]',
-            imageTop: '28%',
-            imageBottom: '26%',
-            priceTop: '75%',
-            priceFontSize: 'text-[36px] sm:text-[42px] md:text-[48px]',
-            unitFontSize: 'text-[12px] sm:text-[14px]'
+            imageTop: '45px',
+            imageBottom: '110px',
+            titleFontSize: 'text-[18px] sm:text-[20px] md:text-[22px]',
+            priceFontSize: 'text-[22px] sm:text-[24px] md:text-[26px]',
+            oldPriceFontSize: 'text-xs sm:text-sm',
+            unitFontSize: 'text-[11px] sm:text-xs',
+            discountFontSize: 'text-[10px] sm:text-xs'
         },
         '8': {
-            titleTop: '10%',
-            titleFontSize: 'text-[20px] sm:text-[22px] md:text-[24px]',
-            imageTop: '25%',
-            imageBottom: '25%',
-            priceTop: '74%',
-            priceFontSize: 'text-[28px] sm:text-[32px] md:text-[36px]',
-            unitFontSize: 'text-[10px] sm:text-[12px]'
+            imageTop: '40px',
+            imageBottom: '95px',
+            titleFontSize: 'text-[15px] sm:text-[16px] md:text-[18px]',
+            priceFontSize: 'text-[18px] sm:text-[20px] md:text-[22px]',
+            oldPriceFontSize: 'text-[11px] sm:text-xs',
+            unitFontSize: 'text-[10px] sm:text-[11px]',
+            discountFontSize: 'text-[9px] sm:text-[10px]'
         }
     };
 
@@ -278,7 +346,7 @@ export default function PrintOffersPage() {
                                 onClick={() => setLayout('portrait')}
                                 className={`px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
                             >
-                                3x6 Portrait (18 Tags)
+                                3x5 Portrait (15 Tags)
                             </button>
                             <button
                                 onClick={() => setLayout('landscape')}
@@ -323,55 +391,111 @@ export default function PrintOffersPage() {
                                 </div>
                             </div>
 
-                            {/* Banner Image Settings */}
-                            <div className="space-y-2">
-                                <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Custom Poster Banner</label>
-                                <div className="flex items-center gap-3">
-                                    <input 
-                                        type="file" 
-                                        accept="image/*" 
-                                        onChange={handleBannerUpload}
-                                        className="hidden" 
-                                        id="banner-file-input"
-                                    />
-                                    <label 
-                                        htmlFor="banner-file-input" 
-                                        className="flex-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-2 rounded-lg font-bold text-xs text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5"
+                            {/* Banner Option Selection (Two-Way Option) */}
+                            <div className="space-y-1.5">
+                                <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Banner Option</label>
+                                <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-lg">
+                                    <button
+                                        type="button"
+                                        onClick={() => setBannerType('text')}
+                                        className={`py-1.5 text-xs font-bold rounded-md transition cursor-pointer ${bannerType === 'text' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
                                     >
-                                        <FaImage /> {bannerImage ? 'Change Image' : 'Upload Image'}
-                                    </label>
-                                    {bannerImage && (
-                                        <button
-                                            onClick={() => setBannerImage(null)}
-                                            className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-2.5 rounded-lg transition"
-                                            title="Remove Banner"
-                                        >
-                                            <FaTrash className="w-3.5 h-3.5" />
-                                        </button>
-                                    )}
+                                        Custom Text Banner
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setBannerType('image')}
+                                        className={`py-1.5 text-xs font-bold rounded-md transition cursor-pointer ${bannerType === 'image' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+                                    >
+                                        Uploaded Image Banner
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Custom Text Banner Settings (Fallback) */}
-                            {!bannerImage && (
-                                <div className="space-y-2 grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Poster Header Text</label>
-                                        <input
-                                            type="text"
-                                            value={posterTitle}
-                                            onChange={(e) => setPosterTitle(e.target.value)}
-                                            className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
+                            {/* Banner Image Settings */}
+                            {bannerType === 'image' && (
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Custom Poster Banner Image</label>
+                                    <div className="flex items-center gap-3">
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={handleBannerUpload}
+                                            className="hidden" 
+                                            id="banner-file-input"
                                         />
+                                        <label 
+                                            htmlFor="banner-file-input" 
+                                            className="flex-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-2 rounded-lg font-bold text-xs text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5"
+                                        >
+                                            <FaImage /> {bannerImage ? 'Change Image' : 'Upload Image'}
+                                        </label>
+                                        {bannerImage && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setBannerImage(null)}
+                                                className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-2.5 rounded-lg transition"
+                                                title="Remove Banner"
+                                            >
+                                                <FaTrash className="w-3.5 h-3.5" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Custom Text Banner Settings */}
+                            {bannerType === 'text' && (
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Thick Main Header</label>
+                                            <input
+                                                type="text"
+                                                value={posterTitle}
+                                                onChange={(e) => setPosterTitle(e.target.value)}
+                                                placeholder="e.g. SPECIAL OFFER"
+                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Offer Duration / Validity</label>
+                                            <input
+                                                type="text"
+                                                value={posterSubtitle}
+                                                onChange={(e) => setPosterSubtitle(e.target.value)}
+                                                placeholder="e.g. VALIDITY: 14TH TO 20TH JULY"
+                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Subheader Text</label>
-                                        <input
-                                            type="text"
-                                            value={posterSubtitle}
-                                            onChange={(e) => setPosterSubtitle(e.target.value)}
-                                            className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
-                                        />
+                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Banner Background Image (Optional)</label>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleTextBannerBgUpload}
+                                                className="hidden" 
+                                                id="text-banner-bg-input"
+                                            />
+                                            <label 
+                                                htmlFor="text-banner-bg-input" 
+                                                className="flex-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-1.5 rounded-lg font-bold text-[11px] text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5"
+                                            >
+                                                <FaImage /> {textBannerBgImage ? 'Change BG Image' : 'Upload BG Image'}
+                                            </label>
+                                            {textBannerBgImage && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setTextBannerBgImage(null)}
+                                                    className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-2 rounded-lg transition"
+                                                    title="Remove BG Image"
+                                                >
+                                                    <FaTrash className="w-3 h-3" />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -463,16 +587,39 @@ export default function PrintOffersPage() {
                         
                         {/* Top Poster Banner */}
                         <div className="w-full h-[57mm] border-b-2 border-black relative flex-shrink-0 bg-white">
-                            {bannerImage ? (
+                            {bannerType === 'image' && bannerImage ? (
                                 <img src={bannerImage} alt="Poster Banner" className="w-full h-full object-cover" />
                             ) : (
-                                <div className="w-full h-full bg-gradient-to-r from-red-600 via-purple-700 to-indigo-950 flex flex-col items-center justify-center text-center p-3">
-                                    <h1 className="font-anton text-white text-[38px] leading-tight tracking-wider uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                                        {posterTitle}
-                                    </h1>
-                                    <h2 className="font-anton text-[#ffff00] text-[20px] tracking-widest mt-1 uppercase font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                                        {posterSubtitle}
-                                    </h2>
+                                <div 
+                                    className="w-full h-full flex flex-col items-center justify-center text-center p-3 relative overflow-hidden"
+                                    style={textBannerBgImage ? { 
+                                        backgroundImage: `url(${textBannerBgImage})`, 
+                                        backgroundPosition: 'center', 
+                                        backgroundSize: 'cover' 
+                                    } : { 
+                                        background: 'linear-gradient(to right, #dc2626, #7e22ce, #1e1b4b)' 
+                                    }}
+                                >
+                                    {/* Overlay for legibility if there is a background image */}
+                                    {textBannerBgImage && (
+                                        <div className="absolute inset-0 bg-black/35 z-0" />
+                                    )}
+                                    <div className="relative z-10 flex flex-col items-center justify-center">
+                                        <h1 
+                                            className="font-black text-[42px] leading-none tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                                            style={{ color: '#ffffff', fontWeight: '950' }}
+                                        >
+                                            {posterTitle || 'SMILE HYPERMARKET'}
+                                        </h1>
+                                        {posterSubtitle && (
+                                            <div 
+                                                className="mt-3 px-6 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest shadow-md border-2 border-black flex items-center justify-center"
+                                                style={{ backgroundColor: '#facc15', color: '#000000', fontWeight: '900' }}
+                                            >
+                                                {posterSubtitle}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -507,62 +654,70 @@ export default function PrintOffersPage() {
                                         ) : (
                                             /* Active Offer Card */
                                             <>
-                                                {/* MRP Badge */}
-                                                {(product.mrp || product.price) && (
-                                                    <div 
-                                                        className="absolute z-[10] bg-[#ffff00] text-black border border-black px-[6px] py-[3.5px] text-[10px] sm:text-[11px] font-extrabold uppercase line-through leading-tight tracking-wide"
-                                                        style={{ top: '8px', left: '8px' }}
-                                                    >
-                                                        MRP {product.mrp || product.price}
-                                                    </div>
-                                                )}
-                                                
-                                                {/* Save Badge */}
-                                                {hasSavings && (
-                                                    <div 
-                                                        className="absolute z-[10] bg-[#ff0000] text-white border border-[#ff0000] px-[6px] py-[3.5px] text-[10px] sm:text-[11px] font-extrabold uppercase leading-tight tracking-wide"
-                                                        style={{ top: '8px', right: '8px' }}
-                                                    >
-                                                        SMILE SAVE ₹{savings}
-                                                    </div>
-                                                )}
-
-                                                {/* Product Title (H2) */}
-                                                <h2 
-                                                    className={`absolute z-[5] text-center font-anton leading-[1.1] uppercase text-black ${config.titleFontSize}`}
-                                                    style={{ top: config.titleTop, left: '8px', right: '8px', WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}
+                                                {/* LIMITED OFFER Badge */}
+                                                <div 
+                                                    className="absolute z-[10] text-[10px] sm:text-[11px] font-extrabold uppercase px-2 py-1 rounded tracking-wide shadow-sm"
+                                                    style={{ top: '8px', left: '8px', backgroundColor: '#ff3b30', color: '#ffffff' }}
                                                 >
-                                                    {product.name}
-                                                </h2>
+                                                    LIMITED OFFER
+                                                </div>
+                                                
+                                                {/* Wishlist Heart Icon */}
+                                                <div 
+                                                    className="absolute z-[10] border rounded-full shadow-sm flex items-center justify-center"
+                                                    style={{ top: '8px', right: '8px', backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#ff3b30', width: '28px', height: '28px' }}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                                    </svg>
+                                                </div>
 
                                                 {/* Image Wrapper */}
                                                 <div 
-                                                    className="absolute z-[1] flex items-center justify-center"
+                                                    className="absolute z-[1] flex items-center justify-center bg-transparent"
                                                     style={{ top: config.imageTop, bottom: config.imageBottom, left: '8px', right: '8px' }}
                                                 >
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
-                                                        className="max-w-full max-h-full object-contain"
+                                                        className="max-w-full max-h-full object-contain animate-fadeIn"
                                                         referrerPolicy="no-referrer"
                                                     />
                                                 </div>
 
-                                                {/* Price Block */}
+                                                {/* Card Details Block */}
                                                 <div 
-                                                    className="absolute z-[5] flex items-baseline justify-center w-full"
-                                                    style={{ top: config.priceTop, left: '0', right: '0' }}
+                                                    className="absolute left-4 right-4 text-left flex flex-col justify-end z-[15] overflow-visible"
+                                                    style={{ bottom: '12px' }}
                                                 >
-                                                    <span className={`font-anton leading-none text-black tracking-tighter ${config.priceFontSize}`}
-                                                          style={{ WebkitTextStroke: '1.5px white', textShadow: '0 0 4px white, 0 0 4px white' }}>
-                                                        {product.offerPrice}
-                                                    </span>
-                                                    {product.unit && (
-                                                        <span className={`font-anton text-black ml-1 uppercase ${config.unitFontSize}`}
-                                                              style={{ WebkitTextStroke: '0.5px white' }}>
-                                                            /{product.unit}
+                                                    {product.brand && (
+                                                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5" style={{ color: '#9ca3af' }}>
+                                                            {product.brand}
                                                         </span>
                                                     )}
+                                                    <h2 className="font-black leading-tight tracking-tight line-clamp-2" style={getPosterDynamicTitleStyle(product.name, config.titleFontSize)}>
+                                                        {product.name.toUpperCase()}
+                                                    </h2>
+                                                    <div className={`font-semibold mt-1 ${config.unitFontSize}`} style={{ color: '#6b7280' }}>
+                                                        {product.unit || '1 KG'}
+                                                    </div>
+                                                    <div className="flex items-center justify-between mt-2 w-full">
+                                                        <div className="flex items-baseline">
+                                                            <span className={`font-extrabold ${config.priceFontSize}`} style={{ color: '#111827' }}>
+                                                                ₹{Number(product.offerPrice || 0).toFixed(2)}
+                                                            </span>
+                                                            {(product.mrp || product.price) && (
+                                                                <span className={`line-through font-semibold ml-2 ${config.oldPriceFontSize}`} style={{ color: '#9ca3af' }}>
+                                                                    ₹{Number(product.mrp || product.price || 0).toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {hasSavings && (
+                                                            <span className={`font-bold rounded-full px-2 py-0.5 ${config.discountFontSize}`} style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>
+                                                                {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
 
                                                 {/* Individual Save as PNG Button */}
@@ -570,7 +725,7 @@ export default function PrintOffersPage() {
                                                     data-html2canvas-ignore
                                                     onClick={() => handleSaveCardAsPng(product.id, product.name)}
                                                     disabled={saving}
-                                                    className="absolute bottom-2 right-2 z-10 bg-indigo-650 hover:bg-indigo-850 text-white text-[9px] font-bold py-1 px-2.5 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                    className="absolute bottom-2 right-2 z-[20] bg-indigo-650 hover:bg-indigo-850 text-white text-[9px] font-bold py-1 px-2.5 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
                                                 >
                                                     Save PNG
                                                 </button>
@@ -584,93 +739,127 @@ export default function PrintOffersPage() {
                 ) : (
                     /* STANDARD TAG SHEETS CONTAINER */
                     <div className={`grid gap-0 print:gap-0 border-t-[1.5px] border-l-[1.5px] border-black ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
-                        {products.map((product, index) => {
-                            const itemsPerPage = layout === 'landscape' ? 16 : 18;
-                            const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
-                            const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
-                            const hasSavings = savings > 0;
-                            const cardHeight = layout === 'landscape' ? '52.5mm' : '49.5mm';
+                        {(() => {
+                            const itemsPerPage = layout === 'landscape' ? 16 : 15;
+                            const cardHeight = layout === 'landscape' ? '52.5mm' : '58.5mm';
+                            
+                            // Pad products to a multiple of itemsPerPage with empty placeholders
+                            const sheetProducts = [...products];
+                            const remainder = sheetProducts.length % itemsPerPage;
+                            if (remainder !== 0) {
+                                const padCount = itemsPerPage - remainder;
+                                for (let i = 0; i < padCount; i++) {
+                                    sheetProducts.push({
+                                        id: `sheet-placeholder-${i}`,
+                                        isPlaceholder: true,
+                                        name: 'Placeholder'
+                                    });
+                                }
+                            }
 
-                            return (
-                                <div
-                                    key={product.id}
-                                    id={`offer-card-${product.id}`}
-                                    className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-visible bg-white group"
-                                    style={{
-                                        height: cardHeight,
-                                        breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
-                                    }}
-                                >
-                                    {/* MRP Badge */}
-                                    {(product.mrp || product.price) && (
-                                        <div 
-                                            className="absolute z-[10] bg-[#ffff00] text-black border border-black px-[5px] py-[3px] text-[10px] sm:text-[11px] font-bold uppercase line-through leading-tight tracking-wide"
-                                            style={{ top: '6px', left: '6px' }}
-                                        >
-                                            MRP {product.mrp || product.price}
-                                        </div>
-                                    )}
-                                    
-                                    {/* Save Badge */}
-                                    {hasSavings && (
-                                        <div 
-                                            className="absolute z-[10] bg-[#ff0000] text-white border border-[#ff0000] px-[5px] py-[3px] text-[10px] sm:text-[11px] font-bold uppercase leading-tight tracking-wide"
-                                            style={{ top: '6px', right: '6px' }}
-                                        >
-                                            SMILE SAVE ₹{savings}
-                                        </div>
-                                    )}
+                            return sheetProducts.map((product, index) => {
+                                const isPlaceholder = product.isPlaceholder;
+                                const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
+                                const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
+                                const hasSavings = savings > 0;
 
-                                    {/* Product Title (H2) */}
-                                    <h2 
-                                        className="absolute z-[5] text-center font-anton text-[26px] sm:text-[32px] md:text-[34px] leading-[1.2] uppercase text-black"
-                                        style={{ top: '12%', left: '4px', right: '4px', WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}
+                                return (
+                                    <div
+                                        key={product.id}
+                                        id={`offer-card-${product.id}`}
+                                        className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-visible bg-white group"
+                                        style={{
+                                            height: cardHeight,
+                                            breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
+                                        }}
                                     >
-                                        {product.name}
-                                    </h2>
+                                        {isPlaceholder ? (
+                                            /* Empty placeholder cell to maintain print shape for trimming */
+                                            <div className="w-full h-full bg-white" />
+                                        ) : (
+                                            /* Active tag card */
+                                            <>
+                                                {/* LIMITED OFFER Badge */}
+                                                <div 
+                                                    className="absolute z-[10] text-white text-[8px] sm:text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm"
+                                                    style={{ top: '6px', left: '6px', backgroundColor: '#ff3b30', color: '#ffffff' }}
+                                                >
+                                                    LIMITED OFFER
+                                                </div>
+                                                
+                                                {/* Wishlist Heart Icon */}
+                                                <div 
+                                                    className="absolute z-[10] border rounded-full shadow-sm flex items-center justify-center"
+                                                    style={{ top: '6px', right: '6px', backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#ff3b30', width: '20px', height: '20px' }}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-2.5 h-2.5">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                                    </svg>
+                                                </div>
 
-                                    {/* Image Wrapper */}
-                                    <div 
-                                        className="absolute z-[1] flex items-center justify-center"
-                                        style={{ top: '32%', bottom: '28%', left: '4px', right: '4px' }}
-                                    >
-                                        <img
-                                            src={getProxiedImageUrl(product.image)}
-                                            alt={product.name}
-                                            className="max-w-full max-h-full object-contain"
-                                            referrerPolicy="no-referrer"
-                                        />
-                                    </div>
+                                                {/* Image Wrapper */}
+                                                <div 
+                                                    className="absolute z-[1] flex items-center justify-center bg-transparent"
+                                                    style={{ top: '36px', bottom: '86px', left: '8px', right: '8px' }}
+                                                >
+                                                    <img
+                                                        src={getProxiedImageUrl(product.image)}
+                                                        alt={product.name}
+                                                        className="max-w-full max-h-full object-contain animate-fadeIn"
+                                                        referrerPolicy="no-referrer"
+                                                    />
+                                                </div>
 
-                                    {/* Price Block */}
-                                    <div 
-                                        className="absolute z-[5] flex items-baseline justify-center w-full"
-                                        style={{ top: '74%', left: '0', right: '0' }}
-                                    >
-                                        <span className="font-anton text-[36px] sm:text-[42px] md:text-[46px] leading-none text-black tracking-tighter"
-                                              style={{ WebkitTextStroke: '1.5px white', textShadow: '0 0 4px white, 0 0 4px white' }}>
-                                            {product.offerPrice}
-                                        </span>
-                                        {product.unit && (
-                                            <span className="font-anton text-[14px] sm:text-[16px] text-black ml-1 uppercase"
-                                                  style={{ WebkitTextStroke: '0.5px white' }}>
-                                                /{product.unit}
-                                            </span>
+                                                {/* Card Details Block */}
+                                                <div 
+                                                    className="absolute left-2 right-2 text-left flex flex-col justify-end z-[15] overflow-visible"
+                                                    style={{ bottom: '12px' }}
+                                                >
+                                                    {product.brand && (
+                                                        <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#9ca3af' }}>
+                                                            {product.brand}
+                                                        </span>
+                                                    )}
+                                                    <h2 className="font-black leading-tight tracking-tight line-clamp-2" style={getDynamicTitleStyle(product.name)}>
+                                                        {product.name.toUpperCase()}
+                                                    </h2>
+                                                    <div className="font-bold mt-1" style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                        {product.unit || '1 KG'}
+                                                    </div>
+                                                    <div className="flex items-center justify-between mt-1 w-full">
+                                                        <div className="flex items-baseline">
+                                                            <span className="font-black" style={{ fontSize: '22px', fontWeight: '950', color: '#111827', lineHeight: '1' }}>
+                                                                ₹{Number(product.offerPrice || 0).toFixed(2)}
+                                                            </span>
+                                                            {(product.mrp || product.price) && (
+                                                                <span className="line-through font-bold ml-1.5" style={{ fontSize: '12px', color: '#9ca3af' }}>
+                                                                    ₹{Number(product.mrp || product.price || 0).toFixed(2)}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {hasSavings && (
+                                                            <span className="font-black rounded-full px-1.5 py-0.5" style={{ fontSize: '11px', fontWeight: '900', backgroundColor: '#f0fdf4', color: '#16a34a' }}>
+                                                                {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Individual Save as PNG Button */}
+                                                <button
+                                                    data-html2canvas-ignore
+                                                    onClick={() => handleSaveCardAsPng(product.id, product.name)}
+                                                    disabled={saving}
+                                                    className="absolute bottom-2 right-2 z-[20] bg-primary hover:bg-green-700 text-white text-[10px] font-bold py-1 px-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                >
+                                                    Save PNG
+                                                </button>
+                                            </>
                                         )}
                                     </div>
-
-                                    {/* Individual Save as PNG Button */}
-                                    <button
-                                        data-html2canvas-ignore
-                                        onClick={() => handleSaveCardAsPng(product.id, product.name)}
-                                        disabled={saving}
-                                        className="absolute bottom-2 right-2 z-10 bg-primary hover:bg-green-700 text-white text-[10px] font-bold py-1 px-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
-                                    >
-                                        Save PNG
-                                    </button>
-                                </div>
-                            );
-                        })}
+                                );
+                            });
+                        })()}
                     </div>
                 )}
             </div>
