@@ -16,59 +16,146 @@ const getProxiedImageUrl = (url) => {
     return `${origin}/api/proxy-image?url=${encodeURIComponent(directLink)}`;
 };const getDynamicTitleStyle = (name) => {
     const len = (name || '').length;
-    let fontSize = '13px';
-    if (len <= 10) {
-        fontSize = '26px';
+    let fontSize = '16px';
+    if (len <= 12) {
+        fontSize = '36px';
     } else if (len <= 18) {
-        fontSize = '22px';
+        fontSize = '30px';
     } else if (len <= 28) {
-        fontSize = '17px';
+        fontSize = '24px';
     } else if (len <= 40) {
-        fontSize = '14px';
+        fontSize = '18px';
     } else {
-        fontSize = '12px';
+        fontSize = '16px';
     }
     return {
         fontSize,
-        fontWeight: '900',
-        lineHeight: '1.35',
-        paddingBottom: '4px',
-        color: '#030712',
-        position: 'relative',
-        zIndex: '20',
-        textTransform: 'uppercase'
+        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+        fontWeight: 'normal',
+        lineHeight: '1.1',
+        color: '#000000',
+        textTransform: 'uppercase',
+        textAlign: 'center',
+        wordBreak: 'break-word',
+        WebkitTextStroke: '1px #ffffff',
+        paintOrder: 'stroke fill',
+        textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
     };
 };
 
-const getPosterDynamicTitleStyle = (name, baseSizeClass) => {
+const getDynamicPriceStyle = (price) => {
+    const text = `₹${Number(price || 0).toFixed(2)}`;
+    const len = text.length;
+    let fontSize = '24px';
+    if (len <= 6) {
+        fontSize = '38px';
+    } else if (len <= 8) {
+        fontSize = '34px';
+    } else if (len <= 10) {
+        fontSize = '28px';
+    } else {
+        fontSize = '24px';
+    }
+    return {
+        fontSize,
+        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+        fontWeight: 'normal',
+        lineHeight: '1',
+        color: '#000000',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        WebkitTextStroke: '1.2px #ffffff',
+        paintOrder: 'stroke fill',
+        textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
+    };
+};
+
+const getPosterDynamicTitleStyle = (name, layout) => {
     const len = (name || '').length;
+    let baseSize = 24; // Default for '8'
+    if (layout === '4') {
+        baseSize = 48;
+    } else if (layout === '6') {
+        baseSize = 34;
+    }
+
     let sizeFactor = 1.0;
     if (len > 30) {
         sizeFactor = 0.65;
     } else if (len > 18) {
         sizeFactor = 0.8;
     }
-    
-    let basePx = 20;
-    if (baseSizeClass.includes('[22px]') || baseSizeClass.includes('[26px]')) {
-        basePx = 26;
-    } else if (baseSizeClass.includes('[18px]') || baseSizeClass.includes('[22px]')) {
-        basePx = 22;
-    } else {
-        basePx = 18;
-    }
-    
-    const finalSize = Math.round(basePx * sizeFactor);
+
+    const finalSize = Math.round(baseSize * sizeFactor);
     return {
         fontSize: `${finalSize}px`,
-        fontWeight: '900',
-        lineHeight: '1.35',
-        paddingBottom: '4px',
-        color: '#030712',
-        position: 'relative',
-        zIndex: '20',
-        textTransform: 'uppercase'
+        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+        fontWeight: 'normal',
+        lineHeight: '1.1',
+        color: '#000000',
+        textTransform: 'uppercase',
+        textAlign: 'center',
+        wordBreak: 'break-word',
+        WebkitTextStroke: layout === '4' ? '1.5px #ffffff' : '1px #ffffff',
+        paintOrder: 'stroke fill',
+        textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
+};
+
+const getPosterDynamicPriceStyle = (price, layout) => {
+    const text = `₹${Number(price || 0).toFixed(2)}`;
+    const len = text.length;
+    let baseSize = 32; // Default for '8'
+    if (layout === '4') {
+        baseSize = 64;
+    } else if (layout === '6') {
+        baseSize = 46;
+    }
+
+    let sizeFactor = 1.0;
+    if (len > 8) {
+        sizeFactor = 0.8;
+    } else if (len > 10) {
+        sizeFactor = 0.65;
+    }
+
+    const finalSize = Math.round(baseSize * sizeFactor);
+    return {
+        fontSize: `${finalSize}px`,
+        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+        fontWeight: 'normal',
+        lineHeight: '1',
+        color: '#000000',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        WebkitTextStroke: layout === '4' ? '1.8px #ffffff' : '1.2px #ffffff',
+        paintOrder: 'stroke fill',
+        textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
+    };
+};
+
+const getUnitFontSize = (layout) => {
+    if (layout === '4') return '18px';
+    if (layout === '6') return '14px';
+    return '12px';
+};
+
+const getBrandFontSize = (layout) => {
+    if (layout === '4') return '14px';
+    if (layout === '6') return '11px';
+    return '10px';
+};
+
+const getMrpFontSize = (layout) => {
+    if (layout === '4') return '18px';
+    if (layout === '6') return '14px';
+    return '12px';
+};
+
+const getDiscountFontSize = (layout) => {
+    if (layout === '4') return '16px';
+    if (layout === '6') return '13px';
+    return '11px';
 };
 
 export default function PrintOffersPage() {
@@ -201,7 +288,7 @@ export default function PrintOffersPage() {
     const handleSaveCardAsPng = async (productId, productName) => {
         setSaving(true);
         try {
-            const html2canvas = (await import('html2canvas')).default;
+            const html2canvas = (await import('html2canvas-pro')).default;
             const element = document.getElementById(`offer-card-${productId}`);
             if (!element) {
                 alert("Error: Card element not found.");
@@ -231,7 +318,7 @@ export default function PrintOffersPage() {
     const handleSaveAllAsPng = async () => {
         setSaving(true);
         try {
-            const html2canvas = (await import('html2canvas')).default;
+            const html2canvas = (await import('html2canvas-pro')).default;
             const element = document.getElementById('print-offers-container');
             if (!element) {
                 alert("Error: Print container not found.");
@@ -636,7 +723,7 @@ export default function PrintOffersPage() {
                                     <div
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
-                                        className={`border-r-2 border-b-2 border-black p-2 flex flex-col items-center justify-between text-center relative overflow-visible bg-white group ${
+                                        className={`border-r-2 border-b-2 border-black p-2 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white group ${
                                             // Eliminate right border on right column (index is odd)
                                             (index % 2 === 1) ? 'border-r-0' : ''
                                         } ${
@@ -654,69 +741,70 @@ export default function PrintOffersPage() {
                                         ) : (
                                             /* Active Offer Card */
                                             <>
-                                                {/* LIMITED OFFER Badge */}
-                                                <div 
-                                                    className="absolute z-[10] text-[10px] sm:text-[11px] font-extrabold uppercase px-2 py-1 rounded tracking-wide shadow-sm"
-                                                    style={{ top: '8px', left: '8px', backgroundColor: '#ff3b30', color: '#ffffff' }}
-                                                >
-                                                    LIMITED OFFER
-                                                </div>
-                                                
-                                                {/* Wishlist Heart Icon */}
-                                                <div 
-                                                    className="absolute z-[10] border rounded-full shadow-sm flex items-center justify-center"
-                                                    style={{ top: '8px', right: '8px', backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#ff3b30', width: '28px', height: '28px' }}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-3.5 h-3.5">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                                                    </svg>
-                                                </div>
+                                                {/* MRP Badge */}
+                                                {(product.mrp || product.price) && (
+                                                    <div 
+                                                        className="absolute z-[10] bg-[#ffff00] text-black border border-black font-extrabold uppercase px-2 py-0.5 tracking-wide line-through"
+                                                        style={{ 
+                                                            top: '12px', 
+                                                            left: '12px', 
+                                                            fontSize: getDiscountFontSize(posterLayout),
+                                                            fontFamily: 'var(--font-sans), sans-serif',
+                                                            textDecorationColor: '#000000',
+                                                            lineHeight: '1.1'
+                                                        }}
+                                                    >
+                                                        MRP {Number(product.mrp || product.price || 0).toFixed(2)}
+                                                    </div>
+                                                )}
+
+                                                {/* Save Badge */}
+                                                {hasSavings && (
+                                                    <div 
+                                                        className="absolute z-[10] bg-red-600 text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm"
+                                                        style={{ 
+                                                            top: '12px', 
+                                                            right: '12px', 
+                                                            fontSize: getDiscountFontSize(posterLayout),
+                                                            fontFamily: 'var(--font-sans), sans-serif',
+                                                            lineHeight: '1.1'
+                                                        }}
+                                                    >
+                                                        {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                    </div>
+                                                )}
 
                                                 {/* Image Wrapper */}
                                                 <div 
-                                                    className="absolute z-[1] flex items-center justify-center bg-transparent"
-                                                    style={{ top: config.imageTop, bottom: config.imageBottom, left: '8px', right: '8px' }}
+                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-2.5 box-border"
                                                 >
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
-                                                        className="max-w-full max-h-full object-contain animate-fadeIn"
+                                                        className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
                                                         referrerPolicy="no-referrer"
                                                     />
                                                 </div>
 
                                                 {/* Card Details Block */}
                                                 <div 
-                                                    className="absolute left-4 right-4 text-left flex flex-col justify-end z-[15] overflow-visible"
-                                                    style={{ bottom: '12px' }}
+                                                    className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-4 box-border text-center"
                                                 >
                                                     {product.brand && (
-                                                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-0.5" style={{ color: '#9ca3af' }}>
+                                                        <span className="font-bold uppercase tracking-wider mb-1" style={{ fontSize: getBrandFontSize(posterLayout), color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                             {product.brand}
                                                         </span>
                                                     )}
-                                                    <h2 className="font-black leading-tight tracking-tight line-clamp-2" style={getPosterDynamicTitleStyle(product.name, config.titleFontSize)}>
+                                                    <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getPosterDynamicTitleStyle(product.name, posterLayout)}>
                                                         {product.name.toUpperCase()}
                                                     </h2>
-                                                    <div className={`font-semibold mt-1 ${config.unitFontSize}`} style={{ color: '#6b7280' }}>
+                                                    <div className="font-bold mt-1" style={{ fontSize: getUnitFontSize(posterLayout), color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                         {product.unit || '1 KG'}
                                                     </div>
-                                                    <div className="flex items-center justify-between mt-2 w-full">
-                                                        <div className="flex items-baseline">
-                                                            <span className={`font-extrabold ${config.priceFontSize}`} style={{ color: '#111827' }}>
-                                                                ₹{Number(product.offerPrice || 0).toFixed(2)}
-                                                            </span>
-                                                            {(product.mrp || product.price) && (
-                                                                <span className={`line-through font-semibold ml-2 ${config.oldPriceFontSize}`} style={{ color: '#9ca3af' }}>
-                                                                    ₹{Number(product.mrp || product.price || 0).toFixed(2)}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        {hasSavings && (
-                                                            <span className={`font-bold rounded-full px-2 py-0.5 ${config.discountFontSize}`} style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>
-                                                                {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
-                                                            </span>
-                                                        )}
+                                                    <div className="flex items-baseline justify-center w-full mt-2">
+                                                        <span style={getPosterDynamicPriceStyle(product.offerPrice, posterLayout)}>
+                                                            ₹{Number(product.offerPrice || 0).toFixed(2)}
+                                                        </span>
                                                     </div>
                                                 </div>
 
@@ -767,7 +855,7 @@ export default function PrintOffersPage() {
                                     <div
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
-                                        className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-visible bg-white group"
+                                        className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
                                         style={{
                                             height: cardHeight,
                                             breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
@@ -779,69 +867,70 @@ export default function PrintOffersPage() {
                                         ) : (
                                             /* Active tag card */
                                             <>
-                                                {/* LIMITED OFFER Badge */}
-                                                <div 
-                                                    className="absolute z-[10] text-white text-[8px] sm:text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm"
-                                                    style={{ top: '6px', left: '6px', backgroundColor: '#ff3b30', color: '#ffffff' }}
-                                                >
-                                                    LIMITED OFFER
-                                                </div>
-                                                
-                                                {/* Wishlist Heart Icon */}
-                                                <div 
-                                                    className="absolute z-[10] border rounded-full shadow-sm flex items-center justify-center"
-                                                    style={{ top: '6px', right: '6px', backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#ff3b30', width: '20px', height: '20px' }}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-2.5 h-2.5">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                                                    </svg>
-                                                </div>
+                                                {/* MRP Badge */}
+                                                {(product.mrp || product.price) && (
+                                                    <div 
+                                                        className="absolute z-[10] bg-[#ffff00] text-black border border-black font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through"
+                                                        style={{ 
+                                                            top: '8px', 
+                                                            left: '8px', 
+                                                            fontSize: '11px',
+                                                            fontFamily: 'var(--font-sans), sans-serif',
+                                                            textDecorationColor: '#000000',
+                                                            lineHeight: '1.1'
+                                                        }}
+                                                    >
+                                                        MRP {Number(product.mrp || product.price || 0).toFixed(2)}
+                                                    </div>
+                                                )}
+
+                                                {/* Save Badge */}
+                                                {hasSavings && (
+                                                    <div 
+                                                        className="absolute z-[10] bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm"
+                                                        style={{ 
+                                                            top: '8px', 
+                                                            right: '8px', 
+                                                            fontSize: '11px',
+                                                            fontFamily: 'var(--font-sans), sans-serif',
+                                                            lineHeight: '1.1'
+                                                        }}
+                                                    >
+                                                        {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                    </div>
+                                                )}
 
                                                 {/* Image Wrapper */}
                                                 <div 
-                                                    className="absolute z-[1] flex items-center justify-center bg-transparent"
-                                                    style={{ top: '36px', bottom: '86px', left: '8px', right: '8px' }}
+                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-1 box-border"
                                                 >
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
-                                                        className="max-w-full max-h-full object-contain animate-fadeIn"
+                                                        className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
                                                         referrerPolicy="no-referrer"
                                                     />
                                                 </div>
 
                                                 {/* Card Details Block */}
                                                 <div 
-                                                    className="absolute left-2 right-2 text-left flex flex-col justify-end z-[15] overflow-visible"
-                                                    style={{ bottom: '12px' }}
+                                                    className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-3 box-border text-center"
                                                 >
                                                     {product.brand && (
-                                                        <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#9ca3af' }}>
+                                                        <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: '9px', color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                             {product.brand}
                                                         </span>
                                                     )}
-                                                    <h2 className="font-black leading-tight tracking-tight line-clamp-2" style={getDynamicTitleStyle(product.name)}>
+                                                    <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getDynamicTitleStyle(product.name)}>
                                                         {product.name.toUpperCase()}
                                                     </h2>
-                                                    <div className="font-bold mt-1" style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                    <div className="font-bold mt-1" style={{ fontSize: '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                         {product.unit || '1 KG'}
                                                     </div>
-                                                    <div className="flex items-center justify-between mt-1 w-full">
-                                                        <div className="flex items-baseline">
-                                                            <span className="font-black" style={{ fontSize: '22px', fontWeight: '950', color: '#111827', lineHeight: '1' }}>
-                                                                ₹{Number(product.offerPrice || 0).toFixed(2)}
-                                                            </span>
-                                                            {(product.mrp || product.price) && (
-                                                                <span className="line-through font-bold ml-1.5" style={{ fontSize: '12px', color: '#9ca3af' }}>
-                                                                    ₹{Number(product.mrp || product.price || 0).toFixed(2)}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        {hasSavings && (
-                                                            <span className="font-black rounded-full px-1.5 py-0.5" style={{ fontSize: '11px', fontWeight: '900', backgroundColor: '#f0fdf4', color: '#16a34a' }}>
-                                                                {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
-                                                            </span>
-                                                        )}
+                                                    <div className="flex items-baseline justify-center w-full mt-1.5">
+                                                        <span style={getDynamicPriceStyle(product.offerPrice)}>
+                                                            ₹{Number(product.offerPrice || 0).toFixed(2)}
+                                                        </span>
                                                     </div>
                                                 </div>
 
