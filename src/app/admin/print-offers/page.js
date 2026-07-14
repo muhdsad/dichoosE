@@ -213,6 +213,38 @@ export default function PrintOffersPage() {
     // Mathematically split remaining A4 height: A4 = 297mm. Banner = 57mm. Remaining = 240mm.
     const posterCardHeight = `${240 / posterRows}mm`;
 
+    const posterLayoutConfigs = {
+        '4': {
+            titleTop: '14%',
+            titleFontSize: 'text-[30px] sm:text-[34px] md:text-[38px]',
+            imageTop: '34%',
+            imageBottom: '26%',
+            priceTop: '76%',
+            priceFontSize: 'text-[46px] sm:text-[54px] md:text-[64px]',
+            unitFontSize: 'text-[14px] sm:text-[16px]'
+        },
+        '6': {
+            titleTop: '11%',
+            titleFontSize: 'text-[24px] sm:text-[28px] md:text-[30px]',
+            imageTop: '28%',
+            imageBottom: '26%',
+            priceTop: '75%',
+            priceFontSize: 'text-[36px] sm:text-[42px] md:text-[48px]',
+            unitFontSize: 'text-[12px] sm:text-[14px]'
+        },
+        '8': {
+            titleTop: '10%',
+            titleFontSize: 'text-[20px] sm:text-[22px] md:text-[24px]',
+            imageTop: '25%',
+            imageBottom: '25%',
+            priceTop: '74%',
+            priceFontSize: 'text-[28px] sm:text-[32px] md:text-[36px]',
+            unitFontSize: 'text-[10px] sm:text-[12px]'
+        }
+    };
+
+    const config = posterLayoutConfigs[posterLayout] || posterLayoutConfigs['6'];
+
     return (
         <div className="bg-white min-h-screen text-black">
             {/* Print Instructions - Hidden when printing */}
@@ -497,8 +529,8 @@ export default function PrintOffersPage() {
 
                                                 {/* Product Title (H2) */}
                                                 <h2 
-                                                    className="absolute z-[5] text-center font-anton text-[30px] sm:text-[34px] md:text-[38px] leading-[1.1] uppercase text-black"
-                                                    style={{ top: '14%', left: '8px', right: '8px', WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}
+                                                    className={`absolute z-[5] text-center font-anton leading-[1.1] uppercase text-black ${config.titleFontSize}`}
+                                                    style={{ top: config.titleTop, left: '8px', right: '8px', WebkitTextStroke: '1px white', textShadow: '0 0 3px white, 0 0 3px white' }}
                                                 >
                                                     {product.name}
                                                 </h2>
@@ -506,7 +538,7 @@ export default function PrintOffersPage() {
                                                 {/* Image Wrapper */}
                                                 <div 
                                                     className="absolute z-[1] flex items-center justify-center"
-                                                    style={{ top: '34%', bottom: '26%', left: '8px', right: '8px' }}
+                                                    style={{ top: config.imageTop, bottom: config.imageBottom, left: '8px', right: '8px' }}
                                                 >
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
@@ -519,14 +551,14 @@ export default function PrintOffersPage() {
                                                 {/* Price Block */}
                                                 <div 
                                                     className="absolute z-[5] flex items-baseline justify-center w-full"
-                                                    style={{ top: '76%', left: '0', right: '0' }}
+                                                    style={{ top: config.priceTop, left: '0', right: '0' }}
                                                 >
-                                                    <span className="font-anton text-[46px] sm:text-[54px] md:text-[64px] leading-none text-black tracking-tighter"
+                                                    <span className={`font-anton leading-none text-black tracking-tighter ${config.priceFontSize}`}
                                                           style={{ WebkitTextStroke: '1.5px white', textShadow: '0 0 4px white, 0 0 4px white' }}>
                                                         {product.offerPrice}
                                                     </span>
                                                     {product.unit && (
-                                                        <span className="font-anton text-[14px] sm:text-[16px] text-black ml-1 uppercase"
+                                                        <span className={`font-anton text-black ml-1 uppercase ${config.unitFontSize}`}
                                                               style={{ WebkitTextStroke: '0.5px white' }}>
                                                             /{product.unit}
                                                         </span>
