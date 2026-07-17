@@ -14,19 +14,19 @@ const getProxiedImageUrl = (url) => {
     }
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     return `${origin}/api/proxy-image?url=${encodeURIComponent(directLink)}`;
-};const getDynamicTitleStyle = (name) => {
+};const getDynamicTitleStyle = (name, isNarrow = false) => {
     const len = (name || '').length;
     let fontSize = '16px';
     if (len <= 12) {
-        fontSize = '36px';
+        fontSize = isNarrow ? '28px' : '36px';
     } else if (len <= 18) {
-        fontSize = '30px';
+        fontSize = isNarrow ? '24px' : '30px';
     } else if (len <= 28) {
-        fontSize = '24px';
+        fontSize = isNarrow ? '18px' : '24px';
     } else if (len <= 40) {
-        fontSize = '18px';
+        fontSize = isNarrow ? '14px' : '18px';
     } else {
-        fontSize = '16px';
+        fontSize = isNarrow ? '12px' : '16px';
     }
     return {
         fontSize,
@@ -43,18 +43,18 @@ const getProxiedImageUrl = (url) => {
     };
 };
 
-const getDynamicPriceStyle = (price) => {
+const getDynamicPriceStyle = (price, isNarrow = false) => {
     const text = `₹${Number(price || 0).toFixed(2)}`;
     const len = text.length;
     let fontSize = '24px';
     if (len <= 6) {
-        fontSize = '38px';
+        fontSize = isNarrow ? '30px' : '40px';
     } else if (len <= 8) {
-        fontSize = '34px';
+        fontSize = isNarrow ? '26px' : '34px';
     } else if (len <= 10) {
-        fontSize = '28px';
+        fontSize = isNarrow ? '22px' : '28px';
     } else {
-        fontSize = '24px';
+        fontSize = isNarrow ? '18px' : '24px';
     }
     return {
         fontSize,
@@ -77,6 +77,10 @@ const getPosterDynamicTitleStyle = (name, layout) => {
         baseSize = 48;
     } else if (layout === '6') {
         baseSize = 34;
+    } else if (layout === '12') {
+        baseSize = 18;
+    } else if (layout === '16') {
+        baseSize = 14;
     }
 
     let sizeFactor = 1.0;
@@ -96,7 +100,7 @@ const getPosterDynamicTitleStyle = (name, layout) => {
         textTransform: 'uppercase',
         textAlign: 'center',
         wordBreak: 'break-word',
-        WebkitTextStroke: layout === '4' ? '1.5px #ffffff' : '1px #ffffff',
+        WebkitTextStroke: (layout === '4' || layout === '6') ? '1.5px #ffffff' : '1px #ffffff',
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
@@ -110,6 +114,10 @@ const getPosterDynamicPriceStyle = (price, layout) => {
         baseSize = 64;
     } else if (layout === '6') {
         baseSize = 46;
+    } else if (layout === '12') {
+        baseSize = 26;
+    } else if (layout === '16') {
+        baseSize = 20;
     }
 
     let sizeFactor = 1.0;
@@ -128,7 +136,7 @@ const getPosterDynamicPriceStyle = (price, layout) => {
         color: '#000000',
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-        WebkitTextStroke: layout === '4' ? '1.8px #ffffff' : '1.2px #ffffff',
+        WebkitTextStroke: (layout === '4' || layout === '6') ? '1.8px #ffffff' : '1.2px #ffffff',
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
@@ -137,25 +145,33 @@ const getPosterDynamicPriceStyle = (price, layout) => {
 const getUnitFontSize = (layout) => {
     if (layout === '4') return '18px';
     if (layout === '6') return '14px';
-    return '12px';
+    if (layout === '8') return '12px';
+    if (layout === '12') return '10px';
+    return '8px';
 };
 
 const getBrandFontSize = (layout) => {
     if (layout === '4') return '14px';
     if (layout === '6') return '11px';
-    return '10px';
+    if (layout === '8') return '10px';
+    if (layout === '12') return '8px';
+    return '7px';
 };
 
 const getMrpFontSize = (layout) => {
     if (layout === '4') return '18px';
     if (layout === '6') return '14px';
-    return '12px';
+    if (layout === '8') return '12px';
+    if (layout === '12') return '10px';
+    return '8px';
 };
 
 const getDiscountFontSize = (layout) => {
     if (layout === '4') return '16px';
     if (layout === '6') return '13px';
-    return '11px';
+    if (layout === '8') return '11px';
+    if (layout === '12') return '9px';
+    return '8px';
 };
 
 export default function PrintOffersPage() {
@@ -363,8 +379,8 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const posterCols = 2;
-    const posterRows = totalRequired / 2;
+    const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : 2);
+    const posterRows = totalRequired / posterCols;
     // Mathematically split remaining A4 height: A4 = 297mm. Banner = 57mm. Remaining = 240mm.
     const posterCardHeight = `${240 / posterRows}mm`;
 
@@ -395,6 +411,24 @@ export default function PrintOffersPage() {
             oldPriceFontSize: 'text-[11px] sm:text-xs',
             unitFontSize: 'text-[10px] sm:text-[11px]',
             discountFontSize: 'text-[9px] sm:text-[10px]'
+        },
+        '12': {
+            imageTop: '30px',
+            imageBottom: '75px',
+            titleFontSize: 'text-[13px] sm:text-[14.5px] md:text-[16px]',
+            priceFontSize: 'text-[15px] sm:text-[17px] md:text-[19px]',
+            oldPriceFontSize: 'text-[10px] sm:text-[11.5px]',
+            unitFontSize: 'text-[9.5px] sm:text-[11px]',
+            discountFontSize: 'text-[8.5px] sm:text-[10px]'
+        },
+        '16': {
+            imageTop: '25px',
+            imageBottom: '65px',
+            titleFontSize: 'text-[11px] sm:text-[12.5px] md:text-[14px]',
+            priceFontSize: 'text-[13px] sm:text-[15px] md:text-[17px]',
+            oldPriceFontSize: 'text-[8.5px] sm:text-[10px]',
+            unitFontSize: 'text-[8px] sm:text-[9.5px]',
+            discountFontSize: 'text-[7.5px] sm:text-[9px]'
         }
     };
 
@@ -466,7 +500,7 @@ export default function PrintOffersPage() {
                             <div className="space-y-2">
                                 <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Poster Grid Layout</label>
                                 <div className="flex gap-2">
-                                    {['4', '6', '8'].map(num => (
+                                    {['4', '6', '8', '12', '16'].map(num => (
                                         <button
                                             key={num}
                                             onClick={() => handlePosterLayoutChange(num)}
@@ -712,7 +746,7 @@ export default function PrintOffersPage() {
                         </div>
 
                         {/* Poster Grid of Cards */}
-                        <div className="grid grid-cols-2 flex-grow border-l-0 border-t-0 border-black bg-white animate-fadeIn">
+                        <div className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : 'grid-cols-2')} flex-grow border-l-0 border-t-0 border-black bg-white animate-fadeIn`}>
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
                                 const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
@@ -724,11 +758,11 @@ export default function PrintOffersPage() {
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
                                         className={`border-r-2 border-b-2 border-black p-2 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white group ${
-                                            // Eliminate right border on right column (index is odd)
-                                            (index % 2 === 1) ? 'border-r-0' : ''
+                                            // Eliminate right border on right column
+                                            (index % posterCols === posterCols - 1) ? 'border-r-0' : ''
                                         } ${
                                             // Eliminate bottom border on last row items
-                                            (index >= totalRequired - 2) ? 'border-b-0' : ''
+                                            (index >= totalRequired - posterCols) ? 'border-b-0' : ''
                                         }`}
                                         style={{ height: posterCardHeight }}
                                     >
@@ -921,14 +955,14 @@ export default function PrintOffersPage() {
                                                             {product.brand}
                                                         </span>
                                                     )}
-                                                    <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getDynamicTitleStyle(product.name)}>
+                                                    <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getDynamicTitleStyle(product.name, layout === 'landscape')}>
                                                         {product.name.toUpperCase()}
                                                     </h2>
-                                                    <div className="font-bold mt-1" style={{ fontSize: '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
+                                                    <div className="font-bold mt-1" style={{ fontSize: layout === 'landscape' ? '11px' : '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                         {product.unit || '1 KG'}
                                                     </div>
                                                     <div className="flex items-baseline justify-center w-full mt-1.5">
-                                                        <span style={getDynamicPriceStyle(product.offerPrice)}>
+                                                        <span style={getDynamicPriceStyle(product.offerPrice, layout === 'landscape')}>
                                                             ₹{Number(product.offerPrice || 0).toFixed(2)}
                                                         </span>
                                                     </div>

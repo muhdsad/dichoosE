@@ -204,7 +204,7 @@ export default function AddProductPage() {
 
             await Promise.race([
                 addDoc(collection(db, "products"), {
-                    name: product.name,
+                    name: product.name.toUpperCase(),
                     price: parseFloat(product.price),
                     mrp: product.mrp ? parseFloat(product.mrp) : 0,
                     unit: product.unit || '',

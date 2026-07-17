@@ -258,7 +258,7 @@ export default function EditProductPage({ params }) {
         try {
             const docRef = doc(db, "products", id);
             await updateDoc(docRef, {
-                name: product.name,
+                name: product.name.toUpperCase(),
                 price: parseFloat(product.price),
                 mrp: product.mrp ? parseFloat(product.mrp) : 0,
                 unit: product.unit || '',

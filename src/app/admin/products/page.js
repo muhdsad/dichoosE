@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { db } from '../../../lib/firebase';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { getDirectDriveLink } from '../../../utils/productUtils';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,6 +19,7 @@ export default function ProductsPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+
 
     useEffect(() => {
         fetchProducts();

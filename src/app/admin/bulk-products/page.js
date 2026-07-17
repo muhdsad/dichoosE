@@ -45,7 +45,7 @@ export default function BulkAddProductsPage() {
                 // Parse products
                 const newProducts = [];
                 data.forEach((row, index) => {
-                    const name = row.Name ? String(row.Name).trim() : '';
+                    const name = row.Name ? String(row.Name).trim().toUpperCase() : '';
                     if (!name || name === "Example Product") return; // Skip empty rows or the example row
                     
                     const price = parseFloat(row.Price) || 0;
@@ -108,7 +108,7 @@ export default function BulkAddProductsPage() {
                 const newDocRef = doc(productsRef);
                 
                 const productData = {
-                    name: product.name,
+                    name: product.name.toUpperCase(),
                     price: product.price,
                     mrp: product.mrp,
                     unit: product.unit,
