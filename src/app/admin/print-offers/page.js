@@ -174,6 +174,54 @@ const getDiscountFontSize = (layout) => {
     return '8px';
 };
 
+const getPosterBadgeStyle = (layout) => {
+    let size = 90;
+    let rupeeSize = 15;
+    let integerSize = 44;
+    let decimalSize = 18;
+    let rightOffset = '8%';
+    let topOffset = '35%';
+
+    if (layout === '4') {
+        size = 135;
+        rupeeSize = 22;
+        integerSize = 64;
+        decimalSize = 26;
+        rightOffset = '12%';
+        topOffset = '35%';
+    } else if (layout === '6') {
+        size = 110;
+        rupeeSize = 18;
+        integerSize = 52;
+        decimalSize = 22;
+        rightOffset = '10%';
+        topOffset = '35%';
+    } else if (layout === '8') {
+        size = 90;
+        rupeeSize = 15;
+        integerSize = 44;
+        decimalSize = 18;
+        rightOffset = '8%';
+        topOffset = '35%';
+    } else if (layout === '12') {
+        size = 72;
+        rupeeSize = 12;
+        integerSize = 34;
+        decimalSize = 14;
+        rightOffset = '6%';
+        topOffset = '35%';
+    } else if (layout === '16') {
+        size = 60;
+        rupeeSize = 10;
+        integerSize = 28;
+        decimalSize = 12;
+        rightOffset = '5%';
+        topOffset = '35%';
+    }
+
+    return { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset };
+};
+
 export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -189,6 +237,69 @@ export default function PrintOffersPage() {
     const [bannerType, setBannerType] = useState('text'); // 'text' | 'image'
     const [posterTitle, setPosterTitle] = useState('SMILE HYPERMARKET');
     const [posterSubtitle, setPosterSubtitle] = useState('OFFER VALIDITY: 14TH TO 20TH JULY');
+    const [logoImage, setLogoImage] = useState(null);
+    const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
+    const [decorImage, setDecorImage] = useState(null);
+
+    // Load custom configuration defaults from localStorage on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedLogo = localStorage.getItem('dichoose_poster_logo');
+            if (savedLogo) {
+                setLogoImage(savedLogo);
+            }
+            const savedDecor = localStorage.getItem('dichoose_poster_decor');
+            if (savedDecor) {
+                setDecorImage(savedDecor);
+            }
+            const savedLogoLocation = localStorage.getItem('dichoose_poster_logo_location');
+            if (savedLogoLocation) {
+                setLogoLocationText(savedLogoLocation);
+            }
+        }
+    }, []);
+
+    const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target.result;
+                setLogoImage(dataUrl);
+                localStorage.setItem('dichoose_poster_logo', dataUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveLogo = () => {
+        setLogoImage(null);
+        localStorage.removeItem('dichoose_poster_logo');
+    };
+
+    const handleLogoLocationChange = (e) => {
+        const val = e.target.value;
+        setLogoLocationText(val);
+        localStorage.setItem('dichoose_poster_logo_location', val);
+    };
+
+    const handleDecorUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const dataUrl = event.target.result;
+                setDecorImage(dataUrl);
+                localStorage.setItem('dichoose_poster_decor', dataUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveDecor = () => {
+        setDecorImage(null);
+        localStorage.removeItem('dichoose_poster_decor');
+    };
 
     useEffect(() => {
         const fetchOfferProducts = async () => {
@@ -381,8 +492,8 @@ export default function PrintOffersPage() {
     // Grid details for Poster
     const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : 2);
     const posterRows = totalRequired / posterCols;
-    // Mathematically split remaining A4 height: A4 = 297mm. Banner = 57mm. Remaining = 240mm.
-    const posterCardHeight = `${240 / posterRows}mm`;
+    // Mathematically split remaining A4 height: A4 = 297mm. Banner = 57mm. Footer = 12mm. Remaining = 228mm.
+    const posterCardHeight = `${228 / posterRows}mm`;
 
     const posterLayoutConfigs = {
         '4': {
@@ -495,7 +606,7 @@ export default function PrintOffersPage() {
                 ) : (
                     <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200">
                         {/* Poster Config Options */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-4 border-b border-gray-150">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-4 border-b border-gray-150">
                             {/* Layout Selection */}
                             <div className="space-y-2">
                                 <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Poster Grid Layout</label>
@@ -504,7 +615,7 @@ export default function PrintOffersPage() {
                                         <button
                                             key={num}
                                             onClick={() => handlePosterLayoutChange(num)}
-                                            className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === num ? 'bg-indigo-600 text-white border-transparent' : 'bg-gray-50 text-gray-700 border-gray-300'}`}
+                                            className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === num ? 'bg-indigo-650 text-white border-transparent' : 'bg-gray-50 text-gray-700 border-gray-300'}`}
                                         >
                                             {num} Items
                                         </button>
@@ -620,6 +731,89 @@ export default function PrintOffersPage() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Logo Box Settings */}
+                            <div className="space-y-3">
+                                <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Logo Box Settings</label>
+                                <div className="grid grid-cols-1 gap-2">
+                                    <div>
+                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Upload Shop Logo</label>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleLogoUpload}
+                                                className="hidden" 
+                                                id="logo-file-input"
+                                            />
+                                            <label 
+                                                htmlFor="logo-file-input" 
+                                                className="flex-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-1.5 rounded-lg font-bold text-[11px] text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5"
+                                            >
+                                                <FaImage /> {logoImage ? 'Change Logo' : 'Upload Logo'}
+                                            </label>
+                                            {logoImage && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemoveLogo}
+                                                    className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-2 rounded-lg transition"
+                                                    title="Remove Logo"
+                                                >
+                                                    <FaTrash className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Location / Subtext</label>
+                                        <input
+                                            type="text"
+                                            value={logoLocationText}
+                                            onChange={handleLogoLocationChange}
+                                            placeholder="e.g. KAKKAD"
+                                            className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Header Decoration Settings */}
+                            <div className="space-y-3">
+                                <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Header Decoration</label>
+                                <div className="grid grid-cols-1 gap-2">
+                                    <div>
+                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Upload Custom Decoration</label>
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleDecorUpload}
+                                                className="hidden" 
+                                                id="decor-file-input"
+                                            />
+                                            <label 
+                                                htmlFor="decor-file-input" 
+                                                className="flex-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-1.5 rounded-lg font-bold text-[11px] text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5"
+                                            >
+                                                <FaImage /> {decorImage ? 'Change Image' : 'Upload Image'}
+                                            </label>
+                                            {decorImage && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemoveDecor}
+                                                    className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-2 rounded-lg transition"
+                                                    title="Reset to Fruit Basket"
+                                                >
+                                                    <FaTrash className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="text-[10px] text-gray-400 font-bold leading-normal pt-1">
+                                        Defaults to fruit basket graphic if no custom image is uploaded.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Product Picker Horizontal List */}
@@ -704,49 +898,116 @@ export default function PrintOffersPage() {
                 
                 {printMode === 'poster' ? (
                     /* POSTER LAYOUT CONTAINER */
-                    <div className="w-full h-[297mm] border-2 border-black flex flex-col bg-white overflow-hidden select-none">
+                    <div className="w-full h-[297mm] flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative">
                         
                         {/* Top Poster Banner */}
-                        <div className="w-full h-[57mm] border-b-2 border-black relative flex-shrink-0 bg-white">
+                        <div className="w-full h-[57mm] relative flex-shrink-0 bg-white">
                             {bannerType === 'image' && bannerImage ? (
                                 <img src={bannerImage} alt="Poster Banner" className="w-full h-full object-cover" />
                             ) : (
                                 <div 
-                                    className="w-full h-full flex flex-col items-center justify-center text-center p-3 relative overflow-hidden"
+                                    className="w-full h-full flex items-center justify-between px-6 relative overflow-hidden"
                                     style={textBannerBgImage ? { 
                                         backgroundImage: `url(${textBannerBgImage})`, 
                                         backgroundPosition: 'center', 
                                         backgroundSize: 'cover' 
                                     } : { 
-                                        background: 'linear-gradient(to right, #dc2626, #7e22ce, #1e1b4b)' 
+                                        background: 'radial-gradient(circle, #ffffff 0%, #f0fdf4 100%)' 
                                     }}
                                 >
                                     {/* Overlay for legibility if there is a background image */}
                                     {textBannerBgImage && (
-                                        <div className="absolute inset-0 bg-black/35 z-0" />
+                                        <div className="absolute inset-0 bg-black/15 z-0" />
                                     )}
-                                    <div className="relative z-10 flex flex-col items-center justify-center">
-                                        <h1 
-                                            className="font-black text-[42px] leading-none tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
-                                            style={{ color: '#ffffff', fontWeight: '950' }}
-                                        >
-                                            {posterTitle || 'SMILE HYPERMARKET'}
-                                        </h1>
-                                        {posterSubtitle && (
-                                            <div 
-                                                className="mt-3 px-6 py-1.5 rounded-full font-black text-xs sm:text-sm tracking-widest shadow-md border-2 border-black flex items-center justify-center"
-                                                style={{ backgroundColor: '#facc15', color: '#000000', fontWeight: '900' }}
-                                            >
-                                                {posterSubtitle}
+                                    
+                                    {/* Left Side: Fruit Basket or Custom Decoration */}
+                                    <div className="w-[28%] h-[90%] relative flex-shrink-0 flex items-center justify-start select-none z-10">
+                                        <img 
+                                            src={decorImage || "/images/fruit_basket.png"} 
+                                            alt="Header Decoration" 
+                                            className="h-full object-contain max-h-[50mm] drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)]"
+                                        />
+                                    </div>
+
+                                    {/* Center: Title & Validity */}
+                                    <div className="flex flex-col items-center justify-center text-center flex-1 max-w-[45%] z-10 leading-none">
+                                        {/* Date/Validity on top */}
+                                        <div className="text-black font-extrabold text-xs sm:text-sm tracking-widest mb-1.5 font-sans">
+                                            {posterSubtitle || 'JULY 18'}
+                                        </div>
+
+                                        {/* 3D Styled Title */}
+                                        {(() => {
+                                            const words = (posterTitle || 'Fresh Market').trim().split(/\s+/);
+                                            const firstWord = words[0] || 'Fresh';
+                                            const remainingWords = words.slice(1).join(' ') || 'Market';
+                                            return (
+                                                <div className="flex flex-col items-center justify-center leading-[0.85]">
+                                                    <span 
+                                                        className="font-anton tracking-tight text-[48px] text-[#16a34a] filter drop-shadow-[0_2px_0_#15803d] drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]"
+                                                        style={{ 
+                                                            WebkitTextStroke: '1.5px #ffffff', 
+                                                            paintOrder: 'stroke fill',
+                                                        }}
+                                                    >
+                                                        {firstWord}
+                                                    </span>
+                                                    {remainingWords && (
+                                                        <span 
+                                                            className="font-anton tracking-tight text-[48px] text-[#ea580c] mt-1 filter drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#b45309] drop-shadow-[0_4px_0_#7c2d12]"
+                                                            style={{ 
+                                                                WebkitTextStroke: '1.5px #ffffff', 
+                                                                paintOrder: 'stroke fill',
+                                                            }}
+                                                        >
+                                                            {remainingWords}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+
+                                    {/* Right Side: Logo Box */}
+                                    <div className="w-[24%] h-[90%] relative flex-shrink-0 flex items-center justify-end z-10 select-none">
+                                        <div className="w-[110px] h-[48mm] bg-white border border-gray-250 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.06)] flex flex-col items-center justify-between p-2 pb-3 text-center">
+                                            {logoImage ? (
+                                                <div className="flex-1 flex items-center justify-center w-full min-h-0">
+                                                    <img src={logoImage} className="max-w-full max-h-[85%] object-contain" alt="Logo" />
+                                                </div>
+                                            ) : (
+                                                // Premium Fallback Logo
+                                                <div className="flex-1 flex flex-col items-center justify-center w-full">
+                                                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center border border-green-200 mb-1">
+                                                        <svg className="w-4.5 h-4.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span className="text-[13px] font-black text-primary tracking-tight leading-none">Dichoos</span>
+                                                    <span className="text-[7px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Hypermarket</span>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Tagline / Subtitle */}
+                                            <div className="w-full">
+                                                <div className="bg-blue-600 text-white text-[6px] font-black uppercase py-0.5 rounded tracking-wide leading-none select-none mb-1">
+                                                    Save More Live Better
+                                                </div>
+                                                <div className="text-[9px] font-black text-gray-800 tracking-wider leading-none uppercase">
+                                                    {logoLocationText || 'KAKKAD'}
+                                                </div>
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Poster Grid of Cards */}
-                        <div className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : 'grid-cols-2')} flex-grow border-l-0 border-t-0 border-black bg-white animate-fadeIn`}>
+                        <div 
+                            className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : 'grid-cols-2')} flex-grow animate-fadeIn`}
+                            style={{ background: 'radial-gradient(circle, #ffffff 0%, #f7fdf9 100%)' }}
+                        >
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
                                 const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
@@ -757,18 +1018,12 @@ export default function PrintOffersPage() {
                                     <div
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
-                                        className={`border-r-2 border-b-2 border-black p-2 flex flex-col items-center justify-between text-center relative overflow-hidden bg-white group ${
-                                            // Eliminate right border on right column
-                                            (index % posterCols === posterCols - 1) ? 'border-r-0' : ''
-                                        } ${
-                                            // Eliminate bottom border on last row items
-                                            (index >= totalRequired - posterCols) ? 'border-b-0' : ''
-                                        }`}
+                                        className="p-2 flex flex-col items-center justify-between text-center relative overflow-hidden bg-transparent group"
                                         style={{ height: posterCardHeight }}
                                     >
                                         {isPlaceholder ? (
                                             /* Placeholder Card */
-                                            <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50/50 p-4">
+                                            <div className="w-full h-full flex flex-col items-center justify-center border border-dashed border-gray-300 rounded-2xl bg-gray-50/50 p-4">
                                                 <p className="text-gray-400 font-bold text-xs uppercase tracking-wider">Empty Offer Slot</p>
                                                 <p className="text-[10px] text-gray-400 mt-1">Select a product to fill this poster position.</p>
                                             </div>
@@ -795,7 +1050,7 @@ export default function PrintOffersPage() {
                                                 {/* Save Badge */}
                                                 {hasSavings && (
                                                     <div 
-                                                        className="absolute z-[10] bg-red-600 text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm"
+                                                        className="absolute z-[10] bg-[#e11b22] text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm"
                                                         style={{ 
                                                             top: '12px', 
                                                             right: '12px', 
@@ -815,31 +1070,89 @@ export default function PrintOffersPage() {
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
-                                                        className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
+                                                        className="max-w-[85%] max-h-[85%] object-contain animate-fadeIn"
                                                         referrerPolicy="no-referrer"
                                                     />
                                                 </div>
 
+                                                {/* Red circular price badge overlapping the image */}
+                                                {(() => {
+                                                    const { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset } = getPosterBadgeStyle(posterLayout);
+                                                    const priceVal = parseFloat(product.offerPrice || 0);
+                                                    const isInteger = priceVal % 1 === 0;
+                                                    const integerPart = Math.floor(priceVal).toString();
+                                                    const decimalPart = isInteger ? '' : (priceVal % 1).toFixed(2).substring(1); // e.g. ".90"
+
+                                                    return (
+                                                        <div 
+                                                            className="absolute z-[15] rounded-full bg-[#e11b22] text-white flex items-center justify-center font-anton border-2 border-white shadow-[0_4px_6px_rgba(0,0,0,0.15)] select-none"
+                                                            style={{
+                                                                width: `${size}px`,
+                                                                height: `${size}px`,
+                                                                right: rightOffset,
+                                                                top: topOffset,
+                                                                transform: 'translateY(-20%)',
+                                                            }}
+                                                        >
+                                                            <div className="relative w-full h-full flex items-center justify-center">
+                                                                {/* Rupee Symbol */}
+                                                                <span 
+                                                                    className="absolute font-sans font-bold leading-none"
+                                                                    style={{
+                                                                        fontSize: `${rupeeSize}px`,
+                                                                        top: decimalPart ? '18%' : '26%',
+                                                                        left: '12%',
+                                                                    }}
+                                                                >
+                                                                    ₹
+                                                                </span>
+                                                                
+                                                                {/* Integer Part */}
+                                                                <span 
+                                                                    className="font-normal leading-none tracking-tighter"
+                                                                    style={{
+                                                                        fontSize: `${integerPart.length >= 3 ? integerSize * 0.8 : integerSize}px`,
+                                                                        marginLeft: '12%',
+                                                                        marginRight: decimalPart ? '22%' : '0%',
+                                                                    }}
+                                                                >
+                                                                    {integerPart}
+                                                                </span>
+
+                                                                {/* Decimal Part */}
+                                                                {decimalPart && (
+                                                                    <span 
+                                                                        className="absolute font-bold leading-none"
+                                                                        style={{
+                                                                            fontSize: `${decimalSize}px`,
+                                                                            top: '20%',
+                                                                            right: '10%',
+                                                                        }}
+                                                                    >
+                                                                        {decimalPart}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
+
                                                 {/* Card Details Block */}
                                                 <div 
-                                                    className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-4 box-border text-center"
+                                                    className="absolute bottom-2 left-0 right-0 z-[10] px-2 text-center"
                                                 >
-                                                    {product.brand && (
-                                                        <span className="font-bold uppercase tracking-wider mb-1" style={{ fontSize: getBrandFontSize(posterLayout), color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
-                                                            {product.brand}
-                                                        </span>
-                                                    )}
-                                                    <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getPosterDynamicTitleStyle(product.name, posterLayout)}>
+                                                    <h2 
+                                                        className="font-extrabold uppercase tracking-tight text-black leading-none" 
+                                                        style={{ 
+                                                            fontSize: getPosterDynamicTitleStyle(product.name, posterLayout).fontSize,
+                                                            fontFamily: 'var(--font-sans), sans-serif'
+                                                        }}
+                                                    >
                                                         {product.name.toUpperCase()}
+                                                        {product.unit && (
+                                                            <span className="text-gray-600 font-bold"> / {product.unit.toUpperCase()}</span>
+                                                        )}
                                                     </h2>
-                                                    <div className="font-bold mt-1" style={{ fontSize: getUnitFontSize(posterLayout), color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
-                                                        {product.unit || '1 KG'}
-                                                    </div>
-                                                    <div className="flex items-baseline justify-center w-full mt-2">
-                                                        <span style={getPosterDynamicPriceStyle(product.offerPrice, posterLayout)}>
-                                                            ₹{Number(product.offerPrice || 0).toFixed(2)}
-                                                        </span>
-                                                    </div>
                                                 </div>
 
                                                 {/* Individual Save as PNG Button */}
@@ -856,6 +1169,24 @@ export default function PrintOffersPage() {
                                     </div>
                                 );
                             })}
+                        </div>
+
+                        {/* Poster Footer Bar */}
+                        <div className="w-full bg-[#15803d] text-white flex flex-col items-center justify-center p-3 select-none flex-shrink-0 leading-tight">
+                            <p className="text-[7.5px] font-medium text-gray-100 opacity-90 mb-1 text-center font-sans">
+                                *T&C Apply. Purchase limit may apply. Bulk purchase not allowed for promotional items. Offer valid while stock lasts.
+                            </p>
+                            <div className="w-full flex items-center justify-between px-6 text-[10px] sm:text-[11.5px] font-black tracking-wider uppercase text-yellow-300 font-sans">
+                                <div>
+                                    FREE HOME DELIVERY <span className="text-white text-[8px] font-bold opacity-90">(Order Before 11 am)</span>
+                                </div>
+                                <div>
+                                    PURCHASE ABOVE 800 <span className="text-white text-[8px] font-bold opacity-90">with in 5 km</span>
+                                </div>
+                                <div>
+                                    SK arcade, Kakkad <span className="text-white font-bold ml-1">82828 93434</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ) : (
