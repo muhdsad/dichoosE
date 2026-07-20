@@ -1002,12 +1002,13 @@ export default function PrintOffersPage() {
                                             ) : (
                                                 // Premium Fallback Logo
                                                 <div className="flex-1 flex flex-col items-center justify-center w-full">
-                                                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center border border-green-200 mb-1">
-                                                        <svg className="w-4.5 h-4.5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                                                    <div className="w-7 h-7 rounded-full bg-green-50 flex items-center justify-center border border-green-200 mb-0.5">
+                                                        <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
                                                             <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/>
                                                         </svg>
                                                     </div>
-                                                    <span className="text-[13px] font-black text-primary tracking-tight leading-none">Dichoos</span>
+                                                    <span className="text-[13px] font-black text-primary tracking-tight leading-none">Smile</span>
+                                                    <span className="text-[10px] font-black text-orange-600 tracking-tight leading-none mt-0.5">Kakkad</span>
                                                     <span className="text-[7px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Hypermarket</span>
                                                 </div>
                                             )}
