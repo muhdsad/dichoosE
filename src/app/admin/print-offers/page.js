@@ -296,7 +296,12 @@ export default function PrintOffersPage() {
         }
     };
 
-    const handleRemoveDecor = () => {
+    const handleDeleteDecor = () => {
+        setDecorImage('none');
+        localStorage.setItem('dichoose_poster_decor', 'none');
+    };
+
+    const handleResetToDefaultDecor = () => {
         setDecorImage(null);
         localStorage.removeItem('dichoose_poster_decor');
     };
@@ -423,7 +428,7 @@ export default function PrintOffersPage() {
             }
 
             const canvas = await html2canvas(element, {
-                scale: 3, // High resolution
+                scale: 4, // High resolution
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: true
@@ -453,7 +458,7 @@ export default function PrintOffersPage() {
             }
 
             const canvas = await html2canvas(element, {
-                scale: 2, // 2x scale for sheet is perfect
+                scale: 4, // High resolution
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: true
@@ -782,7 +787,7 @@ export default function PrintOffersPage() {
                                 <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Header Decoration</label>
                                 <div className="grid grid-cols-1 gap-2">
                                     <div>
-                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Upload Custom Decoration</label>
+                                        <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Upload / Manage Decoration</label>
                                         <div className="flex items-center gap-2">
                                             <input 
                                                 type="file" 
@@ -795,22 +800,38 @@ export default function PrintOffersPage() {
                                                 htmlFor="decor-file-input" 
                                                 className="flex-1 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-1.5 rounded-lg font-bold text-[11px] text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5"
                                             >
-                                                <FaImage /> {decorImage ? 'Change Image' : 'Upload Image'}
+                                                <FaImage /> {decorImage && decorImage !== 'none' ? 'Change Image' : 'Upload Image'}
                                             </label>
-                                            {decorImage && (
-                                                <button
-                                                    type="button"
-                                                    onClick={handleRemoveDecor}
-                                                    className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 p-2 rounded-lg transition"
-                                                    title="Reset to Fruit Basket"
-                                                >
-                                                    <FaTrash className="w-3.5 h-3.5" />
-                                                </button>
-                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={handleDeleteDecor}
+                                                disabled={decorImage === 'none'}
+                                                className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition flex items-center gap-1 cursor-pointer ${
+                                                    decorImage === 'none'
+                                                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                        : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
+                                                }`}
+                                                title="Delete / Hide Decoration Image"
+                                            >
+                                                <FaTrash className="w-3 h-3" /> Delete
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="text-[10px] text-gray-400 font-bold leading-normal pt-1">
-                                        Defaults to fruit basket graphic if no custom image is uploaded.
+
+                                    {decorImage !== null && (
+                                        <button
+                                            type="button"
+                                            onClick={handleResetToDefaultDecor}
+                                            className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 pt-0.5 cursor-pointer w-fit"
+                                        >
+                                            <FaUndo className="w-2.5 h-2.5" /> Restore Default Fruit Basket
+                                        </button>
+                                    )}
+
+                                    <div className="text-[10px] text-gray-400 font-bold leading-normal pt-0.5">
+                                        {decorImage === 'none' 
+                                            ? 'Decoration image deleted (No image displayed).' 
+                                            : (decorImage ? 'Custom decoration image active.' : 'Defaults to fruit basket graphic.')}
                                     </div>
                                 </div>
                             </div>
@@ -922,25 +943,28 @@ export default function PrintOffersPage() {
                                     
                                     {/* Left Side: Fruit Basket or Custom Decoration */}
                                     <div className="w-[28%] h-[90%] relative flex-shrink-0 flex items-center justify-start select-none z-10">
-                                        <img 
-                                            src={decorImage || "/images/fruit_basket.png"} 
-                                            alt="Header Decoration" 
-                                            className="h-full object-contain max-h-[50mm] drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)]"
-                                        />
+                                        {decorImage !== 'none' && (
+                                            <img 
+                                                src={decorImage || "/images/fruit_basket.png"} 
+                                                alt="Header Decoration" 
+                                                className="h-full object-contain max-h-[50mm] drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)]"
+                                            />
+                                        )}
                                     </div>
 
                                     {/* Center: Title & Validity */}
                                     <div className="flex flex-col items-center justify-center text-center flex-1 max-w-[45%] z-10 leading-none">
                                         {/* Date/Validity on top */}
                                         <div className="text-black font-extrabold text-xs sm:text-sm tracking-widest mb-1.5 font-sans">
-                                            {posterSubtitle || 'JULY 18'}
+                                            {posterSubtitle}
                                         </div>
 
                                         {/* 3D Styled Title */}
                                         {(() => {
-                                            const words = (posterTitle || 'Fresh Market').trim().split(/\s+/);
-                                            const firstWord = words[0] || 'Fresh';
-                                            const remainingWords = words.slice(1).join(' ') || 'Market';
+                                            const words = (posterTitle || '').trim().split(/\s+/);
+                                            const firstWord = words[0] || '';
+                                            const remainingWords = words.slice(1).join(' ');
+                                            if (!firstWord) return null;
                                             return (
                                                 <div className="flex flex-col items-center justify-center leading-[0.85]">
                                                     <span 
@@ -1030,38 +1054,44 @@ export default function PrintOffersPage() {
                                         ) : (
                                             /* Active Offer Card */
                                             <>
-                                                {/* MRP Badge */}
-                                                {(product.mrp || product.price) && (
-                                                    <div 
-                                                        className="absolute z-[10] bg-[#ffff00] text-black border border-black font-extrabold uppercase px-2 py-0.5 tracking-wide line-through"
-                                                        style={{ 
-                                                            top: '12px', 
-                                                            left: '12px', 
-                                                            fontSize: getDiscountFontSize(posterLayout),
-                                                            fontFamily: 'var(--font-sans), sans-serif',
-                                                            textDecorationColor: '#000000',
-                                                            lineHeight: '1.1'
-                                                        }}
-                                                    >
-                                                        MRP {Number(product.mrp || product.price || 0).toFixed(2)}
-                                                    </div>
-                                                )}
+                                                {/* Top Badges Bar (MRP & Save % OFF) */}
+                                                <div 
+                                                    className="absolute z-[10] flex items-center justify-between gap-2 pointer-events-none"
+                                                    style={{
+                                                        top: '12px',
+                                                        left: '0.5cm',
+                                                        right: '0.5cm'
+                                                    }}
+                                                >
+                                                    {/* MRP Badge */}
+                                                    {(product.mrp || product.price) ? (
+                                                        <div 
+                                                            className="bg-[#ffff00] text-black border border-black font-extrabold uppercase px-2 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
+                                                            style={{ 
+                                                                fontSize: getDiscountFontSize(posterLayout),
+                                                                fontFamily: 'var(--font-sans), sans-serif',
+                                                                textDecorationColor: '#000000',
+                                                                lineHeight: '1.1'
+                                                            }}
+                                                        >
+                                                            MRP {Number(product.mrp || product.price || 0).toFixed(2)}
+                                                        </div>
+                                                    ) : <div />}
 
-                                                {/* Save Badge */}
-                                                {hasSavings && (
-                                                    <div 
-                                                        className="absolute z-[10] bg-[#e11b22] text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm"
-                                                        style={{ 
-                                                            top: '12px', 
-                                                            right: '12px', 
-                                                            fontSize: getDiscountFontSize(posterLayout),
-                                                            fontFamily: 'var(--font-sans), sans-serif',
-                                                            lineHeight: '1.1'
-                                                        }}
-                                                    >
-                                                        {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
-                                                    </div>
-                                                )}
+                                                    {/* Save Badge */}
+                                                    {hasSavings ? (
+                                                        <div 
+                                                            className="bg-[#e11b22] text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0 ml-auto"
+                                                            style={{ 
+                                                                fontSize: getDiscountFontSize(posterLayout),
+                                                                fontFamily: 'var(--font-sans), sans-serif',
+                                                                lineHeight: '1.1'
+                                                            }}
+                                                        >
+                                                            {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                        </div>
+                                                    ) : <div />}
+                                                </div>
 
                                                 {/* Image Wrapper */}
                                                 <div 
@@ -1232,38 +1262,44 @@ export default function PrintOffersPage() {
                                         ) : (
                                             /* Active tag card */
                                             <>
-                                                {/* MRP Badge */}
-                                                {(product.mrp || product.price) && (
-                                                    <div 
-                                                        className="absolute z-[10] bg-[#ffff00] text-black border border-black font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through"
-                                                        style={{ 
-                                                            top: '8px', 
-                                                            left: '8px', 
-                                                            fontSize: '11px',
-                                                            fontFamily: 'var(--font-sans), sans-serif',
-                                                            textDecorationColor: '#000000',
-                                                            lineHeight: '1.1'
-                                                        }}
-                                                    >
-                                                        MRP {Number(product.mrp || product.price || 0).toFixed(2)}
-                                                    </div>
-                                                )}
+                                                {/* Top Badges Bar (MRP & Save % OFF) */}
+                                                <div 
+                                                    className="absolute z-[10] flex items-center justify-between gap-1.5 pointer-events-none"
+                                                    style={{
+                                                        top: '8px',
+                                                        left: '0.5cm',
+                                                        right: '0.5cm'
+                                                    }}
+                                                >
+                                                    {/* MRP Badge */}
+                                                    {(product.mrp || product.price) ? (
+                                                        <div 
+                                                            className="bg-[#ffff00] text-black border border-black font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
+                                                            style={{ 
+                                                                fontSize: '11px',
+                                                                fontFamily: 'var(--font-sans), sans-serif',
+                                                                textDecorationColor: '#000000',
+                                                                lineHeight: '1.1'
+                                                            }}
+                                                        >
+                                                            MRP {Number(product.mrp || product.price || 0).toFixed(2)}
+                                                        </div>
+                                                    ) : <div />}
 
-                                                {/* Save Badge */}
-                                                {hasSavings && (
-                                                    <div 
-                                                        className="absolute z-[10] bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm"
-                                                        style={{ 
-                                                            top: '8px', 
-                                                            right: '8px', 
-                                                            fontSize: '11px',
-                                                            fontFamily: 'var(--font-sans), sans-serif',
-                                                            lineHeight: '1.1'
-                                                        }}
-                                                    >
-                                                        {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
-                                                    </div>
-                                                )}
+                                                    {/* Save Badge */}
+                                                    {hasSavings ? (
+                                                        <div 
+                                                            className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0 ml-auto"
+                                                            style={{ 
+                                                                fontSize: '11px',
+                                                                fontFamily: 'var(--font-sans), sans-serif',
+                                                                lineHeight: '1.1'
+                                                            }}
+                                                        >
+                                                            {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                        </div>
+                                                    ) : <div />}
+                                                </div>
 
                                                 {/* Image Wrapper */}
                                                 <div 
