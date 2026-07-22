@@ -497,8 +497,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.onclick = () => openEditor(index);
                 card.innerHTML = `
                     <div class="edit-badge">Edit</div>
-                    ${mrpBadgeHtml}
-                    ${saveBadgeHtml}
+                    <div class="badges-row">
+                        ${mrpBadgeHtml}
+                        ${saveBadgeHtml}
+                    </div>
                     <div class="card-image-wrapper">
                         ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
                     </div>
@@ -506,8 +508,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2 class="${titleClass}">${item.name || ''}</h2>
                         <div class="price-row">
                             <span class="${priceClass}">${priceStr}</span>
-                            ${unitClean ? `<span class="unit-value">/${unitClean}</span>` : ''}
                         </div>
+                        ${unitClean ? `<div class="unit-value">/${unitClean}</div>` : ''}
                     </div>
                 `;
             }

@@ -1057,17 +1057,19 @@ export default function PrintOffersPage() {
                                             <>
                                                 {/* Top Badges Bar (MRP & Save % OFF) */}
                                                 <div 
-                                                    className="absolute z-[10] flex items-center justify-between gap-2 pointer-events-none"
+                                                    className="absolute z-[10] flex items-center justify-center gap-2 pointer-events-none"
                                                     style={{
                                                         top: '12px',
-                                                        left: '0.5cm',
-                                                        right: '0.5cm'
+                                                        left: '50%',
+                                                        transform: 'translateX(-50%)',
+                                                        width: 'max-content',
+                                                        maxWidth: '95%'
                                                     }}
                                                 >
                                                     {/* MRP Badge */}
                                                     {(product.mrp || product.price) ? (
                                                         <div 
-                                                            className="bg-[#ffff00] text-black border border-black font-extrabold uppercase px-2 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
+                                                            className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-2 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
                                                                 fontSize: getDiscountFontSize(posterLayout),
                                                                 fontFamily: 'var(--font-sans), sans-serif',
@@ -1077,12 +1079,12 @@ export default function PrintOffersPage() {
                                                         >
                                                             MRP {Number(product.mrp || product.price || 0).toFixed(2)}
                                                         </div>
-                                                    ) : <div />}
+                                                    ) : null}
 
                                                     {/* Save Badge */}
                                                     {hasSavings ? (
                                                         <div 
-                                                            className="bg-[#e11b22] text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0 ml-auto"
+                                                            className="bg-[#e11b22] text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
                                                                 fontSize: getDiscountFontSize(posterLayout),
                                                                 fontFamily: 'var(--font-sans), sans-serif',
@@ -1091,7 +1093,7 @@ export default function PrintOffersPage() {
                                                         >
                                                             {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
                                                         </div>
-                                                    ) : <div />}
+                                                    ) : null}
                                                 </div>
 
                                                 {/* Image Wrapper */}
@@ -1173,17 +1175,19 @@ export default function PrintOffersPage() {
                                                     className="absolute bottom-2 left-0 right-0 z-[10] px-2 text-center"
                                                 >
                                                     <h2 
-                                                        className="font-extrabold uppercase tracking-tight text-black leading-none" 
+                                                        className="font-extrabold uppercase tracking-tight text-black leading-none text-center" 
                                                         style={{ 
                                                             fontSize: getPosterDynamicTitleStyle(product.name, posterLayout).fontSize,
                                                             fontFamily: 'var(--font-sans), sans-serif'
                                                         }}
                                                     >
                                                         {product.name.toUpperCase()}
-                                                        {product.unit && (
-                                                            <span className="text-gray-600 font-bold"> / {product.unit.toUpperCase()}</span>
-                                                        )}
                                                     </h2>
+                                                    {product.unit && (
+                                                        <div className="text-blue-800 font-extrabold text-xs uppercase mt-0.5 text-center">
+                                                            / {product.unit.toUpperCase()}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Individual Save as PNG Button */}
@@ -1222,7 +1226,7 @@ export default function PrintOffersPage() {
                     </div>
                 ) : (
                     /* STANDARD TAG SHEETS CONTAINER */
-                    <div className={`grid gap-0 print:gap-0 border-t-[1.5px] border-l-[1.5px] border-black ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                    <div className={`grid gap-0 print:gap-0 border-none ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
                         {(() => {
                             const itemsPerPage = layout === 'landscape' ? 16 : 15;
                             const cardHeight = layout === 'landscape' ? '52.5mm' : '58.5mm';
@@ -1251,7 +1255,7 @@ export default function PrintOffersPage() {
                                     <div
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
-                                        className="border-r-[1.5px] border-b-[1.5px] border-black p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
+                                        className="border-none p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
                                         style={{
                                             height: cardHeight,
                                             breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
@@ -1265,17 +1269,19 @@ export default function PrintOffersPage() {
                                             <>
                                                 {/* Top Badges Bar (MRP & Save % OFF) */}
                                                 <div 
-                                                    className="absolute z-[10] flex items-center justify-between gap-1.5 pointer-events-none"
+                                                    className="absolute z-[10] flex items-center justify-center gap-1.5 pointer-events-none"
                                                     style={{
                                                         top: '8px',
-                                                        left: '0.5cm',
-                                                        right: '0.5cm'
+                                                        left: '50%',
+                                                        transform: 'translateX(-50%)',
+                                                        width: 'max-content',
+                                                        maxWidth: '95%'
                                                     }}
                                                 >
                                                     {/* MRP Badge */}
                                                     {(product.mrp || product.price) ? (
                                                         <div 
-                                                            className="bg-[#ffff00] text-black border border-black font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
+                                                            className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
                                                                 fontSize: '11px',
                                                                 fontFamily: 'var(--font-sans), sans-serif',
@@ -1285,12 +1291,12 @@ export default function PrintOffersPage() {
                                                         >
                                                             MRP {Number(product.mrp || product.price || 0).toFixed(2)}
                                                         </div>
-                                                    ) : <div />}
+                                                    ) : null}
 
                                                     {/* Save Badge */}
                                                     {hasSavings ? (
                                                         <div 
-                                                            className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0 ml-auto"
+                                                            className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
                                                                 fontSize: '11px',
                                                                 fontFamily: 'var(--font-sans), sans-serif',
@@ -1299,7 +1305,7 @@ export default function PrintOffersPage() {
                                                         >
                                                             {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
                                                         </div>
-                                                    ) : <div />}
+                                                    ) : null}
                                                 </div>
 
                                                 {/* Image Wrapper */}

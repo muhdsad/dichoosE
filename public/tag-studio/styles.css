@@ -3,7 +3,7 @@
     --medium-blue: #0091ea;
     --dark-blue-text: #0f3b68;
     --primary-green: #2e7d32;
-    --border-green: #000000;
+    --border-green: transparent;
     --text-black: #111111;
     --bg-gray: #0f172a;
     --modal-overlay: rgba(0, 0, 0, 0.6);
@@ -260,7 +260,7 @@ body {
     width: 100%;
     flex: 1; /* Take remaining A4 height automatically */
     background: white;
-    border-top: 2.5px solid var(--border-green);
+    border-top: none;
     position: relative;
     min-height: 0;
 }
@@ -272,7 +272,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 2.5px solid var(--border-green);
+    border-top: none;
     background-color: white;
     flex-shrink: 0;
     box-sizing: border-box;
@@ -375,7 +375,7 @@ highlight-word {
 }
 .grid-container.layout-2 .price-card {
     border-right: none;
-    border-bottom: 2.5px solid var(--border-green);
+    border-bottom: none;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -435,8 +435,8 @@ highlight-word {
     grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 .grid-container.layout-4 .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -489,8 +489,8 @@ highlight-word {
     grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 .grid-container.layout-8 .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -542,8 +542,8 @@ highlight-word {
     grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 .grid-container.layout-12 .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -614,8 +614,8 @@ highlight-word {
     grid-template-rows: repeat(5, minmax(0, 1fr));
 }
 .grid-container.layout-14 .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
@@ -698,7 +698,7 @@ highlight-word {
     grid-template-rows: 1fr;
 }
 .grid-container.layout-2-landscape .price-card {
-    border-right: 2.5px solid var(--border-green);
+    border-right: none;
     border-bottom: none;
     flex-direction: column;
     align-items: center;
@@ -752,7 +752,7 @@ highlight-word {
     grid-template-rows: 1fr;
 }
 .grid-container.layout-3-landscape .price-card {
-    border-right: 2.5px solid var(--border-green);
+    border-right: none;
     border-bottom: none;
     flex-direction: column;
     align-items: center;
@@ -806,8 +806,8 @@ highlight-word {
     grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 .grid-container.layout-6-landscape .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -861,8 +861,8 @@ highlight-word {
     grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 .grid-container.layout-8-landscape .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
@@ -921,8 +921,8 @@ highlight-word {
     grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 .grid-container.layout-12-landscape .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -993,8 +993,8 @@ highlight-word {
 }
 .grid-container.layout-16-landscape .price-card,
 .grid-container.layout-18 .price-card {
-    border-right: 1.5px solid var(--border-green);
-    border-bottom: 1.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -1107,15 +1107,11 @@ highlight-word {
 .grid-container.layout-18 .mrp-badge {
     font-size: 10px !important;
     padding: 1px 5px !important;
-    top: 4px !important;
-    left: 4px !important;
 }
 .grid-container.layout-16-landscape .save-badge,
 .grid-container.layout-18 .save-badge {
     font-size: 10px !important;
     padding: 1.5px 5px !important;
-    top: 4px !important;
-    right: 4px !important;
 }
 /* Layout 16 (4x4 Portrait A4 Sheet) */
 .grid-container.layout-16 {
@@ -1123,8 +1119,8 @@ highlight-word {
     grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 .grid-container.layout-16 .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -1162,8 +1158,8 @@ highlight-word {
     grid-template-rows: repeat(4, minmax(0, 1fr));
 }
 .grid-container.layout-12-poster .price-card {
-    border-right: 2.5px solid var(--border-green);
-    border-bottom: 2.5px solid var(--border-green);
+    border-right: none;
+    border-bottom: none;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -1374,12 +1370,27 @@ highlight-word {
     font-size: 85%;
 }
 
+.badges-row {
+    position: absolute !important;
+    top: 6px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    width: max-content !important;
+    max-width: 95% !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+}
+
 .mrp-badge {
-    position: absolute;
-    top: 6px;
-    left: 6px;
+    position: relative;
+    top: auto;
+    left: auto;
     background-color: #ffff00;
-    border: 1.5px solid #000000;
+    border: none;
     color: #000000;
     font-weight: 800;
     font-size: 11px;
@@ -1389,6 +1400,9 @@ highlight-word {
     font-family: 'Poppins', sans-serif;
     line-height: 1.2;
     text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: auto;
+    flex-shrink: 0;
 }
 
 .mrp-strike {
@@ -1398,9 +1412,9 @@ highlight-word {
 }
 
 .save-badge {
-    position: absolute;
-    top: 6px;
-    right: 6px;
+    position: relative;
+    top: auto;
+    right: auto;
     background-color: #e50914;
     color: #ffffff;
     font-weight: 800;
@@ -1412,6 +1426,9 @@ highlight-word {
     line-height: 1.2;
     text-transform: uppercase;
     box-shadow: none !important;
+    white-space: nowrap;
+    pointer-events: auto;
+    flex-shrink: 0;
 }
 
 .price-row {
@@ -2294,8 +2311,9 @@ highlight-word {
     padding: 4px !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
-    border-right: 2px solid #000000 !important;
-    border-bottom: 2px solid #000000 !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
 }
 
 .grid-container .price-card .card-details-wrapper {
@@ -2363,7 +2381,8 @@ highlight-word {
     width: 100% !important;
     display: flex !important;
     justify-content: center !important;
-    align-items: baseline !important;
+    align-items: center !important;
+    text-align: center !important;
     margin-bottom: 0 !important;
     margin-top: auto !important;
     line-height: 1 !important;
@@ -2374,9 +2393,11 @@ highlight-word {
 /* Center text and prices for all layouts */
 .grid-container .price-card .product-title {
     text-align: center !important;
+    width: 100% !important;
 }
 .grid-container .price-card .price-row {
     justify-content: center !important;
+    text-align: center !important;
 }
 
 .price-card .price-value {
@@ -2387,6 +2408,9 @@ highlight-word {
     text-shadow: 0px 0px 5px #ffffff, 0px 0px 5px #ffffff, 0px 0px 5px #ffffff !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
+    text-align: center !important;
+    display: block !important;
+    width: 100% !important;
     z-index: 3 !important;
 }
 
@@ -2397,21 +2421,25 @@ highlight-word {
     -webkit-text-stroke: 0.5px #ffffff !important;
     paint-order: stroke fill !important;
     text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
-    margin: 2px 0 !important;
+    margin: 2px 0 0 0 !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;
+    text-align: center !important;
+    display: block !important;
+    width: 100% !important;
     z-index: 3 !important;
 }
 
-/* Badges absolutely positioned at top corners matching screenshot */
+/* Badges centered near top of tag */
 .price-card .mrp-badge {
-    position: absolute !important;
-    top: 6px !important;
-    left: 6px !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
     z-index: 10 !important;
     background: #ffff00 !important;
     color: #000000 !important;
-    border: 1.5px solid #000000 !important;
+    border: none !important;
     border-radius: 2px !important;
     font-family: 'Poppins', sans-serif !important;
     font-weight: 800 !important;
@@ -2421,6 +2449,9 @@ highlight-word {
     line-height: 1.2 !important;
     display: inline-flex !important;
     align-items: center !important;
+    white-space: nowrap !important;
+    pointer-events: auto !important;
+    flex-shrink: 0 !important;
 }
 
 .price-card .mrp-strike {
@@ -2430,9 +2461,10 @@ highlight-word {
 }
 
 .price-card .save-badge {
-    position: absolute !important;
-    top: 6px !important;
-    right: 6px !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
     z-index: 10 !important;
     background: #e50914 !important;
     color: #ffffff !important;
@@ -2447,6 +2479,9 @@ highlight-word {
     display: inline-flex !important;
     align-items: center !important;
     box-shadow: 0 1px 3px rgba(0,0,0,0.15) !important;
+    white-space: nowrap !important;
+    pointer-events: auto !important;
+    flex-shrink: 0 !important;
 }
 
 /* Dynamic Font Scaling overrides for MRP Badge */
@@ -2784,7 +2819,7 @@ highlight-word {
     }
 
     .poster-footer {
-        border-top: 2.5px solid var(--border-green) !important;
+        border-top: none !important;
         border-bottom: none !important;
         background: white !important;
     }
