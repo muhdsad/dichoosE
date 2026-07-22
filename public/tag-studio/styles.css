@@ -580,10 +580,12 @@ highlight-word {
     text-align: center !important;
     width: 100% !important;
     font-family: 'Anton', sans-serif !important;
+    font-weight: 700 !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.5px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 6px #ffffff !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.8px !important;
     text-transform: uppercase !important;
 }
 .grid-container.layout-12 .mrp-row,
@@ -596,16 +598,18 @@ highlight-word {
     font-size: 58px !important;
     font-family: 'Anton', sans-serif !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.8px #ffffff !important;
+    -webkit-text-stroke: 0.5px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #ffffff, 0px 0px 5px #ffffff, 0px 0px 8px #ffffff !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.5px !important;
 }
 .grid-container.layout-12 .unit-value {
     font-size: 18px !important;
     font-family: 'Anton', sans-serif !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.2px #ffffff !important;
+    -webkit-text-stroke: 0.3px #ffffff !important;
     paint-order: stroke fill !important;
+    letter-spacing: 0.5px !important;
 }
 
 /* Layout 14 (14 Tags Mix: Row 1 = 2 cols, Rows 2-5 = 3 cols) */
@@ -991,8 +995,7 @@ highlight-word {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(6, minmax(0, 1fr));
 }
-.grid-container.layout-16-landscape .price-card,
-.grid-container.layout-18 .price-card {
+.grid-container.layout-16-landscape .price-card {
     border-right: none;
     border-bottom: none;
     flex-direction: column;
@@ -1003,17 +1006,16 @@ highlight-word {
     position: relative;
     overflow: hidden;
 }
-.grid-container.layout-16-landscape .price-card:nth-child(4n) {
-    border-right: none;
-}
-.grid-container.layout-16-landscape .price-card:nth-child(n+13) {
-    border-bottom: none;
-}
-.grid-container.layout-18 .price-card:nth-child(3n) {
-    border-right: none;
-}
-.grid-container.layout-18 .price-card:nth-child(n+16) {
-    border-bottom: none;
+.grid-container.layout-18 .price-card {
+    border: 1px dashed #94a3b8 !important;
+    box-sizing: border-box !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 .grid-container.layout-16-landscape .card-image-wrapper,
 .grid-container.layout-18 .card-image-wrapper {
@@ -1054,10 +1056,12 @@ highlight-word {
     text-align: center !important;
     width: 100% !important;
     font-family: 'Anton', sans-serif !important;
+    font-weight: 700 !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
     text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.6px !important;
     text-transform: uppercase !important;
     white-space: normal !important;
     word-break: break-word !important;
@@ -1084,10 +1088,10 @@ highlight-word {
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.5px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
-    letter-spacing: -0.5px !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.5px !important;
 }
 .grid-container.layout-16-landscape .price-value.long-price,
 .grid-container.layout-18 .price-value.long-price {
@@ -1097,10 +1101,11 @@ highlight-word {
 .grid-container.layout-18 .unit-value {
     font-size: 13px !important;
     font-family: 'Poppins', sans-serif !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
     color: #1e40af !important;
-    -webkit-text-stroke: 0.5px #ffffff !important;
+    -webkit-text-stroke: 0.3px #ffffff !important;
     paint-order: stroke fill !important;
+    letter-spacing: 0.5px !important;
     margin: 1px 0 !important;
 }
 .grid-container.layout-16-landscape .mrp-badge,
@@ -1202,10 +1207,12 @@ highlight-word {
     text-align: center !important;
     width: 100% !important;
     font-family: 'Anton', sans-serif !important;
+    font-weight: 700 !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
     text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.6px !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;
 }
@@ -1218,17 +1225,18 @@ highlight-word {
     font-size: 64px !important;
     font-family: 'Anton', sans-serif !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.5px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
-    letter-spacing: -1px !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.5px !important;
 }
 .grid-container.layout-12-poster .unit-value {
     font-size: 16px !important;
     font-family: 'Anton', sans-serif !important;
     color: #000000 !important;
-    -webkit-text-stroke: 0.5px #ffffff !important;
+    -webkit-text-stroke: 0.3px #ffffff !important;
     paint-order: stroke fill !important;
+    letter-spacing: 0.5px !important;
 }
 
 @media screen {
@@ -1345,14 +1353,15 @@ highlight-word {
 /* Product title at top overlay */
 .product-title {
     font-size: 28px;
-    font-weight: 900;
+    font-weight: 700;
     color: #000000 !important;
     font-family: 'Anton', sans-serif !important;
-    -webkit-text-stroke: 1.5px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.8px !important;
     text-transform: uppercase;
-    line-height: 0.95 !important;
+    line-height: 1.05 !important;
     margin: 18px 0 0 0 !important;
     word-break: break-word;
     display: -webkit-box;
@@ -1373,16 +1382,19 @@ highlight-word {
 .badges-row {
     position: absolute !important;
     top: 6px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
-    width: max-content !important;
-    max-width: 95% !important;
+    gap: 4px !important;
     z-index: 10 !important;
     pointer-events: none !important;
+    transform: none !important;
+    box-sizing: border-box !important;
+    padding: 0 4px !important;
+    overflow: hidden !important;
 }
 
 .mrp-badge {
@@ -2341,10 +2353,12 @@ highlight-word {
     left: auto !important;
     transform: none !important;
     font-family: 'Anton', sans-serif !important;
+    font-weight: 700 !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.2px #ffffff !important;
+    -webkit-text-stroke: 0.4px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.8px !important;
     text-transform: uppercase !important;
     line-height: 1.1 !important;
     flex-shrink: 0 !important;
@@ -2403,9 +2417,10 @@ highlight-word {
 .price-card .price-value {
     font-family: 'Anton', sans-serif !important;
     color: #000000 !important;
-    -webkit-text-stroke: 1.8px #ffffff !important;
+    -webkit-text-stroke: 0.5px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #ffffff, 0px 0px 5px #ffffff, 0px 0px 5px #ffffff !important;
+    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    letter-spacing: 0.5px !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
     text-align: center !important;
@@ -2416,11 +2431,12 @@ highlight-word {
 
 .price-card .unit-value {
     font-family: 'Poppins', sans-serif !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
     color: #1e40af !important;
-    -webkit-text-stroke: 0.5px #ffffff !important;
+    -webkit-text-stroke: 0.3px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    text-shadow: 0px 0px 2px #ffffff !important;
+    letter-spacing: 0.5px !important;
     margin: 2px 0 0 0 !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;

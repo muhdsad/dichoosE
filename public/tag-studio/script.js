@@ -471,9 +471,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (mrpVal && spVal && !isNaN(mrpVal) && !isNaN(spVal) && mrpVal > spVal) {
-                    const diff = mrpVal - spVal;
-                    const savings = diff % 1 === 0 ? diff.toFixed(0) : diff.toFixed(2);
-                    saveBadgeHtml = `<div class="save-badge">SMILE SAVE ₹${savings}</div>`;
+                    if (activeLayout === '18') {
+                        const discountPercent = Math.max(1, Math.round(((mrpVal - spVal) / mrpVal) * 100));
+                        saveBadgeHtml = `<div class="save-badge">SMILE SAVE ${discountPercent}%</div>`;
+                    } else {
+                        const diff = mrpVal - spVal;
+                        const savings = diff % 1 === 0 ? diff.toFixed(0) : diff.toFixed(2);
+                        saveBadgeHtml = `<div class="save-badge">SMILE SAVE ₹${savings}</div>`;
+                    }
                 }
 
                 // Format selling price
@@ -1012,6 +1017,22 @@ document.addEventListener('DOMContentLoaded', () => {
                                 wrapper.style.height = '80%';
                                 wrapper.style.transform = 'none';
                                 wrapper.style.webkitTransform = 'none';
+                            });
+
+                            const badgesRows = clonedDoc.querySelectorAll('.badges-row');
+                            badgesRows.forEach(row => {
+                                row.style.position = 'absolute';
+                                row.style.top = '6px';
+                                row.style.left = '0';
+                                row.style.right = '0';
+                                row.style.width = '100%';
+                                row.style.display = 'flex';
+                                row.style.justifyContent = 'center';
+                                row.style.alignItems = 'center';
+                                row.style.transform = 'none';
+                                row.style.webkitTransform = 'none';
+                                row.style.boxSizing = 'border-box';
+                                row.style.padding = '0 4px';
                             });
                         }
                     }).then(canvas => {
