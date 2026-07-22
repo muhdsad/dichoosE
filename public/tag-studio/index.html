@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4CAF50">
+    <title>Smile Hypermarket Promo </title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css?v=52">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Fullscreen Drag & Drop Overlay -->
+    <div id="drop-overlay" class="drop-overlay">
+        <div class="drop-overlay-box">
+            <span class="drop-icon">📥</span>
+            <p>Drop your Excel or CSV file here to import products!</p>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        <!-- Main Preview Area -->
+        <main class="preview-viewport">
+            <div class="a4-container">
+                <div class="header-section" id="header-section">
+                    <!-- Option 1: Default Text & Logo Header -->
+                    <div class="header-default-content" id="header-default-content">
+                        <div class="header-left">
+                            <!-- Date Pill -->
+                            <div class="date-pill" id="date-pill-trigger" title="Click to change date">
+                                <span class="day-text" id="header-day">FRIDAY</span>
+                                <span class="date-text" id="header-date">24/04/2026</span>
+                            </div>
+                            <!-- Title (editable) -->
+                            <h1 class="header-title" id="header-title" contenteditable="true" spellcheck="false" title="Click to edit title">Todays Essentials</h1>
+                        </div>
+                        <div class="header-right">
+                            <!-- Logo -->
+                            <div class="logo-container" id="header-logo-trigger" title="Click to upload custom logo">
+                                <div id="logo-display-wrapper"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: Custom Banner Image Header -->
+                    <div class="header-banner-content" id="header-banner-content" style="display: none;">
+                        <img id="custom-banner-img" src="" alt="Custom Header Banner" style="display: none; width: 100%; height: 100%; object-fit: contain;">
+                        <div id="banner-placeholder" class="banner-placeholder" title="Click to upload custom banner image">
+                            <span>📷 Click to upload custom header banner image</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-container">
+                    <!-- Items will be generated here by script.js -->
+                </div>
+                <!-- Poster Footer -->
+                <footer class="poster-footer" id="poster-footer-trigger" title="Click to edit footer message">
+                    <div id="footer-text-display" contenteditable="true" spellcheck="false">Smile Hypermarket SA ARCADE KAKKKAD <span class="highlight-word">8282893434 </span>Purchase above RS 800 within 5km, Order Before 11 AM</div>
+                </footer>
+            </div>
+        </main>
+
+        <!-- Sidebar Control Panel -->
+        <aside class="sidebar-panel">
+            <div class="sidebar-brand">
+                <div class="brand-icon">🏷️</div>
+                <div class="brand-details">
+                    <h2>TagStudio</h2>
+                    <p>A4 Portrait 3x4 Grid</p>
+                </div>
+            </div>
+            
+            <!-- Sidebar Tabs -->
+            <div class="sidebar-tabs">
+                <button id="tab-design-btn" class="tab-btn active">🎛️ Design</button>
+                <button id="tab-products-btn" class="tab-btn">📦 Products</button>
+            </div>
+
+            <!-- Tab 1: Design Settings -->
+            <div id="tab-design-content" class="tab-content active">
+                <div class="sidebar-section">
+                    <h3>Header Mode</h3>
+                    <div class="header-type-toggle" style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <button id="header-type-default-btn" class="btn layout-btn active" style="flex: 1; padding: 6px;">Text Header</button>
+                        <button id="header-type-banner-btn" class="btn layout-btn" style="flex: 1; padding: 6px;">Custom Banner</button>
+                    </div>
+                    <div id="custom-banner-controls" style="display: none;">
+                        <div class="logo-control-group">
+                            <button id="banner-trigger" class="btn btn-secondary-outline" style="width: 100%;">Upload Custom Banner</button>
+                            <input type="file" id="hidden-banner-input" accept="image/*" style="display: none;">
+                        </div>
+                        <button id="reset-banner-btn" class="btn btn-danger-outline" style="width: 100%; margin-top: 6px;">Remove Custom Banner</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="section-offer-period">
+                    <h3>Offer Period</h3>
+                    <div class="date-inputs-row">
+                        <div class="control-group" style="flex: 1;">
+                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 500; margin-bottom: 2px;">Start Date</label>
+                            <input type="date" id="control-date-picker">
+                        </div>
+                        <div class="control-group" style="flex: 1;">
+                            <label style="font-size: 0.8rem; color: #94a3b8; font-weight: 500; margin-bottom: 2px;">End Date</label>
+                            <input type="date" id="control-end-date-picker">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="section-poster-title">
+                    <h3>Poster Title</h3>
+                    <div class="control-group">
+                        <input type="text" id="control-title-input" placeholder="e.g. Todays Essentials">
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Poster Footer Message</h3>
+                    <div class="control-group">
+                        <textarea id="control-footer-input" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #ccc; border-radius:4px; background-color:#1e293b; color:white; font-family:inherit; resize:vertical;" placeholder="Enter footer text..."></textarea>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="section-store-logo">
+                    <h3>Store Logo</h3>
+                    <div class="logo-control-group">
+                        <button id="logo-trigger" class="btn btn-secondary-outline" style="flex: 1;">Upload Logo</button>
+                        <input type="file" id="hidden-logo-input" accept="image/*" style="display: none;">
+                    </div>
+                    <button id="reset-logo-btn" class="btn btn-danger-outline">Reset to Default Logo</button>
+                </div>
+                <div class="sidebar-section">
+                    <h3>Grid Layout</h3>
+                    <div class="layout-selector-group">
+                        <button id="layout-1-btn" class="btn layout-btn">1 Tag (Poster)</button>
+                        <button id="layout-2-btn" class="btn layout-btn">1x2 (2 Tags)</button>
+                        <button id="layout-4-btn" class="btn layout-btn">2x2 (4 Tags)</button>
+                        <button id="layout-8-btn" class="btn layout-btn">2x4 (8 Tags)</button>
+                        <button id="layout-12-btn" class="btn layout-btn active">3x4 (12 Tags)</button>
+                        <button id="layout-12-poster-btn" class="btn layout-btn">3x4 Poster (12 Tags)</button>
+                        <button id="layout-14-btn" class="btn layout-btn">14 Tags (Mix)</button>
+                        <button id="layout-16-btn" class="btn layout-btn">4x4 (16 Tags)</button>
+                        <button id="layout-18-btn" class="btn layout-btn">3x6 (18 Tags)</button>
+                        <button id="layout-2-landscape-btn" class="btn layout-btn">2 Tags (Landscape)</button>
+                        <button id="layout-3-landscape-btn" class="btn layout-btn">3 Tags (Landscape)</button>
+                        <button id="layout-6-landscape-btn" class="btn layout-btn">6 Tags (Landscape)</button>
+                        <button id="layout-8-landscape-btn" class="btn layout-btn">8 Tags (Landscape)</button>
+                        <button id="layout-12-landscape-btn" class="btn layout-btn">12 Tags (Landscape)</button>
+                        <button id="layout-16-landscape-btn" class="btn layout-btn">16 Tags (Landscape)</button>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <button id="clear-all-btn" class="btn btn-danger-outline" style="width: 100%;">Clear All Content</button>
+                    <button id="print-btn" class="btn btn-secondary" style="width: 100%;">Print Poster</button>
+                    <button id="save-png-btn" class="btn btn-primary" style="width: 100%;">Save as PNG</button>
+                </div>
+            </div>
+
+            <!-- Tab 2: Products Database Settings -->
+            <div id="tab-products-content" class="tab-content">
+                <div class="sidebar-section">
+                    <h3>Import Product List</h3>
+                    <div class="import-dropzone" id="db-import-dropzone">
+                        <span class="import-icon">📥</span>
+                        <p class="import-main-text">Drag & drop Excel or CSV file</p>
+                        <p class="import-sub-text">or click to browse</p>
+                        <input type="file" id="db-file-input" accept=".xlsx, .xls, .csv" style="display: none;">
+                    </div>
+                </div>
+
+                <div class="sidebar-section flex-1-scrollable">
+                    <h3>Product Database</h3>
+                    <div class="search-box-wrapper">
+                        <input type="text" id="product-search-input" placeholder="🔍 Search products..." autocomplete="off">
+                    </div>
+                    <div class="product-list-actions" style="flex-wrap: wrap; gap: 4px;">
+                        <button id="add-db-product-btn" class="btn btn-secondary-outline btn-sm" style="flex: 1 1 45%; padding: 6px;">➕ Add Product</button>
+                        <button id="clear-db-btn" class="btn btn-danger-outline btn-sm" style="flex: 1 1 45%; padding: 6px;">🗑️ Clear DB</button>
+                        <button id="match-drive-folder-btn" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 4px; padding: 8px; background-color: #0284c7; color: white; border: none; font-weight: 600;" title="Select local image folder or Google Drive synced folder containing product images named as title.jpeg or png">📁 Match Images from Drive / Folder</button>
+                        <button id="open-gdrive-modal-btn" class="btn btn-secondary-outline btn-sm" style="width: 100%; margin-top: 4px; padding: 6px;" title="Sync online Google Drive public folder">☁️ Google Drive Cloud Sync</button>
+                        <button id="open-spreadsheet-btn" class="btn btn-primary btn-sm" style="width: 100%; margin-top: 4px; padding: 8px;">📊 Bulk Edit Spreadsheet</button>
+                    </div>
+                    <div id="sidebar-product-list" class="sidebar-product-list">
+                        <!-- Products will be generated here -->
+                        <div class="empty-list-msg">No products loaded. Import Excel/CSV or add products manually.</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Hidden Input Fields -->
+    <input type="date" id="hidden-date-picker" style="position: absolute; display: none;">
+    <input type="file" id="drive-folder-input" webkitdirectory directory multiple style="display: none;">
+
+    <!-- Edit Modal -->
+    <div id="editor-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Edit Item Details</h2>
+
+            <div class="form-group" id="db-select-group" style="position: relative; margin-bottom: 8px;">
+                <label for="modal-search-db" style="font-weight:600; font-size:0.85rem; color:#475569;">Quick Autofill from Database</label>
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="modal-search-db" placeholder="🔍 Search imported products..." autocomplete="off" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+                    <div id="modal-search-results" class="autocomplete-results" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="item-name">Product Name</label>
+                <input type="text" id="item-name" placeholder="e.g. ONION">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="item-mrp">MRP Price (₹)</label>
+                    <input type="number" id="item-mrp" step="0.01" placeholder="e.g. 25.00">
+                </div>
+                <div class="form-group">
+                    <label for="item-sp">Selling Price (₹)</label>
+                    <input type="number" id="item-sp" step="0.01" placeholder="e.g. 19.90">
+                </div>
+                <div class="form-group">
+                    <label for="item-unit">Unit / Weight</label>
+                    <input type="text" id="item-unit" placeholder="e.g. KG">
+                </div>
+            </div>
+
+            <div class="form-row align-center">
+                <div class="form-group">
+                    <label>Product Image</label>
+                    <input type="file" id="item-image-input" accept="image/*" style="width: 100%;">
+                </div>
+                <div id="image-preview" class="image-preview-box">Preview</div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="delete-btn" class="btn btn-danger">Clear Item Content</button>
+                <button id="cancel-btn" class="btn btn-secondary">Cancel</button>
+                <button id="save-btn" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spreadsheet/Bulk Editor Modal -->
+    <div id="spreadsheet-modal" class="modal">
+        <div class="modal-content spreadsheet-modal-content">
+            <span class="close-btn" id="close-spreadsheet-btn">&times;</span>
+            <h2>✏️ Bulk Product Editor (Excel/CSV View)</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #64748b;">
+                Edit your imported products directly in the spreadsheet below. You can also drag &amp; drop an Excel/CSV file to replace/append items.
+            </p>
+
+            <div class="spreadsheet-toolbar">
+                <div class="toolbar-left">
+                    <button id="ss-add-row-btn" class="btn btn-secondary-outline btn-sm">➕ Add New Row</button>
+                    <button id="ss-match-folder-btn" class="btn btn-secondary btn-sm" style="background-color: #0284c7; color: white; border: none; font-weight: 600;">📁 Match Folder Images</button>
+                    <button id="ss-export-btn" class="btn btn-secondary-outline btn-sm">📥 Export to Excel</button>
+                    <button id="ss-clear-btn" class="btn btn-danger-outline btn-sm">🗑️ Clear All Items</button>
+                </div>
+                <div class="toolbar-right">
+                    <input type="text" id="ss-search-input" placeholder="🔍 Filter rows..." style="padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 0.9rem; width: 220px;">
+                </div>
+            </div>
+
+            <!-- Spreadsheet Table Container -->
+            <div class="spreadsheet-table-container">
+                <table class="spreadsheet-table" id="ss-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Product Name</th>
+                            <th style="width: 120px;">Unit</th>
+                            <th style="width: 120px;">MRP (₹)</th>
+                            <th style="width: 120px;">Selling Price (₹)</th>
+                            <th>Image URL / Source</th>
+                            <th style="width: 80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ss-table-body">
+                        <!-- Rows dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 15px; display: flex; align-items: center;">
+                <span id="ss-row-count" style="font-size: 0.9rem; color: #64748b; flex: 1; text-align: left;">0 products loaded</span>
+                <button id="ss-close-btn" class="btn btn-primary">Save &amp; Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Drive Sync Modal -->
+    <div id="gdrive-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-btn" id="close-gdrive-btn">&times;</span>
+            <h2>☁️ Google Drive Cloud Sync</h2>
+            <p style="margin-bottom: 15px; font-size: 0.88rem; color: #64748b; line-height: 1.5;">
+                Enter a Public Google Drive Folder ID or Shareable Link containing images named <code>[Product Title].jpeg</code> or <code>.png</code>.
+            </p>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="gdrive-folder-url" style="font-weight: 600; font-size: 0.85rem; color: #475569;">Google Drive Folder Link / ID</label>
+                <input type="text" id="gdrive-folder-url" placeholder="https://drive.google.com/drive/folders/YOUR_FOLDER_ID or Folder ID" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="gdrive-api-key" style="font-weight: 600; font-size: 0.85rem; color: #475569;">Google Drive API Key (Optional for private API)</label>
+                <input type="text" id="gdrive-api-key" placeholder="Enter API Key (Optional)" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit;">
+            </div>
+
+            <div id="gdrive-status-msg" style="margin-bottom: 15px; font-size: 0.85rem; display: none;"></div>
+
+            <div class="modal-actions">
+                <button id="cancel-gdrive-btn" class="btn btn-secondary">Cancel</button>
+                <button id="sync-gdrive-btn" class="btn btn-primary" style="background-color: #0284c7; border: none;">Fetch &amp; Auto-Match Images</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="xlsx.full.min.js"></script>
+    <script src="html2pdf.bundle.min.js"></script>
+    <script src="html2canvas.min.js"></script>
+    <script src="script.js?v=52"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker Registered'))
+                .catch(err => console.log('Service Worker Failed', err));
+        }
+    </script>
+</body>
+
+</html>

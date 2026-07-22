@@ -2,13 +2,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
-import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint, FaUpload, FaPlusCircle, FaListUl } from 'react-icons/fa';
+import { FaHome, FaBox, FaShoppingBag, FaSignOutAlt, FaTachometerAlt, FaPrint, FaUpload, FaPlusCircle, FaListUl, FaTags } from 'react-icons/fa';
 
 export const navItems = [
     { name: 'Dashboard', href: '/admin', icon: FaTachometerAlt },
     { name: 'Products', href: '/admin/products', icon: FaBox },
     { name: 'Manage Categories', href: '/admin/categories', icon: FaListUl },
     { name: 'Orders', href: '/admin/orders', icon: FaShoppingBag },
+    { name: 'Tag Studio', href: '/admin/tag-studio', icon: FaTags },
     { name: 'Print Offers', href: '/admin/print-offers', icon: FaPrint },
     { name: 'Bulk Edit (Offers/Cats)', href: '/admin/bulk-offers', icon: FaUpload },
     { name: 'Add Products (Bulk)', href: '/admin/bulk-products', icon: FaPlusCircle },

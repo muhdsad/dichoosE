@@ -1,0 +1,30 @@
+root {
+    --primary-blue: #0b4c8c;
+    --medium-blue: #0091ea;
+.price-card .product-title {
+    font-family: 'Anton', sans-serif !important;
+    color: #000000 !important;
+    -webkit-text-stroke: 1.5px #ffffff !important;
+    -webkit-text-stroke: 1px #ffffff !important;
+    letter-spacing: 0.8px !important;
+    paint-order: stroke fill !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
+    text-transform: uppercase !important;
+.grid-container.layout-12 .unit-value { font-size: 20px !important; }
+.grid-container.layout-14 .price-card:first-child .product-title,
+.grid-container.layout-14 .price-card:nth-child(2) .product-title { font-size: 40px !important; }
+.grid-container.layout-14 .product-title { font-size: 34px !important; }
+.grid-container.layout-14 .price-card:nth-child(2) .product-title {
+    font-size: 40px !important;
+    letter-spacing: 1px !important;
+    -webkit-text-stroke: 0.8px #ffffff !important;
+}
+.grid-container.layout-14 .product-title {
+    font-size: 34px !important;
+    letter-spacing: 1px !important;
+    -webkit-text-stroke: 0.8px #ffffff !important;
+}
+.grid-container.layout-14 .price-card:first-child .price-value,
+.grid-container.layout-14 .price-card:nth-child(2) .price-value { font-size: 72px !important; }
+.grid-container.layout-14 .price-value { font-size: 60px !important; }
+
