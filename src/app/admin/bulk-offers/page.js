@@ -94,7 +94,14 @@ export default function BulkOffersPage() {
             }
             return cats.filter(Boolean);
         });
-        return ['All', ...Array.from(new Set(allCats))].sort();
+        const cleaned = Array.from(new Set(allCats.map(c => String(c).trim()).filter(Boolean)));
+        return ['All', ...cleaned].sort((a, b) => {
+            if (a === 'All') return -1;
+            if (b === 'All') return 1;
+            if (a === 'Offer') return 1;
+            if (b === 'Offer') return -1;
+            return a.localeCompare(b);
+        });
     }, [products]);
 
     // Handle field updates reactively
@@ -102,6 +109,9 @@ export default function BulkOffersPage() {
         setProducts(prev => prev.map(p => {
             if (p.id === productId) {
                 const updated = { ...p, [field]: value };
+                if (field === 'price') {
+                    updated.mrp = value;
+                }
                 if (field === 'offerPrice' && value && String(value).trim() !== '') {
                     if (!p.offerStart || p.offerStart === '') {
                         updated.offerStart = getTodayDateTimeString();
@@ -173,7 +183,8 @@ export default function BulkOffersPage() {
         try {
             const docRef = doc(db, "products", p.id);
             const offerPriceVal = p.offerPrice ? parseFloat(p.offerPrice) : null;
-            const priceVal = p.price ? parseFloat(p.price) : 0;
+            const priceVal = p.price !== undefined && p.price !== null && p.price !== '' ? parseFloat(p.price) : 0;
+            const mrpVal = p.mrp !== undefined && p.mrp !== null && p.mrp !== '' ? parseFloat(p.mrp) : priceVal;
 
             // Auto-check / update category list to maintain the "Offer" category tag
             let updatedCategories = [...(p.categories || [])];
@@ -187,6 +198,7 @@ export default function BulkOffersPage() {
 
             const updatePayload = {
                 price: priceVal,
+                mrp: mrpVal,
                 offerPrice: offerPriceVal,
                 offerStart: p.offerStart || null,
                 offerEnd: p.offerEnd || null,
@@ -270,6 +282,8 @@ export default function BulkOffersPage() {
             for (const p of pendingList) {
                 const docRef = doc(db, "products", p.id);
                 const offerPriceVal = p.offerPrice ? parseFloat(p.offerPrice) : null;
+                const priceVal = p.price !== undefined && p.price !== null && p.price !== '' ? parseFloat(p.price) : 0;
+                const mrpVal = p.mrp !== undefined && p.mrp !== null && p.mrp !== '' ? parseFloat(p.mrp) : priceVal;
 
                 let updatedCategories = [...(p.categories || [])];
                 if (offerPriceVal && offerPriceVal > 0) {
@@ -281,6 +295,8 @@ export default function BulkOffersPage() {
                 }
 
                 batch.update(docRef, {
+                    price: priceVal,
+                    mrp: mrpVal,
                     offerPrice: offerPriceVal,
                     offerStart: p.offerStart || null,
                     offerEnd: p.offerEnd || null,
@@ -363,6 +379,7 @@ export default function BulkOffersPage() {
                 data.forEach(row => {
                     const productId = row.ID;
                     const newOfferPrice = row.OfferPrice;
+                    const newPrice = row.Price;
                     
                     if (productId) {
                         const existingProduct = products.find(p => p.id === productId);
@@ -370,6 +387,9 @@ export default function BulkOffersPage() {
                             const oldOfferPrice = existingProduct.offerPrice || '';
                             const proposedOffer = newOfferPrice !== undefined && newOfferPrice !== null ? String(newOfferPrice).trim() : '';
                             
+                            const oldPrice = existingProduct.price !== undefined && existingProduct.price !== null ? String(existingProduct.price).trim() : '';
+                            const proposedPrice = newPrice !== undefined && newPrice !== null ? String(newPrice).trim() : '';
+
                             let oldCats = existingProduct.categories || [];
                             if (existingProduct.category && !oldCats.includes(existingProduct.category)) {
                                 oldCats = [existingProduct.category, ...oldCats];
@@ -377,12 +397,14 @@ export default function BulkOffersPage() {
                             const oldCategoryString = oldCats.filter(Boolean).join(', ');
                             const proposedCategory = row.Category !== undefined && row.Category !== null ? String(row.Category).trim() : '';
 
-                            if (oldOfferPrice !== proposedOffer || oldCategoryString !== proposedCategory) {
+                            if (oldOfferPrice !== proposedOffer || oldCategoryString !== proposedCategory || (proposedPrice !== '' && oldPrice !== proposedPrice)) {
                                 updates.push({
                                     id: productId,
                                     name: existingProduct.name,
                                     oldOffer: oldOfferPrice || '-',
                                     newOffer: proposedOffer || '-',
+                                    oldPrice: oldPrice || '-',
+                                    newPrice: proposedPrice || '-',
                                     oldCategory: oldCategoryString || '-',
                                     newCategory: proposedCategory || '-'
                                 });
@@ -427,6 +449,14 @@ export default function BulkOffersPage() {
                     }
                 }
                 
+                if (update.newPrice && update.newPrice !== update.oldPrice && update.newPrice !== '-') {
+                    const parsedPrice = parseFloat(update.newPrice);
+                    if (!isNaN(parsedPrice)) {
+                        updateData.price = parsedPrice;
+                        updateData.mrp = parsedPrice;
+                    }
+                }
+
                 if (update.newCategory !== update.oldCategory) {
                     const cats = update.newCategory.split(',').map(c => c.trim()).filter(Boolean);
                     updateData.categories = cats;
@@ -554,8 +584,8 @@ export default function BulkOffersPage() {
                                     onChange={(e) => setSelectedDownloadCategory(e.target.value)}
                                     className="block w-full border border-gray-300 rounded-xl p-3 bg-white text-sm focus:ring-primary focus:border-primary text-black"
                                 >
-                                    {uniqueCategories.map(cat => (
-                                        <option key={cat} value={cat}>{cat === 'All' ? 'All Categories' : cat}</option>
+                                    {uniqueCategories.map((cat, idx) => (
+                                        <option key={`${cat}-${idx}`} value={cat}>{cat === 'All' ? 'All Categories' : cat}</option>
                                     ))}
                                 </select>
                             </div>
@@ -712,8 +742,8 @@ export default function BulkOffersPage() {
                                 className="w-full bg-white rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary text-black"
                             >
                                 <option value="All">All Categories</option>
-                                {uniqueCategories.filter(cat => cat !== 'All').map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
+                                {uniqueCategories.filter(cat => cat !== 'All').map((cat, idx) => (
+                                    <option key={`${cat}-${idx}`} value={cat}>{cat}</option>
                                 ))}
                             </select>
                         </div>

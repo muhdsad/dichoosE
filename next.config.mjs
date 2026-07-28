@@ -25,6 +25,7 @@ const nextConfig = {
   },
   // Configure Turbopack root at the top level for Next.js 16+
   // This replaces the deprecated experimental.turbo configuration.
+  devIndicators: false,
   turbopack: {
     root: process.cwd(),
   },

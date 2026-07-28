@@ -29,16 +29,41 @@ export const CategoryProvider = ({ children }) => {
                 await Promise.all(promises);
                 setCategories(defaultCategories.map(c => ({ ...c, subcategories: c.subcategories || [] })));
             } else {
-                const list = querySnapshot.docs.map(doc => ({
+                const rawList = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     subcategories: [], // default to empty if not present
                     ...doc.data()
                 }));
+
+                const seen = new Set();
+                const list = [];
+                const duplicatesToDelete = [];
+
+                for (const docItem of rawList) {
+                    const keyName = (docItem.value || docItem.name || '').trim().toLowerCase();
+                    if (!keyName) continue;
+                    if (seen.has(keyName)) {
+                        if (docItem.id) {
+                            duplicatesToDelete.push(docItem.id);
+                        }
+                    } else {
+                        seen.add(keyName);
+                        list.push(docItem);
+                    }
+                }
+
+                if (duplicatesToDelete.length > 0) {
+                    console.warn(`Cleaning up ${duplicatesToDelete.length} duplicate category document(s) from Firestore...`);
+                    duplicatesToDelete.forEach(id => {
+                        deleteDoc(doc(db, "categories", id)).catch(err => console.error("Error deleting duplicate category:", err));
+                    });
+                }
+
                 // Sort categories: put 'Offer' at the end, and sort others alphabetically
                 list.sort((a, b) => {
-                    if (a.name === 'Offer') return 1;
-                    if (b.name === 'Offer') return -1;
-                    return a.name.localeCompare(b.name);
+                    if (a.name === 'Offer' || a.value === 'Offer') return 1;
+                    if (b.name === 'Offer' || b.value === 'Offer') return -1;
+                    return (a.name || '').localeCompare(b.name || '');
                 });
                 setCategories(list);
             }
@@ -56,10 +81,21 @@ export const CategoryProvider = ({ children }) => {
 
     const addCategory = async (newCat) => {
         try {
-            // value is a slugified version of the name or same as name
+            const catName = (newCat.name || '').trim();
+            const catValue = (newCat.value || newCat.name || '').trim();
+
+            const existing = categories.find(c => 
+                (c.name || '').trim().toLowerCase() === catName.toLowerCase() || 
+                (c.value || '').trim().toLowerCase() === catValue.toLowerCase()
+            );
+            if (existing) {
+                console.warn(`Category "${catName}" already exists.`);
+                return existing;
+            }
+
             const categoryData = {
-                name: newCat.name,
-                value: newCat.value || newCat.name,
+                name: catName,
+                value: catValue,
                 image: newCat.image || "/categories/default.png",
                 color: newCat.color || "bg-gray-100",
                 subcategories: newCat.subcategories || []
@@ -69,10 +105,13 @@ export const CategoryProvider = ({ children }) => {
             const createdCat = { id: docRef.id, ...categoryData };
 
             setCategories(prev => {
-                const list = [...prev.filter(c => c.name !== 'Offer'), createdCat];
-                // Keep 'Offer' at the end
-                const offerCat = prev.find(c => c.name === 'Offer');
-                if (offerCat) list.push(offerCat);
+                const list = prev.filter(c => (c.name || c.value || '').trim().toLowerCase() !== catName.toLowerCase());
+                list.push(createdCat);
+                list.sort((a, b) => {
+                    if (a.name === 'Offer' || a.value === 'Offer') return 1;
+                    if (b.name === 'Offer' || b.value === 'Offer') return -1;
+                    return (a.name || '').localeCompare(b.name || '');
+                });
                 return list;
             });
 
@@ -97,11 +136,21 @@ export const CategoryProvider = ({ children }) => {
 
             setCategories(prev => {
                 const list = prev.map(c => c.id === id ? { ...c, ...toUpdate } : c);
-                // Keep 'Offer' at the end
-                const listNoOffer = list.filter(c => c.name !== 'Offer');
-                const offerCat = list.find(c => c.name === 'Offer');
-                if (offerCat) listNoOffer.push(offerCat);
-                return listNoOffer;
+                const seen = new Set();
+                const uniqueList = [];
+                for (const cat of list) {
+                    const keyName = (cat.value || cat.name || '').trim().toLowerCase();
+                    if (!seen.has(keyName)) {
+                        seen.add(keyName);
+                        uniqueList.push(cat);
+                    }
+                }
+                uniqueList.sort((a, b) => {
+                    if (a.name === 'Offer' || a.value === 'Offer') return 1;
+                    if (b.name === 'Offer' || b.value === 'Offer') return -1;
+                    return (a.name || '').localeCompare(b.name || '');
+                });
+                return uniqueList;
             });
         } catch (error) {
             console.error("Error updating category:", error);
