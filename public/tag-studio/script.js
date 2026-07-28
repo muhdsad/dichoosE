@@ -1008,6 +1008,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         scrollX: 0,
                         scrollY: 0,
                         onclone: (clonedDoc) => {
+                            const emptyCards = clonedDoc.querySelectorAll('.price-card.empty-card');
+                            emptyCards.forEach(card => {
+                                card.style.border = 'none';
+                                card.style.background = 'transparent';
+                                card.style.boxShadow = 'none';
+                                card.style.opacity = '0';
+                                card.style.visibility = 'hidden';
+                                card.innerHTML = '';
+                            });
+
                             const imageWrappers = clonedDoc.querySelectorAll('.card-image-wrapper');
                             imageWrappers.forEach(wrapper => {
                                 wrapper.style.position = 'absolute';

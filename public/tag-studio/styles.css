@@ -1267,15 +1267,20 @@ highlight-word {
 }
 @media print {
     .price-card.empty-card {
-        border: none;
-        margin: 0;
-        border-radius: 0;
-        background: transparent;
-        height: 100%;
-        width: 100%;
+        border: none !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
     }
-    .price-card.empty-card * {
+    .price-card.empty-card *,
+    .price-card.empty-card .add-icon,
+    .price-card.empty-card .add-text {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
     }
 }
 
