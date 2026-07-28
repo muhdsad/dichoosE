@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let mrpBadgeHtml = '';
                 let saveBadgeHtml = '';
 
-                if (mrpVal && !isNaN(mrpVal) && mrpVal > 0) {
+                if (mrpVal && !isNaN(mrpVal) && mrpVal > 0 && mrpVal > spVal) {
                     mrpBadgeHtml = `<div class="mrp-badge">MRP&nbsp;<span class="mrp-strike">${mrpVal.toFixed(2)}</span></div>`;
                 }
 
@@ -1261,11 +1261,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 spIndex = headers.findIndex(h => h.includes('selling') || h.includes('sp') || h.includes('offer') || h.includes('promo') || h.includes('sale') || h.includes('price') || h.includes('special') || h.includes('new') || h.includes('discount') || h.includes('rate'));
                 imgIndex = headers.findIndex(h => h.includes('image') || h.includes('img') || h.includes('pic') || h.includes('photo') || h.includes('url'));
 
-                // Fallbacks
-                if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
-                if (spIndex === -1 && headers.length > 1) spIndex = 1;
-                if (mrpIndex === -1 && headers.length > 2) mrpIndex = 2;
-                if (unitIndex === -1 && headers.length > 3) unitIndex = 3;
+                // Fallbacks (only when headers are missing / unlabelled CSV)
+                const hasHeaderNames = headers.some(h => ['name', 'product', 'item', 'title', 'price', 'selling', 'unit', 'weight', 'image'].some(k => h.includes(k)));
+                if (!hasHeaderNames) {
+                    if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
+                    if (spIndex === -1 && headers.length > 1) spIndex = 1;
+                    if (mrpIndex === -1 && headers.length > 2) mrpIndex = 2;
+                    if (unitIndex === -1 && headers.length > 3) unitIndex = 3;
+                } else {
+                    if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
+                    if (spIndex === -1 && headers.length > 1) spIndex = 1;
+                    // If headers are present but no MRP column was matched, do not force mrpIndex
+                }
 
                 const parsed = [];
                 for (let r = 1; r < jsonData.length; r++) {
@@ -1278,7 +1285,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!nameVal && !spVal) continue;
 
                     const unitVal = unitIndex !== -1 ? String(row[unitIndex] || '').trim() : 'KG';
-                    const mrpVal = mrpIndex !== -1 ? String(row[mrpIndex] || '').trim() : '';
+                    let mrpVal = mrpIndex !== -1 ? String(row[mrpIndex] || '').trim() : '';
+                    
+                    if (mrpVal && spVal) {
+                        const parsedMrp = parseFloat(mrpVal);
+                        const parsedSp = parseFloat(spVal);
+                        if (!isNaN(parsedMrp) && !isNaN(parsedSp) && parsedMrp <= parsedSp) {
+                            mrpVal = '';
+                        }
+                    }
                     
     // Helper to convert Google Drive sharing/view links into direct image URLs
     function convertGoogleDriveUrl(url) {
