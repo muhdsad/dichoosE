@@ -1049,16 +1049,16 @@ highlight-word {
 }
 .grid-container.layout-16-landscape .product-title,
 .grid-container.layout-18 .product-title {
-    font-size: 24px !important;
+    font-size: 32px !important;
     line-height: 1.05 !important;
-    margin-top: 18px !important;
+    margin-top: 16px !important;
     margin-bottom: 2px !important;
     text-align: center !important;
     width: 100% !important;
     font-family: 'Anton', sans-serif !important;
     font-weight: 700 !important;
     color: #000000 !important;
-    -webkit-text-stroke: 0.4px #ffffff !important;
+    -webkit-text-stroke: 0.5px #ffffff !important;
     paint-order: stroke fill !important;
     text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
     letter-spacing: 0.6px !important;
@@ -1073,7 +1073,7 @@ highlight-word {
 }
 .grid-container.layout-16-landscape .product-title.long-title,
 .grid-container.layout-18 .product-title.long-title {
-    font-size: 20px !important;
+    font-size: 26px !important;
 }
 .grid-container.layout-16-landscape .price-row,
 .grid-container.layout-18 .price-row {
@@ -1084,7 +1084,7 @@ highlight-word {
 }
 .grid-container.layout-16-landscape .price-value,
 .grid-container.layout-18 .price-value {
-    font-size: 42px !important;
+    font-size: 56px !important;
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
     color: #e11b22 !important;
@@ -1095,11 +1095,11 @@ highlight-word {
 }
 .grid-container.layout-16-landscape .price-value.long-price,
 .grid-container.layout-18 .price-value.long-price {
-    font-size: 34px !important;
+    font-size: 46px !important;
 }
 .grid-container.layout-16-landscape .unit-value,
 .grid-container.layout-18 .unit-value {
-    font-size: 13px !important;
+    font-size: 16px !important;
     font-family: 'Poppins', sans-serif !important;
     font-weight: 700 !important;
     color: #1e40af !important;
@@ -1110,13 +1110,13 @@ highlight-word {
 }
 .grid-container.layout-16-landscape .mrp-badge,
 .grid-container.layout-18 .mrp-badge {
-    font-size: 10px !important;
-    padding: 1px 5px !important;
+    font-size: 12px !important;
+    padding: 2px 6px !important;
 }
 .grid-container.layout-16-landscape .save-badge,
 .grid-container.layout-18 .save-badge {
-    font-size: 10px !important;
-    padding: 1.5px 5px !important;
+    font-size: 12px !important;
+    padding: 2px 6px !important;
 }
 /* Layout 16 (4x4 Portrait A4 Sheet) */
 .grid-container.layout-16 {
@@ -2609,6 +2609,15 @@ highlight-word {
 .grid-container.layout-16 .unit-value { font-size: 15px !important; }
 .grid-container.layout-16 .mrp-badge { font-size: 0.65rem !important; padding: 1.5px 3px !important; }
 .grid-container.layout-16 .save-badge { font-size: 0.65rem !important; padding: 1.5px 3px !important; }
+
+/* Layout 16 Landscape Specific Overrides */
+.grid-container.layout-16-landscape .product-title { font-size: 32px !important; margin-top: 16px !important; margin-bottom: 2px !important; }
+.grid-container.layout-16-landscape .price-row { margin-bottom: 4px !important; }
+.grid-container.layout-16-landscape .price-value { font-size: 56px !important; }
+.grid-container.layout-16-landscape .price-value.long-price { font-size: 46px !important; }
+.grid-container.layout-16-landscape .unit-value { font-size: 16px !important; }
+.grid-container.layout-16-landscape .mrp-badge { font-size: 12px !important; padding: 2px 6px !important; }
+.grid-container.layout-16-landscape .save-badge { font-size: 12px !important; padding: 2px 6px !important; }
 
 /* Layout 12 Poster Specific Overrides */
 .grid-container.layout-12-poster .product-title { font-size: 38px !important; margin-top: 22px !important; margin-bottom: 2px !important; }
