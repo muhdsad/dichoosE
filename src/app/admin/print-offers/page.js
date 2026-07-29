@@ -1030,14 +1030,14 @@ export default function PrintOffersPage() {
 
                         {/* Poster Grid of Cards */}
                         <div 
-                            className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : 'grid-cols-2')} flex-grow animate-fadeIn`}
-                            style={{ background: 'radial-gradient(circle, #ffffff 0%, #f7fdf9 100%)' }}
+                            className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : 'grid-cols-2')} flex-grow animate-fadeIn bg-white`}
                         >
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
-                                const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
+                                const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
+                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - parseFloat(product.offerPrice || 0);
                                 const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
-                                const hasSavings = savings > 0;
+                                const hasSavings = mrpVal > 0 && savings > 0;
 
                                 return (
                                     <div
@@ -1067,7 +1067,7 @@ export default function PrintOffersPage() {
                                                     }}
                                                 >
                                                     {/* MRP Badge */}
-                                                    {(product.mrp || product.price) ? (
+                                                    {mrpVal > 0 ? (
                                                         <div 
                                                             className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-2 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
@@ -1077,7 +1077,7 @@ export default function PrintOffersPage() {
                                                                 lineHeight: '1.1'
                                                             }}
                                                         >
-                                                            MRP {Number(product.mrp || product.price || 0).toFixed(2)}
+                                                            MRP {mrpVal.toFixed(2)}
                                                         </div>
                                                     ) : null}
 
@@ -1091,7 +1091,7 @@ export default function PrintOffersPage() {
                                                                 lineHeight: '1.1'
                                                             }}
                                                         >
-                                                            {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                            {Math.round(((mrpVal - parseFloat(product.offerPrice || 0)) / mrpVal) * 100)}% OFF
                                                         </div>
                                                     ) : null}
                                                 </div>
@@ -1207,7 +1207,7 @@ export default function PrintOffersPage() {
                         </div>
 
                         {/* Poster Footer Bar */}
-                        <div className="w-full bg-[#15803d] text-white flex flex-col items-center justify-center p-3 select-none flex-shrink-0 leading-tight">
+                        <div className="w-full bg-[#143d1a] text-white flex flex-col items-center justify-center p-3 select-none flex-shrink-0 leading-tight">
                             <p className="text-[7.5px] font-medium text-gray-100 opacity-90 mb-1 text-center font-sans">
                                 *T&C Apply. Purchase limit may apply. Bulk purchase not allowed for promotional items. Offer valid while stock lasts.
                             </p>
@@ -1247,9 +1247,10 @@ export default function PrintOffersPage() {
 
                             return sheetProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
-                                const savingsVal = parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0);
+                                const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
+                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - parseFloat(product.offerPrice || 0);
                                 const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
-                                const hasSavings = savings > 0;
+                                const hasSavings = mrpVal > 0 && savings > 0;
 
                                 return (
                                     <div
@@ -1279,7 +1280,7 @@ export default function PrintOffersPage() {
                                                     }}
                                                 >
                                                     {/* MRP Badge */}
-                                                    {(product.mrp || product.price) ? (
+                                                    {mrpVal > 0 ? (
                                                         <div 
                                                             className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
@@ -1289,7 +1290,7 @@ export default function PrintOffersPage() {
                                                                 lineHeight: '1.1'
                                                             }}
                                                         >
-                                                            MRP {Number(product.mrp || product.price || 0).toFixed(2)}
+                                                            MRP {mrpVal.toFixed(2)}
                                                         </div>
                                                     ) : null}
 
@@ -1303,7 +1304,7 @@ export default function PrintOffersPage() {
                                                                 lineHeight: '1.1'
                                                             }}
                                                         >
-                                                            {Math.round(((parseFloat(product.mrp || product.price || 0) - parseFloat(product.offerPrice || 0)) / parseFloat(product.mrp || product.price || 1)) * 100)}% OFF
+                                                            {Math.round(((mrpVal - parseFloat(product.offerPrice || 0)) / mrpVal) * 100)}% OFF
                                                         </div>
                                                     ) : null}
                                                 </div>

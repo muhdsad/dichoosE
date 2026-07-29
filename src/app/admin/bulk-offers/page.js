@@ -184,7 +184,7 @@ export default function BulkOffersPage() {
             const docRef = doc(db, "products", p.id);
             const offerPriceVal = p.offerPrice ? parseFloat(p.offerPrice) : null;
             const priceVal = p.price !== undefined && p.price !== null && p.price !== '' ? parseFloat(p.price) : 0;
-            const mrpVal = p.mrp !== undefined && p.mrp !== null && p.mrp !== '' ? parseFloat(p.mrp) : priceVal;
+            const mrpVal = p.mrp !== undefined && p.mrp !== null && p.mrp !== '' && !isNaN(parseFloat(p.mrp)) ? parseFloat(p.mrp) : '';
 
             // Auto-check / update category list to maintain the "Offer" category tag
             let updatedCategories = [...(p.categories || [])];
@@ -283,7 +283,7 @@ export default function BulkOffersPage() {
                 const docRef = doc(db, "products", p.id);
                 const offerPriceVal = p.offerPrice ? parseFloat(p.offerPrice) : null;
                 const priceVal = p.price !== undefined && p.price !== null && p.price !== '' ? parseFloat(p.price) : 0;
-                const mrpVal = p.mrp !== undefined && p.mrp !== null && p.mrp !== '' ? parseFloat(p.mrp) : priceVal;
+                const mrpVal = p.mrp !== undefined && p.mrp !== null && p.mrp !== '' && !isNaN(parseFloat(p.mrp)) ? parseFloat(p.mrp) : '';
 
                 let updatedCategories = [...(p.categories || [])];
                 if (offerPriceVal && offerPriceVal > 0) {

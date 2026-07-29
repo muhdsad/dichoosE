@@ -1272,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imgIndex = headers.findIndex(h => h.includes('image') || h.includes('img') || h.includes('pic') || h.includes('photo') || h.includes('url'));
 
                 // Fallbacks (only when headers are missing / unlabelled CSV)
-                const hasHeaderNames = headers.some(h => ['name', 'product', 'item', 'title', 'price', 'selling', 'unit', 'weight', 'image'].some(k => h.includes(k)));
+                const hasHeaderNames = headers.some(h => ['name', 'product', 'item', 'title', 'price', 'selling', 'unit', 'weight', 'image', 'mrp'].some(k => h.includes(k)));
                 if (!hasHeaderNames) {
                     if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
                     if (spIndex === -1 && headers.length > 1) spIndex = 1;
@@ -1280,8 +1280,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (unitIndex === -1 && headers.length > 3) unitIndex = 3;
                 } else {
                     if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
-                    if (spIndex === -1 && headers.length > 1) spIndex = 1;
+                    if (spIndex === -1 && headers.length > 1 && mrpIndex !== 1) spIndex = 1;
                     // If headers are present but no MRP column was matched, do not force mrpIndex
+                }
+
+                // If mrpIndex matched the same column as spIndex, clear mrpIndex so MRP stays empty
+                if (mrpIndex !== -1 && mrpIndex === spIndex) {
+                    mrpIndex = -1;
                 }
 
                 const parsed = [];
