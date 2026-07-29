@@ -597,8 +597,8 @@ highlight-word {
 .grid-container.layout-12 .price-value {
     font-size: 58px !important;
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 0.5px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 0.8px #ffffff !important;
     paint-order: stroke fill !important;
     text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
     letter-spacing: 0.5px !important;
@@ -1087,8 +1087,8 @@ highlight-word {
     font-size: 42px !important;
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 0.4px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 0.8px #ffffff !important;
     paint-order: stroke fill !important;
     text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
     letter-spacing: 0.5px !important;
@@ -1224,11 +1224,10 @@ highlight-word {
 .grid-container.layout-12-poster .price-value {
     font-size: 64px !important;
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 0.4px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 1px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
-    letter-spacing: 0.5px !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
 }
 .grid-container.layout-12-poster .unit-value {
     font-size: 16px !important;
@@ -1461,7 +1460,7 @@ highlight-word {
 .price-value {
     font-size: 44px;
     font-weight: 900;
-    color: #000000 !important;
+    color: #e11b22 !important;
     font-family: 'Anton', sans-serif !important;
     -webkit-text-stroke: 1.5px #ffffff !important;
     paint-order: stroke fill !important;
@@ -2421,10 +2420,10 @@ highlight-word {
 
 .price-card .price-value {
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 0.5px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 1px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 3px #ffffff, 0px 0px 3px #ffffff !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
     letter-spacing: 0.5px !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
