@@ -1216,6 +1216,11 @@ document.addEventListener('DOMContentLoaded', () => {
         gridContainer.className = 'grid-container';
         gridContainer.classList.add(`layout-${layout}`);
 
+        // Set data-layout attribute on a4-container
+        if (a4Container) {
+            a4Container.setAttribute('data-layout', layout);
+        }
+
         // Adjust scale
         adjustScale();
 

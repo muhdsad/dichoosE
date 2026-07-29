@@ -2857,5 +2857,53 @@ highlight-word {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+
+    .sheet-hr-container .hr-red {
+        height: 10px !important;
+        background-color: #ff0000 !important;
+        width: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .sheet-hr-container .hr-green {
+        height: 5px !important;
+        background-color: #008000 !important;
+        width: 100% !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }
+
+/* Top & Bottom Sheet HR Lines (10px Red, 5px Green) for ALL Tag Layouts */
+.sheet-hr-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    z-index: 10;
+}
+
+.sheet-hr-top {
+    margin-bottom: 1mm;
+}
+
+.sheet-hr-bottom {
+    margin-top: 1mm;
+}
+
+.sheet-hr-container .hr-red {
+    height: 10px;
+    background-color: #ff0000;
+    width: 100%;
+}
+
+.sheet-hr-container .hr-green {
+    height: 5px;
+    background-color: #008000;
+    width: 100%;
+}
+
 
