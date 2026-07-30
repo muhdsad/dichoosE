@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { db } from '../../../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { getDirectDriveLink } from '../../../utils/productUtils';
-import { FaImage, FaTrash, FaCheck, FaTimes, FaUndo } from 'react-icons/fa';
+import { FaImage, FaTrash, FaCheck, FaTimes, FaUndo, FaSearch, FaPencilAlt } from 'react-icons/fa';
 
 const getProxiedImageUrl = (url) => {
     if (!url) return '/categories/default.png';
@@ -224,12 +224,14 @@ const getPosterBadgeStyle = (layout) => {
 
 export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
+    const [normalProducts, setNormalProducts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [layout, setLayout] = useState('landscape'); // 'portrait' | 'landscape' (used for sheet mode)
     const [saving, setSaving] = useState(false);
 
     // Poster Mode States
-    const [printMode, setPrintMode] = useState('sheet'); // 'sheet' | 'poster'
+    const [printMode, setPrintMode] = useState('sheet'); // 'sheet' | 'poster' | 'normal_poster'
     const [posterLayout, setPosterLayout] = useState('6'); // '4' | '6' | '8'
     const [selectedProductIds, setSelectedProductIds] = useState(new Set());
     const [bannerImage, setBannerImage] = useState(null);
@@ -240,6 +242,67 @@ export default function PrintOffersPage() {
     const [logoImage, setLogoImage] = useState(null);
     const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
     const [decorImage, setDecorImage] = useState(null);
+
+    // Quick Edit MRP & Price Modal State
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [editMrp, setEditMrp] = useState('');
+    const [editPrice, setEditPrice] = useState('');
+    const [editOfferPrice, setEditOfferPrice] = useState('');
+    const [saveToDb, setSaveToDb] = useState(false);
+    const [savingPrice, setSavingPrice] = useState(false);
+
+    const handleOpenEditModal = (e, product) => {
+        if (!product || product.isPlaceholder) return;
+        e.stopPropagation();
+        setEditingProduct(product);
+        setEditMrp(product.mrp !== undefined && product.mrp !== null ? String(product.mrp) : '');
+        setEditPrice(product.price !== undefined && product.price !== null ? String(product.price) : '');
+        setEditOfferPrice(product.offerPrice !== undefined && product.offerPrice !== null ? String(product.offerPrice) : '');
+        setSaveToDb(false);
+    };
+
+    const handleSavePriceEdit = async () => {
+        if (!editingProduct) return;
+
+        const newMrp = editMrp !== '' ? parseFloat(editMrp) : '';
+        const newPrice = editPrice !== '' ? parseFloat(editPrice) : '';
+        const newOfferPrice = editOfferPrice !== '' ? parseFloat(editOfferPrice) : '';
+
+        setSavingPrice(true);
+        try {
+            const updateFn = (list) => list.map(p => {
+                if (p.id === editingProduct.id) {
+                    return {
+                        ...p,
+                        mrp: newMrp,
+                        price: newPrice,
+                        offerPrice: newOfferPrice
+                    };
+                }
+                return p;
+            });
+
+            setNormalProducts(prev => updateFn(prev));
+            setProducts(prev => updateFn(prev));
+
+            if (saveToDb && editingProduct.id && !editingProduct.id.startsWith('placeholder')) {
+                const productRef = doc(db, "products", editingProduct.id);
+                const updateData = {};
+                if (newMrp !== '') updateData.mrp = newMrp;
+                if (newPrice !== '') updateData.price = newPrice;
+                if (newOfferPrice !== '') updateData.offerPrice = newOfferPrice;
+
+                await updateDoc(productRef, updateData);
+            }
+
+            setEditingProduct(null);
+        } catch (error) {
+            console.error("Error updating price:", error);
+            alert("Failed to update product details. Please try again.");
+        } finally {
+            setSavingPrice(false);
+        }
+    };
 
     // Load custom configuration defaults from localStorage on mount
     useEffect(() => {
@@ -317,7 +380,7 @@ export default function PrintOffersPage() {
 
                 const now = new Date();
 
-                // Filter logic:
+                // Filter logic for active offers:
                 // 1. Must have offerPrice
                 // 2. Offer must not be expired (if dates are set)
                 // 3. Name must not be empty
@@ -340,7 +403,17 @@ export default function PrintOffersPage() {
                 // Sort alphabetically
                 activeOffers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
+                // Filter logic for normal products (all products with valid name and price/mrp):
+                const normalProds = allProducts.filter(product => {
+                    const hasValidName = product.name && product.name.trim() !== '';
+                    if (!hasValidName) return false;
+                    const hasPrice = (product.price && parseFloat(product.price) > 0) || (product.mrp && parseFloat(product.mrp) > 0);
+                    return hasPrice;
+                });
+                normalProds.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
                 setProducts(activeOffers);
+                setNormalProducts(normalProds);
 
                 // Auto select first items for poster mode
                 if (activeOffers.length > 0) {
@@ -348,7 +421,7 @@ export default function PrintOffersPage() {
                     setSelectedProductIds(initialIds);
                 }
             } catch (error) {
-                console.error("Error fetching offers:", error);
+                console.error("Error fetching products:", error);
             } finally {
                 setLoading(false);
             }
@@ -357,12 +430,26 @@ export default function PrintOffersPage() {
         fetchOfferProducts();
     }, []);
 
+    // Handle switching print mode
+    const handleModeChange = (newMode) => {
+        setPrintMode(newMode);
+        setSearchTerm('');
+        const pool = newMode === 'normal_poster' ? normalProducts : products;
+        const count = parseInt(posterLayout);
+        if (pool.length > 0) {
+            setSelectedProductIds(new Set(pool.slice(0, count).map(p => p.id)));
+        } else {
+            setSelectedProductIds(new Set());
+        }
+    };
+
     // Auto update selection when layout changes
     const handlePosterLayoutChange = (newLayout) => {
         setPosterLayout(newLayout);
         const count = parseInt(newLayout);
-        if (products.length > 0) {
-            const nextIds = new Set(products.slice(0, count).map(p => p.id));
+        const pool = printMode === 'normal_poster' ? normalProducts : products;
+        if (pool.length > 0) {
+            const nextIds = new Set(pool.slice(0, count).map(p => p.id));
             setSelectedProductIds(nextIds);
         }
     };
@@ -387,7 +474,8 @@ export default function PrintOffersPage() {
 
     const autoSelectProducts = () => {
         const count = parseInt(posterLayout);
-        const nextIds = new Set(products.slice(0, count).map(p => p.id));
+        const pool = printMode === 'normal_poster' ? normalProducts : products;
+        const nextIds = new Set(pool.slice(0, count).map(p => p.id));
         setSelectedProductIds(nextIds);
     };
 
@@ -466,7 +554,11 @@ export default function PrintOffersPage() {
 
             const dataUrl = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = printMode === 'poster' ? `offers-poster-${posterLayout}.png` : `offers-sheet-${layout}.png`;
+            link.download = printMode === 'poster' 
+                ? `offers-poster-${posterLayout}.png` 
+                : (printMode === 'normal_poster' 
+                    ? `normal-price-poster-${posterLayout}.png` 
+                    : `offers-sheet-${layout}.png`);
             link.href = dataUrl;
             link.click();
         } catch (error) {
@@ -477,20 +569,27 @@ export default function PrintOffersPage() {
         }
     };
 
-    if (loading) return <div className="text-center p-10">Loading Offers...</div>;
+    if (loading) return <div className="text-center p-10">Loading Products...</div>;
 
-    if (products.length === 0) return <div className="text-center p-10">No active offers found to print.</div>;
+    if (products.length === 0 && normalProducts.length === 0) return <div className="text-center p-10">No products found to print.</div>;
 
     // Filter and pad products for Poster Mode
-    const selectedProducts = products.filter(p => selectedProductIds.has(p.id));
+    const currentPool = printMode === 'normal_poster' ? normalProducts : products;
+    const selectableProducts = currentPool.filter(p => 
+        (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.brand || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const selectedProducts = currentPool.filter(p => selectedProductIds.has(p.id));
     const paddedProducts = [...selectedProducts];
     const totalRequired = parseInt(posterLayout);
     while (paddedProducts.length < totalRequired) {
         paddedProducts.push({
             id: `placeholder-${paddedProducts.length}`,
             isPlaceholder: true,
-            name: 'Offer Slot',
-            offerPrice: '0.00'
+            name: printMode === 'normal_poster' ? 'Product Slot' : 'Offer Slot',
+            offerPrice: '0.00',
+            price: '0.00'
         });
     }
 
@@ -556,21 +655,27 @@ export default function PrintOffersPage() {
             <div className="print:hidden p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 mb-4 space-y-4">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h1 className="text-2xl font-extrabold text-blue-900 tracking-tight">Offer Printout Manager</h1>
-                        <p className="text-sm text-blue-600">Select standard price tag sheets or a unified promotional poster with a banner.</p>
+                        <h1 className="text-2xl font-extrabold text-blue-900 tracking-tight">Price & Offer Poster Manager</h1>
+                        <p className="text-sm text-blue-600">Select standard price tag sheets, offer posters, or normal price posters with MRP vs Price savings.</p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2 flex-wrap">
                         <button
-                            onClick={() => setPrintMode('sheet')}
-                            className={`px-5 py-2.5 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer ${printMode === 'sheet' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                            onClick={() => handleModeChange('sheet')}
+                            className={`px-4 py-2.5 rounded-xl font-bold transition-all shadow-md text-xs sm:text-sm cursor-pointer ${printMode === 'sheet' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
                         >
                             Standard Tag Sheet
                         </button>
                         <button
-                            onClick={() => setPrintMode('poster')}
-                            className={`px-5 py-2.5 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer ${printMode === 'poster' ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-white text-gray-700 border border-gray-300'}`}
+                            onClick={() => handleModeChange('poster')}
+                            className={`px-4 py-2.5 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer ${printMode === 'poster' ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-white text-gray-700 border border-gray-300'}`}
                         >
-                            Promotional Poster (A4)
+                            Promotional Offer Poster (A4)
+                        </button>
+                        <button
+                            onClick={() => handleModeChange('normal_poster')}
+                            className={`px-4 py-2.5 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer ${printMode === 'normal_poster' ? 'bg-emerald-600 text-white shadow-emerald-200' : 'bg-white text-gray-700 border border-gray-300'}`}
+                        >
+                            Normal Price Poster (A4)
                         </button>
                     </div>
                 </div>
@@ -839,23 +944,44 @@ export default function PrintOffersPage() {
 
                         {/* Product Picker Horizontal List */}
                         <div className="space-y-2">
-                            <div className="flex justify-between items-center">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select exactly {posterLayout} offers</span>
+                                    <span className="text-xs font-extrabold uppercase text-gray-500 tracking-wider">
+                                        Select exactly {posterLayout} {printMode === 'normal_poster' ? 'products' : 'offers'}
+                                    </span>
                                     <span className={`text-xs px-2 py-0.5 rounded-full font-bold border ${selectedProductIds.size === totalRequired ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
                                         {selectedProductIds.size} / {totalRequired} Selected
                                     </span>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                    {/* Search Bar Input */}
+                                    <div className="relative flex-1 sm:w-64">
+                                        <input
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            placeholder="Search items by name..."
+                                            className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-8 pr-7 py-1.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-indigo-500"
+                                        />
+                                        <FaSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none" />
+                                        {searchTerm && (
+                                            <button
+                                                onClick={() => setSearchTerm('')}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                                            >
+                                                <FaTimes />
+                                            </button>
+                                        )}
+                                    </div>
                                     <button 
                                         onClick={autoSelectProducts} 
-                                        className="text-[10px] bg-gray-100 hover:bg-gray-250 text-gray-700 font-bold px-2.5 py-1 rounded border border-gray-300 cursor-pointer"
+                                        className="text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-2.5 py-1.5 rounded-lg border border-gray-300 cursor-pointer"
                                     >
                                         Auto-select {posterLayout}
                                     </button>
                                     <button 
                                         onClick={clearProductSelection} 
-                                        className="text-[10px] bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1 rounded border border-red-200 cursor-pointer"
+                                        className="text-[10px] bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg border border-red-200 cursor-pointer"
                                     >
                                         Clear Selection
                                     </button>
@@ -863,33 +989,53 @@ export default function PrintOffersPage() {
                             </div>
 
                             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
-                                {products.map(p => {
-                                    const isSelected = selectedProductIds.has(p.id);
-                                    return (
-                                        <button
-                                            key={p.id}
-                                            onClick={() => toggleProductSelection(p.id)}
-                                            className={`flex-shrink-0 flex items-center gap-2 p-2.5 rounded-xl border-2 transition relative text-left w-44 cursor-pointer ${
-                                                isSelected 
-                                                    ? 'border-indigo-650 bg-indigo-50/50' 
-                                                    : 'border-gray-200 bg-white hover:border-gray-300'
-                                            }`}
-                                        >
-                                            <div className="relative w-9 h-9 bg-gray-50 rounded-lg overflow-hidden border border-gray-150 flex-shrink-0">
-                                                <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs font-bold text-gray-800 truncate leading-snug">{p.name}</p>
-                                                <p className="text-[10px] text-indigo-655 font-bold mt-0.5">₹{p.offerPrice}</p>
-                                            </div>
-                                            {isSelected && (
-                                                <span className="absolute top-1.5 right-1.5 bg-indigo-650 text-white p-0.5 rounded-full text-[7px] w-3.5 h-3.5 flex items-center justify-center font-bold">
-                                                    <FaCheck />
-                                                </span>
-                                            )}
-                                        </button>
-                                    );
-                                })}
+                                {selectableProducts.length === 0 ? (
+                                    <div className="text-xs text-gray-500 py-3 px-2 italic">
+                                        No products found matching &quot;{searchTerm}&quot;
+                                    </div>
+                                ) : (
+                                    selectableProducts.map(p => {
+                                        const isSelected = selectedProductIds.has(p.id);
+                                        const displayPrice = printMode === 'normal_poster' ? p.price : p.offerPrice;
+                                        const mrpVal = p.mrp ? parseFloat(p.mrp) : 0;
+                                        return (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => toggleProductSelection(p.id)}
+                                                className={`flex-shrink-0 flex items-center gap-2 p-2.5 rounded-xl border-2 transition relative text-left w-48 cursor-pointer ${
+                                                    isSelected 
+                                                        ? 'border-indigo-650 bg-indigo-50/50' 
+                                                        : 'border-gray-200 bg-white hover:border-gray-300'
+                                                }`}
+                                            >
+                                                <div 
+                                                    onClick={(e) => handleOpenEditModal(e, p)}
+                                                    className="relative w-9 h-9 bg-gray-50 rounded-lg overflow-hidden border border-gray-150 flex-shrink-0 cursor-pointer group/pickerImg"
+                                                    title="Click image to edit MRP & Price"
+                                                >
+                                                    <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/pickerImg:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px]">
+                                                        <FaPencilAlt />
+                                                    </div>
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs font-bold text-gray-800 truncate leading-snug">{p.name}</p>
+                                                    <div className="flex items-center gap-1 mt-0.5">
+                                                        <span className="text-[10px] text-indigo-655 font-extrabold">₹{displayPrice || '0'}</span>
+                                                        {printMode === 'normal_poster' && mrpVal > 0 && mrpVal > parseFloat(p.price || 0) && (
+                                                            <span className="text-[9px] text-gray-400 line-through">₹{mrpVal}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {isSelected && (
+                                                    <span className="absolute top-1.5 right-1.5 bg-indigo-650 text-white p-0.5 rounded-full text-[7px] w-3.5 h-3.5 flex items-center justify-center font-bold">
+                                                        <FaCheck />
+                                                    </span>
+                                                )}
+                                            </button>
+                                        );
+                                    })
+                                )}
                             </div>
                         </div>
 
@@ -915,9 +1061,9 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${printMode === 'poster' ? 'max-w-[210mm] p-2 bg-white' : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
+            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? 'max-w-[210mm] p-2 bg-white' : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
                 
-                {printMode === 'poster' ? (
+                {(printMode === 'poster' || printMode === 'normal_poster') ? (
                     /* POSTER LAYOUT CONTAINER */
                     <div className="w-full h-[297mm] flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative">
                         
@@ -1040,10 +1186,16 @@ export default function PrintOffersPage() {
                         >
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
+                                const isNormalPoster = printMode === 'normal_poster';
                                 const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
-                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - parseFloat(product.offerPrice || 0);
+                                const sellingPrice = isNormalPoster 
+                                    ? (product.price ? parseFloat(product.price) : 0) 
+                                    : (product.offerPrice ? parseFloat(product.offerPrice) : 0);
+
+                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - sellingPrice;
                                 const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
-                                const hasSavings = mrpVal > 0 && savings > 0;
+                                const hasSavings = mrpVal > 0 && savingsVal > 0;
+                                const discountPercent = hasSavings ? Math.round((savingsVal / mrpVal) * 100) : 0;
 
                                 return (
                                     <div
@@ -1055,11 +1207,11 @@ export default function PrintOffersPage() {
                                         {isPlaceholder ? (
                                             /* Placeholder Card */
                                             <div className="w-full h-full flex flex-col items-center justify-center border border-dashed border-gray-300 rounded-2xl bg-gray-50/50 p-4">
-                                                <p className="text-gray-400 font-bold text-xs uppercase tracking-wider">Empty Offer Slot</p>
+                                                <p className="text-gray-400 font-bold text-xs uppercase tracking-wider">{isNormalPoster ? 'Empty Product Slot' : 'Empty Offer Slot'}</p>
                                                 <p className="text-[10px] text-gray-400 mt-1">Select a product to fill this poster position.</p>
                                             </div>
                                         ) : (
-                                            /* Active Offer Card */
+                                            /* Active Card */
                                             <>
                                                 {/* Top Badges Bar (MRP & Save % OFF) */}
                                                 <div 
@@ -1073,7 +1225,7 @@ export default function PrintOffersPage() {
                                                     }}
                                                 >
                                                     {/* MRP Badge */}
-                                                    {mrpVal > 0 ? (
+                                                    {mrpVal > 0 && mrpVal > sellingPrice ? (
                                                         <div 
                                                             className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-2 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
@@ -1097,27 +1249,32 @@ export default function PrintOffersPage() {
                                                                 lineHeight: '1.1'
                                                             }}
                                                         >
-                                                            {Math.round(((mrpVal - parseFloat(product.offerPrice || 0)) / mrpVal) * 100)}% OFF
+                                                            {discountPercent}% OFF
                                                         </div>
                                                     ) : null}
                                                 </div>
 
-                                                {/* Image Wrapper */}
+                                                {/* Image Wrapper (Click image to edit MRP & Price) */}
                                                 <div 
-                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-2.5 box-border"
+                                                    onClick={(e) => handleOpenEditModal(e, product)}
+                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-2.5 box-border cursor-pointer group/img"
+                                                    title="Click product image to edit MRP & Price"
                                                 >
                                                     <img
                                                         src={getProxiedImageUrl(product.image)}
                                                         alt={product.name}
-                                                        className="max-w-[85%] max-h-[85%] object-contain animate-fadeIn"
+                                                        className="max-w-[85%] max-h-[85%] object-contain animate-fadeIn transition-transform group-hover/img:scale-105"
                                                         referrerPolicy="no-referrer"
                                                     />
+                                                    <div className="absolute top-2 left-2 bg-black/65 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-[5]">
+                                                        <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price / MRP
+                                                    </div>
                                                 </div>
 
                                                 {/* Red circular price badge overlapping the image */}
                                                 {(() => {
                                                     const { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset } = getPosterBadgeStyle(posterLayout);
-                                                    const priceVal = parseFloat(product.offerPrice || 0);
+                                                    const priceVal = sellingPrice;
                                                     const isInteger = priceVal % 1 === 0;
                                                     const integerPart = Math.floor(priceVal).toString();
                                                     const decimalPart = isInteger ? '' : (priceVal % 1).toFixed(2).substring(1); // e.g. ".90"
@@ -1410,7 +1567,7 @@ export default function PrintOffersPage() {
             <style jsx global>{`
                 @media print {
                     @page {
-                        size: ${printMode === 'poster' ? 'A4 portrait' : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
+                        size: ${(printMode === 'poster' || printMode === 'normal_poster') ? 'A4 portrait' : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
                         margin: 0 !important;
                     }
                     html, body {
@@ -1440,6 +1597,117 @@ export default function PrintOffersPage() {
                     }
                 }
             `}</style>
+            {/* Quick Edit Price & MRP Modal */}
+            {editingProduct && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-4 animate-fadeIn print:hidden">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 space-y-5 animate-scaleUp">
+                        <div className="flex justify-between items-start border-b border-gray-150 pb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                                    <img src={getProxiedImageUrl(editingProduct.image)} className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-extrabold text-gray-900 leading-tight line-clamp-1">{editingProduct.name}</h3>
+                                    <p className="text-xs text-indigo-600 font-bold mt-0.5">Edit Poster Price & MRP</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setEditingProduct(null)}
+                                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition"
+                            >
+                                <FaTimes className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-extrabold uppercase text-gray-600 mb-1.5">MRP (₹)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={editMrp}
+                                        onChange={(e) => setEditMrp(e.target.value)}
+                                        placeholder="e.g. 150"
+                                        className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-extrabold uppercase text-gray-600 mb-1.5">Normal Price (₹)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={editPrice}
+                                        onChange={(e) => setEditPrice(e.target.value)}
+                                        placeholder="e.g. 120"
+                                        className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white"
+                                    />
+                                </div>
+                            </div>
+
+                            {printMode === 'poster' && (
+                                <div>
+                                    <label className="block text-xs font-extrabold uppercase text-gray-600 mb-1.5">Offer Price (₹)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={editOfferPrice}
+                                        onChange={(e) => setEditOfferPrice(e.target.value)}
+                                        placeholder="e.g. 99"
+                                        className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-sm font-bold text-indigo-700 focus:outline-none focus:border-indigo-500 focus:bg-white"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Calculation Preview Pill */}
+                            {(() => {
+                                const mrpNum = parseFloat(editMrp) || 0;
+                                const priceNum = printMode === 'poster' ? (parseFloat(editOfferPrice) || 0) : (parseFloat(editPrice) || 0);
+                                const diff = mrpNum - priceNum;
+                                const offPercent = mrpNum > 0 && diff > 0 ? Math.round((diff / mrpNum) * 100) : 0;
+
+                                return (
+                                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex justify-between items-center text-xs">
+                                        <span className="font-bold text-emerald-800">Poster Card Preview:</span>
+                                        <span className="font-extrabold text-emerald-900">
+                                            {mrpNum > 0 && diff > 0 ? `Save ₹${diff.toFixed(2)} (${offPercent}% OFF)` : `Selling Price: ₹${priceNum.toFixed(2)}`}
+                                        </span>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Save to Firestore Checkbox */}
+                            <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer pt-1">
+                                <input
+                                    type="checkbox"
+                                    checked={saveToDb}
+                                    onChange={(e) => setSaveToDb(e.target.checked)}
+                                    className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                                />
+                                <span>Also update in Database (permanently)</span>
+                            </label>
+                        </div>
+
+                        <div className="flex gap-3 justify-end pt-2 border-t border-gray-150">
+                            <button
+                                type="button"
+                                onClick={() => setEditingProduct(null)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs transition cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSavePriceEdit}
+                                disabled={savingPrice}
+                                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer disabled:opacity-50"
+                            >
+                                {savingPrice ? 'Saving...' : 'Apply Changes'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
