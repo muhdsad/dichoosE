@@ -921,8 +921,14 @@ export default function PrintOffersPage() {
                     /* POSTER LAYOUT CONTAINER */
                     <div className="w-full h-[297mm] flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative">
                         
+                        {/* Top HR Bars (Green 10px & Red 5px with narrow space) */}
+                        <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
+                            <div className="w-full h-[10px] bg-[#16a34a]" />
+                            <div className="w-full h-[5px] bg-[#e11b22]" />
+                        </div>
+
                         {/* Top Poster Banner */}
-                        <div className="w-full h-[57mm] relative flex-shrink-0 bg-white">
+                        <div className="w-full h-[55mm] relative flex-shrink-0 bg-white">
                             {bannerType === 'image' && bannerImage ? (
                                 <img src={bannerImage} alt="Poster Banner" className="w-full h-full object-cover" />
                             ) : (
@@ -1223,13 +1229,19 @@ export default function PrintOffersPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Bottom HR Bars (Green 10px & Red 5px with narrow space) */}
+                        <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
+                            <div className="w-full h-[10px] bg-[#16a34a]" />
+                            <div className="w-full h-[5px] bg-[#e11b22]" />
+                        </div>
                     </div>
                 ) : (
                     /* STANDARD TAG SHEETS CONTAINER */
-                    <div className={`grid gap-0 print:gap-0 border-none ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                    <div className="flex flex-col gap-6 print:gap-0">
                         {(() => {
                             const itemsPerPage = layout === 'landscape' ? 16 : 15;
-                            const cardHeight = layout === 'landscape' ? '52.5mm' : '58.5mm';
+                            const cardHeight = layout === 'landscape' ? '47.5mm' : '54mm';
                             
                             // Pad products to a multiple of itemsPerPage with empty placeholders
                             const sheetProducts = [...products];
@@ -1245,118 +1257,151 @@ export default function PrintOffersPage() {
                                 }
                             }
 
-                            return sheetProducts.map((product, index) => {
-                                const isPlaceholder = product.isPlaceholder;
-                                const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
-                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - parseFloat(product.offerPrice || 0);
-                                const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
-                                const hasSavings = mrpVal > 0 && savings > 0;
+                            // Chunk products into pages/sheets
+                            const pages = [];
+                            for (let i = 0; i < sheetProducts.length; i += itemsPerPage) {
+                                pages.push(sheetProducts.slice(i, i + itemsPerPage));
+                            }
 
-                                return (
-                                    <div
-                                        key={product.id}
-                                        id={`offer-card-${product.id}`}
-                                        className="border-none p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
-                                        style={{
-                                            height: cardHeight,
-                                            breakAfter: (index + 1) % itemsPerPage === 0 ? 'page' : 'auto'
-                                        }}
-                                    >
-                                        {isPlaceholder ? (
-                                            /* Empty placeholder cell to maintain print shape for trimming */
-                                            <div className="w-full h-full bg-white" />
-                                        ) : (
-                                            /* Active tag card */
-                                            <>
-                                                {/* Top Badges Bar (MRP & Save % OFF) */}
-                                                <div 
-                                                    className="absolute z-[10] flex items-center justify-center gap-1.5 pointer-events-none"
+                            return pages.map((pageProducts, pageIdx) => (
+                                <div 
+                                    key={`sheet-page-${pageIdx}`}
+                                    className="w-full flex flex-col bg-white overflow-hidden page-break-after-always print:break-after-page shadow-sm print:shadow-none border border-gray-150 print:border-none relative"
+                                    style={{
+                                        height: layout === 'landscape' ? '210mm' : '297mm',
+                                        maxHeight: layout === 'landscape' ? '210mm' : '297mm',
+                                        breakAfter: pageIdx < pages.length - 1 ? 'page' : 'auto',
+                                        pageBreakAfter: pageIdx < pages.length - 1 ? 'always' : 'auto'
+                                    }}
+                                >
+                                    {/* Top HR Bars (Green 10px & Red 5px with narrow space) */}
+                                    <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
+                                        <div className="w-full h-[10px] bg-[#16a34a]" />
+                                        <div className="w-full h-[5px] bg-[#e11b22]" />
+                                    </div>
+
+                                    {/* Sheet Grid */}
+                                    <div className={`grid gap-0 print:gap-0 border-none flex-grow ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                                        {pageProducts.map((product, index) => {
+                                            const isPlaceholder = product.isPlaceholder;
+                                            const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
+                                            const savingsVal = (mrpVal > 0 ? mrpVal : 0) - parseFloat(product.offerPrice || 0);
+                                            const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
+                                            const hasSavings = mrpVal > 0 && savings > 0;
+
+                                            return (
+                                                <div
+                                                    key={product.id}
+                                                    id={`offer-card-${product.id}`}
+                                                    className="border-none p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
                                                     style={{
-                                                        top: '8px',
-                                                        left: '50%',
-                                                        transform: 'translateX(-50%)',
-                                                        width: 'max-content',
-                                                        maxWidth: '95%'
+                                                        height: cardHeight
                                                     }}
                                                 >
-                                                    {/* MRP Badge */}
-                                                    {mrpVal > 0 ? (
-                                                        <div 
-                                                            className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
-                                                            style={{ 
-                                                                fontSize: '11px',
-                                                                fontFamily: 'var(--font-sans), sans-serif',
-                                                                textDecorationColor: '#000000',
-                                                                lineHeight: '1.1'
-                                                            }}
-                                                        >
-                                                            MRP {mrpVal.toFixed(2)}
-                                                        </div>
-                                                    ) : null}
+                                                    {isPlaceholder ? (
+                                                        /* Empty placeholder cell to maintain print shape for trimming */
+                                                        <div className="w-full h-full bg-white" />
+                                                    ) : (
+                                                        /* Active tag card */
+                                                        <>
+                                                            {/* Top Badges Bar (MRP & Save % OFF) */}
+                                                            <div 
+                                                                className="absolute z-[10] flex items-center justify-center gap-1.5 pointer-events-none"
+                                                                style={{
+                                                                    top: '8px',
+                                                                    left: '50%',
+                                                                    transform: 'translateX(-50%)',
+                                                                    width: 'max-content',
+                                                                    maxWidth: '95%'
+                                                                }}
+                                                            >
+                                                                {/* MRP Badge */}
+                                                                {mrpVal > 0 ? (
+                                                                    <div 
+                                                                        className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
+                                                                        style={{ 
+                                                                            fontSize: '11px',
+                                                                            fontFamily: 'var(--font-sans), sans-serif',
+                                                                            textDecorationColor: '#000000',
+                                                                            lineHeight: '1.1'
+                                                                        }}
+                                                                    >
+                                                                        MRP {mrpVal.toFixed(2)}
+                                                                    </div>
+                                                                ) : null}
 
-                                                    {/* Save Badge */}
-                                                    {hasSavings ? (
-                                                        <div 
-                                                            className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
-                                                            style={{ 
-                                                                fontSize: '11px',
-                                                                fontFamily: 'var(--font-sans), sans-serif',
-                                                                lineHeight: '1.1'
-                                                            }}
-                                                        >
-                                                            {Math.round(((mrpVal - parseFloat(product.offerPrice || 0)) / mrpVal) * 100)}% OFF
-                                                        </div>
-                                                    ) : null}
-                                                </div>
+                                                                {/* Save Badge */}
+                                                                {hasSavings ? (
+                                                                    <div 
+                                                                        className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
+                                                                        style={{ 
+                                                                            fontSize: '11px',
+                                                                            fontFamily: 'var(--font-sans), sans-serif',
+                                                                            lineHeight: '1.1'
+                                                                        }}
+                                                                    >
+                                                                        {Math.round(((mrpVal - parseFloat(product.offerPrice || 0)) / mrpVal) * 100)}% OFF
+                                                                    </div>
+                                                                ) : null}
+                                                            </div>
 
-                                                {/* Image Wrapper */}
-                                                <div 
-                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-1 box-border"
-                                                >
-                                                    <img
-                                                        src={getProxiedImageUrl(product.image)}
-                                                        alt={product.name}
-                                                        className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
-                                                        referrerPolicy="no-referrer"
-                                                    />
-                                                </div>
+                                                            {/* Image Wrapper */}
+                                                            <div 
+                                                                className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-1 box-border"
+                                                            >
+                                                                <img
+                                                                    src={getProxiedImageUrl(product.image)}
+                                                                    alt={product.name}
+                                                                    className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
+                                                                    referrerPolicy="no-referrer"
+                                                                />
+                                                            </div>
 
-                                                {/* Card Details Block */}
-                                                <div 
-                                                    className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-3 box-border text-center"
-                                                >
-                                                    {product.brand && (
-                                                        <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: '9px', color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
-                                                            {product.brand}
-                                                        </span>
+                                                            {/* Card Details Block */}
+                                                            <div 
+                                                                className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-3 box-border text-center"
+                                                            >
+                                                                {product.brand && (
+                                                                    <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: '9px', color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
+                                                                        {product.brand}
+                                                                    </span>
+                                                                )}
+                                                                <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getDynamicTitleStyle(product.name, layout === 'landscape')}>
+                                                                    {product.name.toUpperCase()}
+                                                                </h2>
+                                                                <div className="font-bold mt-1" style={{ fontSize: layout === 'landscape' ? '11px' : '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
+                                                                    {product.unit || '1 KG'}
+                                                                </div>
+                                                                <div className="flex items-baseline justify-center w-full mt-1.5">
+                                                                    <span style={getDynamicPriceStyle(product.offerPrice, layout === 'landscape')}>
+                                                                        ₹{Number(product.offerPrice || 0).toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Individual Save as PNG Button */}
+                                                            <button
+                                                                data-html2canvas-ignore
+                                                                onClick={() => handleSaveCardAsPng(product.id, product.name)}
+                                                                disabled={saving}
+                                                                className="absolute bottom-2 right-2 z-[20] bg-primary hover:bg-green-700 text-white text-[10px] font-bold py-1 px-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                            >
+                                                                Save PNG
+                                                            </button>
+                                                        </>
                                                     )}
-                                                    <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getDynamicTitleStyle(product.name, layout === 'landscape')}>
-                                                        {product.name.toUpperCase()}
-                                                    </h2>
-                                                    <div className="font-bold mt-1" style={{ fontSize: layout === 'landscape' ? '11px' : '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
-                                                        {product.unit || '1 KG'}
-                                                    </div>
-                                                    <div className="flex items-baseline justify-center w-full mt-1.5">
-                                                        <span style={getDynamicPriceStyle(product.offerPrice, layout === 'landscape')}>
-                                                            ₹{Number(product.offerPrice || 0).toFixed(2)}
-                                                        </span>
-                                                    </div>
                                                 </div>
-
-                                                {/* Individual Save as PNG Button */}
-                                                <button
-                                                    data-html2canvas-ignore
-                                                    onClick={() => handleSaveCardAsPng(product.id, product.name)}
-                                                    disabled={saving}
-                                                    className="absolute bottom-2 right-2 z-[20] bg-primary hover:bg-green-700 text-white text-[10px] font-bold py-1 px-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
-                                                >
-                                                    Save PNG
-                                                </button>
-                                            </>
-                                        )}
+                                            );
+                                        })}
                                     </div>
-                                );
-                            });
+
+                                    {/* Bottom HR Bars (Green 10px & Red 5px with narrow space) */}
+                                    <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
+                                        <div className="w-full h-[10px] bg-[#16a34a]" />
+                                        <div className="w-full h-[5px] bg-[#e11b22]" />
+                                    </div>
+                                </div>
+                            ));
                         })()}
                     </div>
                 )}

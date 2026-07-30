@@ -110,7 +110,9 @@ export default function BulkOffersPage() {
             if (p.id === productId) {
                 const updated = { ...p, [field]: value };
                 if (field === 'price') {
-                    updated.mrp = value;
+                    if (!p.mrp || p.mrp === '' || p.mrp === p.price) {
+                        updated.mrp = value;
+                    }
                 }
                 if (field === 'offerPrice' && value && String(value).trim() !== '') {
                     if (!p.offerStart || p.offerStart === '') {
@@ -351,7 +353,8 @@ export default function BulkOffersPage() {
                 ID: p.id,
                 Name: p.name || '',
                 Category: catString,
-                Price: p.price || p.mrp || 0,
+                Price: p.price || 0,
+                MRP: p.mrp || p.price || 0,
                 OfferPrice: p.offerPrice || ''
             };
         });
@@ -380,6 +383,7 @@ export default function BulkOffersPage() {
                     const productId = row.ID;
                     const newOfferPrice = row.OfferPrice;
                     const newPrice = row.Price;
+                    const newMrp = row.MRP !== undefined ? row.MRP : row.mrp;
                     
                     if (productId) {
                         const existingProduct = products.find(p => p.id === productId);
@@ -390,6 +394,9 @@ export default function BulkOffersPage() {
                             const oldPrice = existingProduct.price !== undefined && existingProduct.price !== null ? String(existingProduct.price).trim() : '';
                             const proposedPrice = newPrice !== undefined && newPrice !== null ? String(newPrice).trim() : '';
 
+                            const oldMrp = existingProduct.mrp !== undefined && existingProduct.mrp !== null ? String(existingProduct.mrp).trim() : '';
+                            const proposedMrp = newMrp !== undefined && newMrp !== null ? String(newMrp).trim() : '';
+
                             let oldCats = existingProduct.categories || [];
                             if (existingProduct.category && !oldCats.includes(existingProduct.category)) {
                                 oldCats = [existingProduct.category, ...oldCats];
@@ -397,7 +404,7 @@ export default function BulkOffersPage() {
                             const oldCategoryString = oldCats.filter(Boolean).join(', ');
                             const proposedCategory = row.Category !== undefined && row.Category !== null ? String(row.Category).trim() : '';
 
-                            if (oldOfferPrice !== proposedOffer || oldCategoryString !== proposedCategory || (proposedPrice !== '' && oldPrice !== proposedPrice)) {
+                            if (oldOfferPrice !== proposedOffer || oldCategoryString !== proposedCategory || (proposedPrice !== '' && oldPrice !== proposedPrice) || (proposedMrp !== '' && oldMrp !== proposedMrp)) {
                                 updates.push({
                                     id: productId,
                                     name: existingProduct.name,
@@ -405,6 +412,8 @@ export default function BulkOffersPage() {
                                     newOffer: proposedOffer || '-',
                                     oldPrice: oldPrice || '-',
                                     newPrice: proposedPrice || '-',
+                                    oldMrp: oldMrp || '-',
+                                    newMrp: proposedMrp || '-',
                                     oldCategory: oldCategoryString || '-',
                                     newCategory: proposedCategory || '-'
                                 });
@@ -453,7 +462,13 @@ export default function BulkOffersPage() {
                     const parsedPrice = parseFloat(update.newPrice);
                     if (!isNaN(parsedPrice)) {
                         updateData.price = parsedPrice;
-                        updateData.mrp = parsedPrice;
+                    }
+                }
+
+                if (update.newMrp && update.newMrp !== update.oldMrp && update.newMrp !== '-') {
+                    const parsedMrp = parseFloat(update.newMrp);
+                    if (!isNaN(parsedMrp)) {
+                        updateData.mrp = parsedMrp;
                     }
                 }
 
@@ -770,13 +785,14 @@ export default function BulkOffersPage() {
                             <table className="w-full text-left text-sm border-collapse">
                                 <thead className="bg-gray-100 text-gray-700 font-bold sticky top-0 z-10 border-b border-gray-200 shadow-sm">
                                     <tr>
-                                        <th className="p-4 w-[280px]">Product Information</th>
-                                        <th className="p-4 w-[120px] text-center">Regular Rate</th>
-                                        <th className="p-4 w-[160px] text-center">Offer Price (₹)</th>
-                                        <th className="p-4 w-[220px]">Campaign Start Time</th>
-                                        <th className="p-4 w-[220px]">Campaign End Time</th>
-                                        <th className="p-4 w-[130px] text-center">Live Status</th>
-                                        <th className="p-4 text-right w-[150px]">Actions</th>
+                                        <th className="p-4 w-[240px]">Product Information</th>
+                                        <th className="p-4 w-[120px] text-center">Regular Rate (₹)</th>
+                                        <th className="p-4 w-[120px] text-center">MRP (₹)</th>
+                                        <th className="p-4 w-[140px] text-center">Offer Price (₹)</th>
+                                        <th className="p-4 w-[200px]">Campaign Start Time</th>
+                                        <th className="p-4 w-[200px]">Campaign End Time</th>
+                                        <th className="p-4 w-[120px] text-center">Live Status</th>
+                                        <th className="p-4 text-right w-[140px]">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-150">
@@ -833,9 +849,23 @@ export default function BulkOffersPage() {
                                                                 }`}
                                                             />
                                                         </div>
-                                                        {p.mrp && p.mrp > p.price && (
-                                                            <div className="text-[10px] text-gray-400 line-through font-medium mt-1">MRP: ₹{p.mrp}</div>
-                                                        )}
+                                                    </td>
+
+                                                    {/* MRP Input */}
+                                                    <td className="p-4 text-center">
+                                                        <div className="relative flex items-center justify-center">
+                                                            <span className="absolute left-2 text-gray-400 font-bold text-xs">₹</span>
+                                                            <input
+                                                                type="number"
+                                                                step="0.01"
+                                                                value={p.mrp !== undefined && p.mrp !== null ? p.mrp : ''}
+                                                                onChange={(e) => handleFieldChange(p.id, 'mrp', e.target.value)}
+                                                                placeholder="MRP"
+                                                                className={`w-24 text-center pl-5 font-bold rounded-lg border text-sm p-2 text-black focus:ring-1 focus:ring-primary ${
+                                                                    isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                                }`}
+                                                            />
+                                                        </div>
                                                     </td>
 
                                                     {/* Offer Price Input */}
@@ -929,7 +959,7 @@ export default function BulkOffersPage() {
                                         })
                                     ) : (
                                         <tr>
-                                            <td colSpan="7" className="p-10 text-center text-gray-500 font-semibold">
+                                            <td colSpan="8" className="p-10 text-center text-gray-500 font-semibold">
                                                 No products found matching filters.
                                             </td>
                                         </tr>
@@ -983,9 +1013,9 @@ export default function BulkOffersPage() {
                                             </div>
 
                                             {/* Pricing and Input Details */}
-                                            <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
+                                            <div className="grid grid-cols-3 gap-2 border-t border-gray-100 pt-3">
                                                 <div>
-                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Regular Rate (₹)</span>
+                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Regular (₹)</span>
                                                     <input
                                                         type="number"
                                                         step="0.01"
@@ -995,12 +1025,22 @@ export default function BulkOffersPage() {
                                                             isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
                                                         }`}
                                                     />
-                                                    {p.mrp && p.mrp > p.price && (
-                                                        <div className="text-[10px] text-gray-400 line-through font-medium mt-1">MRP: ₹{p.mrp}</div>
-                                                    )}
                                                 </div>
                                                 <div>
-                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider">Offer Price (₹)</span>
+                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">MRP (₹)</span>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={p.mrp !== undefined && p.mrp !== null ? p.mrp : ''}
+                                                        onChange={(e) => handleFieldChange(p.id, 'mrp', e.target.value)}
+                                                        placeholder="MRP"
+                                                        className={`w-full font-bold rounded-lg border text-xs p-1.5 text-black focus:ring-1 focus:ring-primary ${
+                                                            isEdited ? 'border-yellow-400 bg-yellow-50/10' : 'border-gray-300'
+                                                        }`}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <span className="block text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Offer (₹)</span>
                                                     <input
                                                         type="number"
                                                         step="0.01"
