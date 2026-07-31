@@ -242,6 +242,7 @@ export default function PrintOffersPage() {
     const [logoImage, setLogoImage] = useState(null);
     const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
     const [decorImage, setDecorImage] = useState(null);
+    const [showProductImages, setShowProductImages] = useState(true);
 
     // Quick Edit MRP & Price Modal State
     const [editingProduct, setEditingProduct] = useState(null);
@@ -697,7 +698,16 @@ export default function PrintOffersPage() {
                                 4x4 Landscape (16 Tags)
                             </button>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
+                            <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={showProductImages}
+                                    onChange={(e) => setShowProductImages(e.target.checked)}
+                                    className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer accent-primary"
+                                />
+                                <span>Show Product Images</span>
+                            </label>
                             <button
                                 onClick={handleSaveAllAsPng}
                                 disabled={saving}
@@ -731,6 +741,20 @@ export default function PrintOffersPage() {
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Product Images Toggle */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Product Images</label>
+                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors h-[38px] shadow-sm">
+                                    <input
+                                        type="checkbox"
+                                        checked={showProductImages}
+                                        onChange={(e) => setShowProductImages(e.target.checked)}
+                                        className="w-4 h-4 text-indigo-650 rounded focus:ring-indigo-650 cursor-pointer accent-indigo-650"
+                                    />
+                                    <span>Print Product Images</span>
+                                </label>
                             </div>
 
                             {/* Banner Option Selection (Two-Way Option) */}
@@ -1255,21 +1279,23 @@ export default function PrintOffersPage() {
                                                 </div>
 
                                                 {/* Image Wrapper (Click image to edit MRP & Price) */}
-                                                <div 
-                                                    onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-2.5 box-border cursor-pointer group/img"
-                                                    title="Click product image to edit MRP & Price"
-                                                >
-                                                    <img
-                                                        src={getProxiedImageUrl(product.image)}
-                                                        alt={product.name}
-                                                        className="max-w-[85%] max-h-[85%] object-contain animate-fadeIn transition-transform group-hover/img:scale-105"
-                                                        referrerPolicy="no-referrer"
-                                                    />
-                                                    <div className="absolute top-2 left-2 bg-black/65 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-[5]">
-                                                        <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price / MRP
+                                                {showProductImages && (
+                                                    <div 
+                                                        onClick={(e) => handleOpenEditModal(e, product)}
+                                                        className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-2.5 box-border cursor-pointer group/img"
+                                                        title="Click product image to edit MRP & Price"
+                                                    >
+                                                        <img
+                                                            src={getProxiedImageUrl(product.image)}
+                                                            alt={product.name}
+                                                            className="max-w-[85%] max-h-[85%] object-contain animate-fadeIn transition-transform group-hover/img:scale-105"
+                                                            referrerPolicy="no-referrer"
+                                                        />
+                                                        <div className="absolute top-2 left-2 bg-black/65 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-[5]">
+                                                            <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price / MRP
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                )}
 
                                                 {/* Red circular price badge overlapping the image */}
                                                 {(() => {
@@ -1503,16 +1529,18 @@ export default function PrintOffersPage() {
                                                             </div>
 
                                                             {/* Image Wrapper */}
-                                                            <div 
-                                                                className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-1 box-border"
-                                                            >
-                                                                <img
-                                                                    src={getProxiedImageUrl(product.image)}
-                                                                    alt={product.name}
-                                                                    className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
-                                                                    referrerPolicy="no-referrer"
-                                                                />
-                                                            </div>
+                                                            {showProductImages && (
+                                                                <div 
+                                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-1 box-border"
+                                                                >
+                                                                    <img
+                                                                        src={getProxiedImageUrl(product.image)}
+                                                                        alt={product.name}
+                                                                        className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
+                                                                        referrerPolicy="no-referrer"
+                                                                    />
+                                                                </div>
+                                                            )}
 
                                                             {/* Card Details Block */}
                                                             <div 

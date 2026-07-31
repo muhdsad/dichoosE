@@ -188,6 +188,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionOfferPeriod = document.getElementById('section-offer-period');
     const sectionPosterTitle = document.getElementById('section-poster-title');
     const sectionStoreLogo = document.getElementById('section-store-logo');
+    const toggleProductImagesCheckbox = document.getElementById('toggle-product-images-checkbox');
+    let showProductImages = true;
+
+    if (toggleProductImagesCheckbox) {
+        toggleProductImagesCheckbox.addEventListener('change', (e) => {
+            showProductImages = e.target.checked;
+            if (!showProductImages) {
+                gridContainer.classList.add('hide-product-images');
+            } else {
+                gridContainer.classList.remove('hide-product-images');
+            }
+            renderGrid();
+        });
+    }
 
     // Tab buttons and content containers
     const tabDesignBtn = document.getElementById('tab-design-btn');
@@ -500,6 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
 
                 card.onclick = () => openEditor(index);
+                const hasProductImg = showProductImages && Boolean(item.image);
                 card.innerHTML = `
                     <div class="edit-badge">Edit</div>
                     <div class="badges-row">
@@ -507,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${saveBadgeHtml}
                     </div>
                     <div class="card-image-wrapper">
-                        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
+                        ${hasProductImg ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
                     </div>
                     <div class="card-details-wrapper">
                         <h2 class="${titleClass}">${item.name || ''}</h2>

@@ -57,6 +57,7 @@ export default function BulkOffersPage() {
     // Excel upload preview states
     const [previewUpdates, setPreviewUpdates] = useState([]);
     const [selectedDownloadCategory, setSelectedDownloadCategory] = useState('All');
+    const [selectedClearCategory, setSelectedClearCategory] = useState('');
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -520,20 +521,61 @@ export default function BulkOffersPage() {
         }
     };
 
-    const clearAllOffers = async () => {
-        const activeOffers = products.filter(p => p.offerPrice && parseFloat(p.offerPrice) > 0);
-        
-        if (activeOffers.length === 0) {
-            alert("No active offers to clear.");
+    // Count active offers in the selected clear category (or all categories)
+    const activeOffersInClearCategoryCount = useMemo(() => {
+        if (!selectedClearCategory) return 0;
+        return products.filter(p => {
+            const hasOffer = p.offerPrice && parseFloat(p.offerPrice) > 0;
+            if (!hasOffer) return false;
+            if (selectedClearCategory === 'All') return true;
+            let cats = p.categories || [];
+            if (p.category && !cats.includes(p.category)) {
+                cats = [p.category, ...cats];
+            }
+            return cats.includes(selectedClearCategory);
+        }).length;
+    }, [products, selectedClearCategory]);
+
+    const removeOffersForCategory = async (categoryName) => {
+        const targetCategory = categoryName || selectedClearCategory;
+        if (!targetCategory || targetCategory === '') {
+            alert("Please select a category from the dropdown to remove its offers.");
             return;
         }
-        
-        if (!confirm(`Are you sure you want to completely CLEAR all ${activeOffers.length} active offers?`)) return;
-        
+
+        const isAll = targetCategory === 'All';
+
+        const activeOffersInCategory = products.filter(p => {
+            const hasOffer = p.offerPrice && parseFloat(p.offerPrice) > 0;
+            if (!hasOffer) return false;
+
+            if (isAll) return true;
+
+            let cats = p.categories || [];
+            if (p.category && !cats.includes(p.category)) {
+                cats = [p.category, ...cats];
+            }
+            return cats.includes(targetCategory);
+        });
+
+        if (activeOffersInCategory.length === 0) {
+            alert(isAll 
+                ? "No active campaign offers found across any category."
+                : `No active campaign offers found for products in category: "${targetCategory}".`
+            );
+            return;
+        }
+
+        const confirmMsg = isAll
+            ? `Are you sure you want to remove assigned campaign offers from all ${activeOffersInCategory.length} product(s) across ALL categories?`
+            : `Are you sure you want to remove assigned campaign offers from all ${activeOffersInCategory.length} product(s) in category "${targetCategory}"?`;
+
+        if (!confirm(confirmMsg)) return;
+
         setIsUpdating(true);
         try {
             const batch = writeBatch(db);
-            activeOffers.forEach(p => {
+            activeOffersInCategory.forEach(p => {
                 const docRef = doc(db, "products", p.id);
                 const updatedCategories = (p.categories || []).filter(c => c !== 'Offer');
 
@@ -545,12 +587,13 @@ export default function BulkOffersPage() {
                     category: updatedCategories.length > 0 ? updatedCategories[0] : ''
                 });
             });
+
             await batch.commit();
-            alert(`All ${activeOffers.length} offers cleared successfully!`);
+            alert(`Successfully removed campaign offers for ${activeOffersInCategory.length} product(s) in ${isAll ? 'all categories' : `category "${targetCategory}"`}!`);
             fetchProducts();
         } catch (err) {
-            console.error(err);
-            alert("Error clearing offers.");
+            console.error("Error removing category offers:", err);
+            alert("Failed to remove category offers. Check console for details.");
         } finally {
             setIsUpdating(false);
         }
@@ -579,25 +622,25 @@ export default function BulkOffersPage() {
                     </div>
                 </div>
 
-                {/* Section 1: Excel Bulk Import/Export */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Export / Template Card */}
-                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                {/* Section 1: Excel Bulk Import/Export & Category Offer Removal */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Card 1: Download Campaign Template */}
+                    <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="bg-blue-50 p-3 rounded-2xl text-blue-600">
                                     <FaDownload className="w-5 h-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-850">1. Download Campaign Template</h2>
+                                <h2 className="text-lg font-bold text-gray-850">1. Download Template</h2>
                             </div>
-                            <p className="text-gray-500 text-sm mb-4">Download your catalog to Excel. Easily insert or update the `OfferPrice` column, then re-upload below.</p>
+                            <p className="text-gray-500 text-xs mb-4">Download your catalog to Excel. Easily insert or update the `OfferPrice` column, then re-upload.</p>
                             
                             <div className="mb-4">
-                                <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Category Filter</label>
+                                <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Category Filter</label>
                                 <select 
                                     value={selectedDownloadCategory}
                                     onChange={(e) => setSelectedDownloadCategory(e.target.value)}
-                                    className="block w-full border border-gray-300 rounded-xl p-3 bg-white text-sm focus:ring-primary focus:border-primary text-black"
+                                    className="block w-full border border-gray-300 rounded-xl p-2.5 bg-white text-sm focus:ring-primary focus:border-primary text-black"
                                 >
                                     {uniqueCategories.map((cat, idx) => (
                                         <option key={`${cat}-${idx}`} value={cat}>{cat === 'All' ? 'All Categories' : cat}</option>
@@ -606,50 +649,87 @@ export default function BulkOffersPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 mt-4">
-                            <button 
-                                onClick={downloadTemplate}
-                                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm"
-                            >
-                                <FaDownload /> Download Products Template (Excel)
-                            </button>
-                            <button 
-                                onClick={clearAllOffers}
-                                disabled={isUpdating}
-                                className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl font-bold text-sm hover:bg-red-100 transition flex items-center justify-center gap-2"
-                            >
-                                <FaTrash /> Remove All Store Campaign Offers
-                            </button>
-                        </div>
+                        <button 
+                            onClick={downloadTemplate}
+                            className="w-full bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-xs hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm cursor-pointer mt-2"
+                        >
+                            <FaDownload /> Download Template (Excel)
+                        </button>
                     </div>
 
-                    {/* Excel Upload Card */}
-                    <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                    {/* Card 2: Upload Modified Template */}
+                    <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex flex-col justify-between">
                         <div>
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="bg-green-50 p-3 rounded-2xl text-green-600">
                                     <FaUpload className="w-5 h-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-850">2. Upload Modified Template</h2>
+                                <h2 className="text-lg font-bold text-gray-850">2. Upload Template</h2>
                             </div>
-                            <p className="text-gray-500 text-sm mb-4">Upload your edited spreadsheet file here. The system will detect and preview changes before modifying the database.</p>
+                            <p className="text-gray-500 text-xs mb-4">Upload your edited spreadsheet file here. The system will preview changes before modifying the database.</p>
                             
-                            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 text-center bg-gray-50/50 hover:bg-gray-50 transition-colors">
-                                <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Excel file (.xlsx, .xls, .csv)</label>
+                            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                                <label className="block mb-1 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select File (.xlsx, .csv)</label>
                                 <input 
                                     type="file" 
                                     accept=".xlsx, .xls, .csv" 
                                     onChange={handleFileUpload}
                                     ref={fileInputRef}
-                                    className="block w-full text-sm text-gray-500 mt-2
-                                        file:mr-4 file:py-2 file:px-4
-                                        file:rounded-xl file:border-0
+                                    className="block w-full text-xs text-gray-500 mt-2
+                                        file:mr-2 file:py-1.5 file:px-3
+                                        file:rounded-lg file:border-0
                                         file:text-xs file:font-bold
                                         file:bg-primary file:text-white
                                         hover:file:bg-green-700 cursor-pointer border border-gray-300 rounded-xl p-2 bg-white"
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    {/* Card 3: Remove Campaign Offers by Category */}
+                    <div className="bg-white p-6 rounded-3xl border border-red-150 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="bg-red-50 p-3 rounded-2xl text-red-600">
+                                    <FaTrash className="w-5 h-5" />
+                                </div>
+                                <h2 className="text-lg font-bold text-gray-850">3. Remove Category Offers</h2>
+                            </div>
+                            <p className="text-gray-500 text-xs mb-4">Select a category below to remove assigned campaign offers strictly for products in that category.</p>
+                            
+                            <div className="mb-3">
+                                <label className="block mb-2 text-xs font-extrabold uppercase text-gray-500 tracking-wider">Select Category to Clear</label>
+                                <select 
+                                    value={selectedClearCategory}
+                                    onChange={(e) => setSelectedClearCategory(e.target.value)}
+                                    className="block w-full border border-gray-300 rounded-xl p-2.5 bg-white text-sm focus:ring-red-500 focus:border-red-500 text-black font-semibold"
+                                >
+                                    <option value="">-- Choose Category --</option>
+                                    <option value="All">⚠️ All Categories (Remove All Store Offers)</option>
+                                    {uniqueCategories.filter(cat => cat !== 'All' && cat !== 'Offer').map((cat, idx) => (
+                                        <option key={`clear-${cat}-${idx}`} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {selectedClearCategory && (
+                                <div className="p-3 bg-red-50/60 border border-red-100 rounded-xl mb-2 text-xs text-red-800 font-medium">
+                                    {activeOffersInClearCategoryCount > 0 ? (
+                                        <span><strong className="font-extrabold text-red-700">{activeOffersInClearCategoryCount}</strong> product(s) in <strong>{selectedClearCategory === 'All' ? 'ALL Categories' : `"${selectedClearCategory}"`}</strong> currently have assigned offers.</span>
+                                    ) : (
+                                        <span>No active offers assigned to products in <strong>{selectedClearCategory === 'All' ? 'ALL Categories' : `"${selectedClearCategory}"`}</strong>.</span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <button 
+                            onClick={() => removeOffersForCategory(selectedClearCategory)}
+                            disabled={isUpdating || !selectedClearCategory || activeOffersInClearCategoryCount === 0}
+                            className="w-full bg-red-600 text-white px-4 py-3 rounded-xl font-bold text-xs hover:bg-red-700 transition flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+                        >
+                            <FaTrash /> Remove Offers for &quot;{selectedClearCategory === 'All' ? 'All Categories' : (selectedClearCategory || 'Category')}&quot;
+                        </button>
                     </div>
                 </div>
 
@@ -761,6 +841,15 @@ export default function BulkOffersPage() {
                                     <option key={`${cat}-${idx}`} value={cat}>{cat}</option>
                                 ))}
                             </select>
+                            {selectedCategory !== 'All' && selectedCategory !== 'Offer' && (
+                                <button
+                                    onClick={() => removeOffersForCategory(selectedCategory)}
+                                    disabled={isUpdating}
+                                    className="mt-2 text-xs font-bold text-red-600 hover:text-red-800 flex items-center gap-1.5 transition cursor-pointer"
+                                >
+                                    <FaTrash className="text-[10px]" /> Remove offers from &quot;{selectedCategory}&quot;
+                                </button>
+                            )}
                         </div>
 
                         <div>
