@@ -604,6 +604,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('item-mrp').value = item.mrp || '';
         document.getElementById('item-sp').value = item.sellingPrice || '';
 
+        const itemImageUrlInput = document.getElementById('item-image-url');
+        if (itemImageUrlInput) {
+            itemImageUrlInput.value = item.image && !item.image.startsWith('data:') ? item.image : '';
+        }
+
         currentImageBuffer = item.image;
         updateImagePreview();
 
@@ -651,6 +656,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    const itemImageUrlInput = document.getElementById('item-image-url');
+    if (itemImageUrlInput) {
+        itemImageUrlInput.addEventListener('input', function () {
+            const val = this.value.trim();
+            if (val) {
+                currentImageBuffer = convertGoogleDriveUrl(val);
+                updateImagePreview();
+            }
+        });
+    }
 
     function updateImagePreview() {
         if (currentImageBuffer) {

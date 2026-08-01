@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { db } from '../../../lib/firebase';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { getDirectDriveLink } from '../../../utils/productUtils';
 import { FaImage, FaTrash, FaCheck, FaTimes, FaUndo, FaSearch, FaPencilAlt } from 'react-icons/fa';
 
@@ -249,8 +249,10 @@ export default function PrintOffersPage() {
     const [editMrp, setEditMrp] = useState('');
     const [editPrice, setEditPrice] = useState('');
     const [editOfferPrice, setEditOfferPrice] = useState('');
+    const [editImage, setEditImage] = useState('');
     const [saveToDb, setSaveToDb] = useState(false);
     const [savingPrice, setSavingPrice] = useState(false);
+    const [deletingProduct, setDeletingProduct] = useState(false);
 
     const handleOpenEditModal = (e, product) => {
         if (!product || product.isPlaceholder) return;
@@ -259,7 +261,25 @@ export default function PrintOffersPage() {
         setEditMrp(product.mrp !== undefined && product.mrp !== null ? String(product.mrp) : '');
         setEditPrice(product.price !== undefined && product.price !== null ? String(product.price) : '');
         setEditOfferPrice(product.offerPrice !== undefined && product.offerPrice !== null ? String(product.offerPrice) : '');
+        setEditImage(product.image || '');
         setSaveToDb(false);
+    };
+
+    const handleEditImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setEditImage(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleEditImageUrlChange = (e) => {
+        const url = e.target.value;
+        const converted = getDirectDriveLink(url);
+        setEditImage(converted);
     };
 
     const handleSavePriceEdit = async () => {
@@ -268,6 +288,7 @@ export default function PrintOffersPage() {
         const newMrp = editMrp !== '' ? parseFloat(editMrp) : '';
         const newPrice = editPrice !== '' ? parseFloat(editPrice) : '';
         const newOfferPrice = editOfferPrice !== '' ? parseFloat(editOfferPrice) : '';
+        const newImage = editImage;
 
         setSavingPrice(true);
         try {
@@ -277,7 +298,8 @@ export default function PrintOffersPage() {
                         ...p,
                         mrp: newMrp,
                         price: newPrice,
-                        offerPrice: newOfferPrice
+                        offerPrice: newOfferPrice,
+                        image: newImage
                     };
                 }
                 return p;
@@ -292,16 +314,48 @@ export default function PrintOffersPage() {
                 if (newMrp !== '') updateData.mrp = newMrp;
                 if (newPrice !== '') updateData.price = newPrice;
                 if (newOfferPrice !== '') updateData.offerPrice = newOfferPrice;
+                updateData.image = newImage || '';
 
                 await updateDoc(productRef, updateData);
             }
 
             setEditingProduct(null);
         } catch (error) {
-            console.error("Error updating price:", error);
+            console.error("Error updating product details:", error);
             alert("Failed to update product details. Please try again.");
         } finally {
             setSavingPrice(false);
+        }
+    };
+
+    const handleDeleteProductFromDb = async () => {
+        if (!editingProduct) return;
+
+        const confirmDelete = window.confirm(`Are you sure you want to permanently delete "${editingProduct.name}" from the database? This cannot be undone.`);
+        if (!confirmDelete) return;
+
+        setDeletingProduct(true);
+        try {
+            if (editingProduct.id && !editingProduct.id.startsWith('placeholder')) {
+                const productRef = doc(db, "products", editingProduct.id);
+                await deleteDoc(productRef);
+            }
+
+            // Remove deleted product from active lists and selection set
+            setNormalProducts(prev => prev.filter(p => p.id !== editingProduct.id));
+            setProducts(prev => prev.filter(p => p.id !== editingProduct.id));
+            setSelectedProductIds(prev => {
+                const next = new Set(prev);
+                next.delete(editingProduct.id);
+                return next;
+            });
+
+            setEditingProduct(null);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            alert("Failed to delete product from database. Please try again.");
+        } finally {
+            setDeletingProduct(false);
         }
     };
 
@@ -1035,7 +1089,7 @@ export default function PrintOffersPage() {
                                                 <div 
                                                     onClick={(e) => handleOpenEditModal(e, p)}
                                                     className="relative w-9 h-9 bg-gray-50 rounded-lg overflow-hidden border border-gray-150 flex-shrink-0 cursor-pointer group/pickerImg"
-                                                    title="Click image to edit MRP & Price"
+                                                    title="Click image to edit image, price & MRP"
                                                 >
                                                     <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/pickerImg:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px]">
@@ -1278,12 +1332,12 @@ export default function PrintOffersPage() {
                                                     ) : null}
                                                 </div>
 
-                                                {/* Image Wrapper (Click image to edit MRP & Price) */}
+                                                {/* Image Wrapper (Click image to edit image, price & MRP) */}
                                                 {showProductImages && (
                                                     <div 
                                                         onClick={(e) => handleOpenEditModal(e, product)}
                                                         className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-2.5 box-border cursor-pointer group/img"
-                                                        title="Click product image to edit MRP & Price"
+                                                        title="Click product image to edit image, price & MRP"
                                                     >
                                                         <img
                                                             src={getProxiedImageUrl(product.image)}
@@ -1292,7 +1346,7 @@ export default function PrintOffersPage() {
                                                             referrerPolicy="no-referrer"
                                                         />
                                                         <div className="absolute top-2 left-2 bg-black/65 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-[5]">
-                                                            <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price / MRP
+                                                            <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Image / Price / MRP
                                                         </div>
                                                     </div>
                                                 )}
@@ -1366,14 +1420,21 @@ export default function PrintOffersPage() {
                                                     <h2 
                                                         className="font-extrabold uppercase tracking-tight text-black leading-none text-center" 
                                                         style={{ 
-                                                            fontSize: getPosterDynamicTitleStyle(product.name, posterLayout).fontSize,
+                                                            ...getPosterDynamicTitleStyle(product.name, posterLayout),
                                                             fontFamily: 'var(--font-sans), sans-serif'
                                                         }}
                                                     >
                                                         {product.name.toUpperCase()}
                                                     </h2>
                                                     {product.unit && (
-                                                        <div className="text-blue-800 font-extrabold text-xs uppercase mt-0.5 text-center">
+                                                        <div 
+                                                            className="text-blue-800 font-extrabold text-xs uppercase mt-0.5 text-center"
+                                                            style={{
+                                                                WebkitTextStroke: '0.8px #ffffff',
+                                                                paintOrder: 'stroke fill',
+                                                                textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
+                                                            }}
+                                                        >
                                                             / {product.unit.toUpperCase()}
                                                         </div>
                                                     )}
@@ -1625,29 +1686,83 @@ export default function PrintOffersPage() {
                     }
                 }
             `}</style>
-            {/* Quick Edit Price & MRP Modal */}
+            {/* Quick Edit Price, MRP & Image Modal */}
             {editingProduct && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-4 animate-fadeIn print:hidden">
                     <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 space-y-5 animate-scaleUp">
                         <div className="flex justify-between items-start border-b border-gray-150 pb-3">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                                    <img src={getProxiedImageUrl(editingProduct.image)} className="w-full h-full object-cover" />
+                                <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                    <img src={getProxiedImageUrl(editImage)} className="w-full h-full object-contain p-0.5" />
                                 </div>
                                 <div>
                                     <h3 className="text-base font-extrabold text-gray-900 leading-tight line-clamp-1">{editingProduct.name}</h3>
-                                    <p className="text-xs text-indigo-600 font-bold mt-0.5">Edit Poster Price & MRP</p>
+                                    <p className="text-xs text-indigo-600 font-bold mt-0.5">Edit Poster Image, Price & MRP</p>
                                 </div>
                             </div>
                             <button 
                                 onClick={() => setEditingProduct(null)}
-                                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition"
+                                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition cursor-pointer"
                             >
                                 <FaTimes className="w-4 h-4" />
                             </button>
                         </div>
 
                         <div className="space-y-4">
+                            {/* Edit Product Image Section */}
+                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 space-y-2.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider">Product Image</label>
+                                    {editImage && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setEditImage('')}
+                                            className="text-[10px] text-red-600 hover:text-red-800 font-bold flex items-center gap-1 cursor-pointer"
+                                        >
+                                            <FaTrash className="w-2.5 h-2.5" /> Clear Image
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <div className="w-16 h-16 rounded-xl bg-white border border-gray-300 overflow-hidden flex-shrink-0 flex items-center justify-center relative shadow-xs">
+                                        <img src={getProxiedImageUrl(editImage)} className="w-full h-full object-contain p-1" />
+                                    </div>
+                                    <div className="flex-1 space-y-1.5 min-w-0">
+                                        {/* Upload from Local Device / Drive File */}
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleEditImageUpload}
+                                                className="hidden" 
+                                                id="edit-product-file-input"
+                                            />
+                                            <label 
+                                                htmlFor="edit-product-file-input" 
+                                                className="w-full bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 py-1.5 px-3 rounded-lg font-bold text-xs text-center cursor-pointer shadow-xs transition flex items-center justify-center gap-1.5"
+                                                title="Upload image from your local drive/device (Temporary for poster or saved to DB)"
+                                            >
+                                                <FaImage className="text-xs" /> Upload from Computer / My Drive
+                                            </label>
+                                        </div>
+                                        {/* Google Drive or Web Image URL */}
+                                        <div>
+                                            <input
+                                                type="text"
+                                                value={editImage}
+                                                onChange={handleEditImageUrlChange}
+                                                placeholder="Or paste Google Drive share link / Image URL"
+                                                className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-gray-500 font-medium leading-tight">
+                                    💡 <strong className="text-gray-700">Temporary:</strong> Upload from computer/drive for current poster. <strong className="text-gray-700">Permanent:</strong> Paste Google Drive share link & check &quot;Also update in Database&quot; below.
+                                </p>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-extrabold uppercase text-gray-600 mb-1.5">MRP (₹)</label>
@@ -1716,22 +1831,34 @@ export default function PrintOffersPage() {
                             </label>
                         </div>
 
-                        <div className="flex gap-3 justify-end pt-2 border-t border-gray-150">
+                        <div className="flex gap-2 justify-between items-center pt-2 border-t border-gray-150">
                             <button
                                 type="button"
-                                onClick={() => setEditingProduct(null)}
-                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs transition cursor-pointer"
+                                onClick={handleDeleteProductFromDb}
+                                disabled={deletingProduct || savingPrice}
+                                className="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl font-bold text-xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                                title="Permanently delete this product from database"
                             >
-                                Cancel
+                                <FaTrash className="w-3 h-3 text-red-500" /> {deletingProduct ? 'Deleting...' : 'Delete from DB'}
                             </button>
-                            <button
-                                type="button"
-                                onClick={handleSavePriceEdit}
-                                disabled={savingPrice}
-                                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer disabled:opacity-50"
-                            >
-                                {savingPrice ? 'Saving...' : 'Apply Changes'}
-                            </button>
+
+                            <div className="flex gap-2 items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingProduct(null)}
+                                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-xs transition cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleSavePriceEdit}
+                                    disabled={savingPrice || deletingProduct}
+                                    className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer disabled:opacity-50"
+                                >
+                                    {savingPrice ? 'Saving...' : 'Apply Changes'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
