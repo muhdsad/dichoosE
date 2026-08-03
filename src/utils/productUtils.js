@@ -47,17 +47,23 @@ export const getDirectDriveLink = (url) => {
     if (!url) return '';
 
     try {
+        // Handle lh3 direct link: /d/ID
+        if (url.includes('lh3.googleusercontent.com/d/')) {
+            const id = url.split('/d/')[1].split('=')[0].split('/')[0];
+            return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+        }
+
         // Handle standard view link: /file/d/ID/view
         if (url.includes('drive.google.com') && url.includes('/file/d/')) {
             const id = url.split('/file/d/')[1].split('/')[0];
-            return `https://drive.google.com/thumbnail?id=${id}&sz=w500`;
+            return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
         }
 
         // Handle open link: open?id=ID
         if (url.includes('drive.google.com') && url.includes('id=')) {
             const searchParams = new URL(url).searchParams;
             const id = searchParams.get('id');
-            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w500`;
+            if (id) return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
         }
     } catch (e) {
         console.error("Failed to parse drive URL:", url, e);

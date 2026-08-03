@@ -1596,13 +1596,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let fileId = null;
         const driveMatch1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
         const driveMatch2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        const driveMatch3 = url.match(/lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
         if (driveMatch1 && driveMatch1[1]) {
             fileId = driveMatch1[1];
         } else if (driveMatch2 && driveMatch2[1]) {
             fileId = driveMatch2[1];
+        } else if (driveMatch3 && driveMatch3[1]) {
+            fileId = driveMatch3[1];
         }
         if (fileId) {
-            return `https://lh3.googleusercontent.com/d/${fileId}`;
+            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
         }
         return url;
     }
@@ -2534,7 +2537,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 importedProducts.forEach(p => {
                     const matchedFile = findMatchingDriveFile(p.name, driveFilesList);
                     if (matchedFile) {
-                        p.image = `https://lh3.googleusercontent.com/d/${matchedFile.id}`;
+                        const driveImgUrl = matchedFile.thumbnailLink
+                            ? matchedFile.thumbnailLink.replace(/=s\d+/, '=s800')
+                            : `https://drive.google.com/thumbnail?id=${matchedFile.id}&sz=w800`;
+                        p.image = driveImgUrl;
                         matchedDbCount++;
                     }
                 });
@@ -2542,7 +2548,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 items.forEach(item => {
                     const matchedFile = findMatchingDriveFile(item.name, driveFilesList);
                     if (matchedFile) {
-                        item.image = `https://lh3.googleusercontent.com/d/${matchedFile.id}`;
+                        const driveImgUrl = matchedFile.thumbnailLink
+                            ? matchedFile.thumbnailLink.replace(/=s\d+/, '=s800')
+                            : `https://drive.google.com/thumbnail?id=${matchedFile.id}&sz=w800`;
+                        item.image = driveImgUrl;
                         matchedPosterCount++;
                     }
                 });
