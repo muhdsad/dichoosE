@@ -245,7 +245,8 @@ export default function PrintOffersPage() {
     const [decorImage, setDecorImage] = useState(null);
     const [showProductImages, setShowProductImages] = useState(true);
 
-    // Quick Edit MRP & Price Modal State
+    // Quick Edit Modal States
+    const [editingHeaderModal, setEditingHeaderModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [editMrp, setEditMrp] = useState('');
     const [editPrice, setEditPrice] = useState('');
@@ -1198,8 +1199,16 @@ export default function PrintOffersPage() {
                                         )}
                                     </div>
 
-                                    {/* Center: Title & Validity */}
-                                    <div className="flex flex-col items-center justify-center text-center flex-1 max-w-[45%] z-10 leading-none">
+                                    {/* Center: Title & Validity (Click to edit header text & validity) */}
+                                    <div 
+                                        onClick={() => setEditingHeaderModal(true)}
+                                        className="flex flex-col items-center justify-center text-center flex-1 max-w-[45%] z-10 leading-none group/headerEdit cursor-pointer hover:bg-black/5 p-1 rounded-xl transition relative"
+                                        title="Click to edit Header Text, Fonts & Validity"
+                                    >
+                                        <div className="absolute -top-2.5 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-md opacity-0 group-hover/headerEdit:opacity-100 transition-opacity print:hidden flex items-center gap-1 pointer-events-none z-30 whitespace-nowrap">
+                                            <FaPencilAlt className="text-[8px] text-yellow-300" /> Click to Edit Header Text & Validity
+                                        </div>
+                                        
                                         {/* Date/Validity on top */}
                                         <div className="text-black font-extrabold text-xs sm:text-sm tracking-widest mb-1.5 font-sans">
                                             {posterSubtitle}
@@ -1753,6 +1762,85 @@ export default function PrintOffersPage() {
                     }
                 }
             `}</style>
+            {/* Quick Edit Header Modal */}
+            {editingHeaderModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-4 animate-fadeIn print:hidden">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 space-y-4 animate-scaleUp">
+                        <div className="flex justify-between items-center border-b border-gray-150 pb-3">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600">
+                                    <FaPencilAlt className="w-4 h-4" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-extrabold text-gray-900 leading-tight">Edit Header Text</h3>
+                                    <p className="text-xs text-indigo-600 font-bold">Customize Poster Title, Fonts & Validity</p>
+                                </div>
+                            </div>
+                            <button 
+                                onClick={() => setEditingHeaderModal(false)}
+                                className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition cursor-pointer"
+                            >
+                                <FaTimes className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
+                                    Thick Main Header (Title)
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={posterTitle}
+                                    onChange={(e) => setPosterTitle(e.target.value)}
+                                    placeholder={"e.g.\nSMILE\nHYPERMARKET"}
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black resize-none focus:bg-white focus:ring-2 focus:ring-indigo-500"
+                                />
+                                <p className="text-[10px] text-gray-400 mt-0.5">Line 1 uses Vintage font, Line 2 uses Headline font. Press Enter for line breaks.</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
+                                    Header Font Style
+                                </label>
+                                <select
+                                    value={headerStyle}
+                                    onChange={(e) => setHeaderStyle(e.target.value)}
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black cursor-pointer"
+                                >
+                                    <option value="vintage_headline">Line 1 Vintage + Line 2 Headline</option>
+                                    <option value="vintage">Vintage Script (All Lines)</option>
+                                    <option value="headline">Headline Script (All Lines)</option>
+                                    <option value="anton">3D Block Font (Anton)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
+                                    Offer Duration / Validity Text
+                                </label>
+                                <input
+                                    type="text"
+                                    value={posterSubtitle}
+                                    onChange={(e) => setPosterSubtitle(e.target.value)}
+                                    placeholder="e.g. OFFER VALIDITY: 14TH TO 20TH JULY"
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="pt-2 flex justify-end">
+                            <button
+                                onClick={() => setEditingHeaderModal(false)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-md transition cursor-pointer"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Quick Edit Price, MRP & Image Modal */}
             {editingProduct && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-4 animate-fadeIn print:hidden">
