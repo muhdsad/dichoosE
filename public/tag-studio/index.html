@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="styles.css?v=52">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Pacifico&family=Dancing+Script:wght@600;700&family=Montserrat:wght@800;900&family=Bebas+Neue&family=Righteous&family=Poppins:wght@400;500;600;700;800;900&family=Oswald:wght@700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -133,7 +133,41 @@
                 <div class="sidebar-section" id="section-poster-title">
                     <h3>Poster Title</h3>
                     <div class="control-group">
-                        <input type="text" id="control-title-input" placeholder="e.g. Todays Essentials">
+                        <textarea id="control-title-input" rows="2" style="width:100%; box-sizing:border-box; padding:8px; border:1px solid #334155; border-radius:6px; background-color:#1e293b; color:white; font-family:inherit; resize:vertical; font-weight: 700; font-size: 0.85rem;" placeholder="e.g. Todays\nEssentials"></textarea>
+                        <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">Use Enter for line breaks.</p>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="section-header-font-style">
+                    <h3>Header Font Style</h3>
+                    <div class="control-group">
+                        <select id="control-header-font-style" style="width: 100%; padding: 8px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #334155; font-size: 0.85rem; cursor: pointer; font-weight: 600;">
+                            <option value="vintage_headline">Line 1 Vintage + Line 2 Headline</option>
+                            <option value="modern_montserrat">Modern Ultra-Bold (Montserrat)</option>
+                            <option value="modern_bebas">Modern Tall Headline (Bebas Neue)</option>
+                            <option value="modern_righteous">Modern Geometric (Righteous)</option>
+                            <option value="modern_poppins">Modern Heavy (Poppins)</option>
+                            <option value="modern_oswald">Modern Clean Condensed (Oswald)</option>
+                            <option value="vintage">Vintage Script (Pacifico)</option>
+                            <option value="headline">Headline Script (Dancing Script)</option>
+                            <option value="anton">3D Block Font (Anton)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="section-header-font-color">
+                    <h3>Header Font Colors</h3>
+                    <div class="control-group">
+                        <select id="control-header-font-color" style="width: 100%; padding: 8px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #334155; font-size: 0.85rem; cursor: pointer; font-weight: 600;">
+                            <option value="brand">Brand Colors (Green & Orange)</option>
+                            <option value="black_white">Black & White (High Contrast)</option>
+                            <option value="solid_black">Solid Black</option>
+                            <option value="solid_white">Solid White</option>
+                            <option value="black_gold">Black & Gold</option>
+                            <option value="red_yellow">Red & Yellow</option>
+                            <option value="blue_indigo">Deep Blue & Indigo</option>
+                            <option value="solid_red">Solid Crimson Red</option>
+                        </select>
                     </div>
                 </div>
 
@@ -342,6 +376,56 @@
             <div class="modal-actions">
                 <button id="cancel-gdrive-btn" class="btn btn-secondary">Cancel</button>
                 <button id="sync-gdrive-btn" class="btn btn-primary" style="background-color: #0284c7; border: none;">Fetch &amp; Auto-Match Images</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tag Header Edit Modal -->
+    <div id="modal-edit-tag-header" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-box" style="background: white; border-radius: 16px; max-width: 440px; width: 100%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0;">Edit Header Title</h3>
+                    <p style="font-size: 0.75rem; color: #4f46e5; font-weight: 700; margin-top: 2px;">Customize Header Text, Font Style & Colors</p>
+                </div>
+                <button id="modal-close-tag-header" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8;">✖</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Header Title Text</label>
+                    <textarea id="modal-tag-header-text" rows="3" style="width: 100%; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; font-size: 0.85rem; font-weight: 700; color: #0f172a; resize: none;"></textarea>
+                    <p style="font-size: 0.65rem; color: #94a3b8; margin-top: 3px;">Use Enter for explicit line breaks.</p>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Header Font Style</label>
+                    <select id="modal-tag-header-font-style" style="width: 100%; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; font-size: 0.85rem; font-weight: 700; color: #0f172a; cursor: pointer;">
+                        <option value="vintage_headline">Line 1 Vintage + Line 2 Headline</option>
+                        <option value="modern_montserrat">Modern Ultra-Bold (Montserrat)</option>
+                        <option value="modern_bebas">Modern Tall Headline (Bebas Neue)</option>
+                        <option value="modern_righteous">Modern Geometric (Righteous)</option>
+                        <option value="modern_poppins">Modern Heavy (Poppins)</option>
+                        <option value="modern_oswald">Modern Clean Condensed (Oswald)</option>
+                        <option value="vintage">Vintage Script (Pacifico)</option>
+                        <option value="headline">Headline Script (Dancing Script)</option>
+                        <option value="anton">3D Block Font (Anton)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Header Font Colors</label>
+                    <select id="modal-tag-header-font-color" style="width: 100%; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; font-size: 0.85rem; font-weight: 700; color: #0f172a; cursor: pointer;">
+                        <option value="brand">Brand Colors (Green & Orange)</option>
+                        <option value="black_white">Black & White (High Contrast)</option>
+                        <option value="solid_black">Solid Black</option>
+                        <option value="solid_white">Solid White</option>
+                        <option value="black_gold">Black & Gold</option>
+                        <option value="red_yellow">Red & Yellow</option>
+                        <option value="blue_indigo">Deep Blue & Indigo</option>
+                        <option value="solid_red">Solid Crimson Red</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+                <button id="modal-save-tag-header" style="background: #4f46e5; color: white; border: none; font-weight: 700; font-size: 0.8rem; padding: 10px 24px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(79,70,229,0.2);">Save Changes</button>
             </div>
         </div>
     </div>

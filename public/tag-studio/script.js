@@ -99,6 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let headerTitle = localStorage.getItem('supermarket_header_title') || 'Todays Essentials';
+    let headerFontStyle = localStorage.getItem('supermarket_header_font_style') || 'vintage_headline';
+    let headerFontColor = localStorage.getItem('supermarket_header_font_color') || 'brand';
     let footerText = localStorage.getItem('supermarket_footer_text') || 'Smile Hypermarket, SA ARCADE,KAKKKAD,8282893434,Purchase above RS 800 within 5km, Order Before 11 AM';
     let selectedDate = localStorage.getItem('supermarket_selected_date') || getTodayDateString();
     let selectedEndDate = localStorage.getItem('supermarket_selected_end_date') || '';
@@ -111,33 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let importedProducts = JSON.parse(localStorage.getItem('supermarket_imported_products')) || [];
     let currentEditType = 'card'; // 'card' or 'db'
     let currentEditId = null; // ID of the product database item being edited
-
-    // Convert existing product names to uppercase
-    let itemsChanged = false;
-    if (items && items.length > 0) {
-        items.forEach(item => {
-            if (item.name && item.name !== item.name.toUpperCase()) {
-                item.name = item.name.toUpperCase();
-                itemsChanged = true;
-            }
-        });
-        if (itemsChanged) {
-            localStorage.setItem('supermarket_items', JSON.stringify(items));
-        }
-    }
-
-    let importedProductsChanged = false;
-    if (importedProducts && importedProducts.length > 0) {
-        importedProducts.forEach(product => {
-            if (product.name && product.name !== product.name.toUpperCase()) {
-                product.name = product.name.toUpperCase();
-                importedProductsChanged = true;
-            }
-        });
-        if (importedProductsChanged) {
-            localStorage.setItem('supermarket_imported_products', JSON.stringify(importedProducts));
-        }
-    }
 
     // DOM Elements
     const gridContainer = document.querySelector('.grid-container');
@@ -189,6 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionPosterTitle = document.getElementById('section-poster-title');
     const sectionStoreLogo = document.getElementById('section-store-logo');
     const toggleProductImagesCheckbox = document.getElementById('toggle-product-images-checkbox');
+    const controlHeaderFontStyleSelect = document.getElementById('control-header-font-style');
+    const controlHeaderFontColorSelect = document.getElementById('control-header-font-color');
+    const modalEditTagHeader = document.getElementById('modal-edit-tag-header');
+    const modalCloseTagHeader = document.getElementById('modal-close-tag-header');
+    const modalTagHeaderText = document.getElementById('modal-tag-header-text');
+    const modalTagHeaderFontStyle = document.getElementById('modal-tag-header-font-style');
+    const modalTagHeaderFontColor = document.getElementById('modal-tag-header-font-color');
+    const modalSaveTagHeader = document.getElementById('modal-save-tag-header');
     let showProductImages = true;
 
     if (toggleProductImagesCheckbox) {
@@ -794,35 +777,209 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Header interactions ---
 
-    // Title Editable listener
-    headerTitleEl.textContent = headerTitle;
-    if (controlTitleInput) {
-        controlTitleInput.value = headerTitle;
-    }
+    // --- Header Title Font & Color Styling Engine ---
+    function renderHeaderTitleStyles() {
+        if (!headerTitleEl) return;
+        
+        const rawText = headerTitle || 'Todays Essentials';
+        const lines = rawText.includes('\n') 
+            ? rawText.split('\n').map(l => l.trim()).filter(Boolean)
+            : [rawText.trim()];
 
-    if (controlTitleInput) {
-        controlTitleInput.addEventListener('input', (e) => {
-            headerTitle = e.target.value.trim() || 'Todays Essentials';
-            headerTitleEl.textContent = headerTitle;
-            localStorage.setItem('supermarket_header_title', headerTitle);
+        headerTitleEl.innerHTML = '';
+        headerTitleEl.removeAttribute('contenteditable');
+        headerTitleEl.style.display = 'flex';
+        headerTitleEl.style.flexDirection = 'column';
+        headerTitleEl.style.alignItems = 'center';
+        headerTitleEl.style.justifyContent = 'center';
+        headerTitleEl.style.lineHeight = '0.95';
+        headerTitleEl.style.padding = '2px 8px';
+        headerTitleEl.style.cursor = 'pointer';
+        headerTitleEl.title = 'Click to edit Header Text, Font Style & Colors';
+
+        lines.forEach((lineText, idx) => {
+            const isSecondLine = idx === 1;
+            const isOdd = idx % 2 === 1;
+            const span = document.createElement('span');
+            span.textContent = lineText;
+            span.style.display = 'inline-block';
+            span.style.textAlign = 'center';
+
+            let fontFamily = "'Pacifico', cursive";
+            let textStroke = '1.2px #ffffff';
+            let fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+
+            if (headerFontStyle === 'vintage_headline') {
+                if (isSecondLine) {
+                    fontFamily = "'Dancing Script', cursive";
+                    textStroke = '0.8px #ffffff';
+                    fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
+                } else {
+                    fontFamily = "'Pacifico', cursive";
+                    textStroke = '1.2px #ffffff';
+                    fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+                }
+            } else if (headerFontStyle === 'modern_montserrat') {
+                fontFamily = "'Montserrat', sans-serif";
+                span.style.fontWeight = '900';
+                textStroke = '1.5px #ffffff';
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'modern_bebas') {
+                fontFamily = "'Bebas Neue', sans-serif";
+                span.style.letterSpacing = '1px';
+                textStroke = '1px #ffffff';
+                fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '40px' : '52px');
+            } else if (headerFontStyle === 'modern_righteous') {
+                fontFamily = "'Righteous', cursive";
+                textStroke = '1.2px #ffffff';
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'modern_poppins') {
+                fontFamily = "'Poppins', sans-serif";
+                span.style.fontWeight = '900';
+                textStroke = '1.2px #ffffff';
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'modern_oswald') {
+                fontFamily = "'Oswald', sans-serif";
+                span.style.fontWeight = '700';
+                textStroke = '1px #ffffff';
+                fontSize = lineText.length > 15 ? '28px' : (lineText.length > 10 ? '36px' : '46px');
+            } else if (headerFontStyle === 'vintage') {
+                fontFamily = "'Pacifico', cursive";
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'headline') {
+                fontFamily = "'Dancing Script', cursive";
+                textStroke = '0.8px #ffffff';
+                fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
+            } else {
+                fontFamily = "'Anton', sans-serif";
+                fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+            }
+
+            let textColor = '#16a34a';
+            let textShadow = '0 3px 0 #15803d, 0 4px 0 #14532d';
+
+            if (headerFontColor === 'black_white') {
+                textColor = isOdd ? '#ffffff' : '#000000';
+                textStroke = isOdd ? '1.5px #000000' : '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #000000, 0 3px 0 #000000' : '0 2px 0 #444444, 0 3px 0 #666666';
+            } else if (headerFontColor === 'solid_black') {
+                textColor = '#000000';
+                textStroke = '1.5px #ffffff';
+                textShadow = '0 2px 0 #333333, 0 3px 0 #555555';
+            } else if (headerFontColor === 'solid_white') {
+                textColor = '#ffffff';
+                textStroke = '1.5px #000000';
+                textShadow = '0 2px 0 #000000, 0 3px 0 #000000';
+            } else if (headerFontColor === 'black_gold') {
+                textColor = isOdd ? '#d97706' : '#000000';
+                textStroke = '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #92400e' : '0 2px 0 #333333';
+            } else if (headerFontColor === 'red_yellow') {
+                textColor = isOdd ? '#eab308' : '#e11b22';
+                textStroke = '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #854d0e' : '0 2px 0 #991b1b';
+            } else if (headerFontColor === 'blue_indigo') {
+                textColor = isOdd ? '#4338ca' : '#1d4ed8';
+                textStroke = '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #312e81' : '0 2px 0 #1e40af';
+            } else if (headerFontColor === 'solid_red') {
+                textColor = '#e11b22';
+                textStroke = '1.5px #ffffff';
+                textShadow = '0 2px 0 #991b1b';
+            } else {
+                textColor = isOdd ? '#ea580c' : '#16a34a';
+                textShadow = isOdd ? '0 2px 0 #b45309, 0 3px 0 #7c2d12' : '0 3px 0 #15803d, 0 4px 0 #14532d';
+            }
+
+            span.style.fontFamily = fontFamily;
+            span.style.fontSize = fontSize;
+            span.style.color = textColor;
+            span.style.webkitTextStroke = textStroke;
+            span.style.paintOrder = 'stroke fill';
+            span.style.filter = `drop-shadow(${textShadow})`;
+            span.style.textTransform = 'none';
+
+            headerTitleEl.appendChild(span);
         });
     }
 
-    headerTitleEl.addEventListener('blur', () => {
-        const text = headerTitleEl.textContent.trim();
-        headerTitle = text || 'Todays Essentials';
-        headerTitleEl.textContent = headerTitle;
-        if (controlTitleInput) {
-            controlTitleInput.value = headerTitle;
-        }
-        localStorage.setItem('supermarket_header_title', headerTitle);
-    });
-    headerTitleEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            headerTitleEl.blur();
-        }
-    });
+    // Set initial values on controls
+    if (controlTitleInput) controlTitleInput.value = headerTitle;
+    if (controlHeaderFontStyleSelect) controlHeaderFontStyleSelect.value = headerFontStyle;
+    if (controlHeaderFontColorSelect) controlHeaderFontColorSelect.value = headerFontColor;
+
+    renderHeaderTitleStyles();
+
+    // Listeners for Sidebar Controls
+    if (controlTitleInput) {
+        controlTitleInput.addEventListener('input', (e) => {
+            headerTitle = e.target.value;
+            localStorage.setItem('supermarket_header_title', headerTitle);
+            renderHeaderTitleStyles();
+        });
+    }
+
+    if (controlHeaderFontStyleSelect) {
+        controlHeaderFontStyleSelect.addEventListener('change', (e) => {
+            headerFontStyle = e.target.value;
+            localStorage.setItem('supermarket_header_font_style', headerFontStyle);
+            renderHeaderTitleStyles();
+        });
+    }
+
+    if (controlHeaderFontColorSelect) {
+        controlHeaderFontColorSelect.addEventListener('change', (e) => {
+            headerFontColor = e.target.value;
+            localStorage.setItem('supermarket_header_font_color', headerFontColor);
+            renderHeaderTitleStyles();
+        });
+    }
+
+    // Header Title Click to Edit Modal
+    if (headerTitleEl) {
+        headerTitleEl.addEventListener('click', () => {
+            if (modalEditTagHeader) {
+                if (modalTagHeaderText) modalTagHeaderText.value = headerTitle;
+                if (modalTagHeaderFontStyle) modalTagHeaderFontStyle.value = headerFontStyle;
+                if (modalTagHeaderFontColor) modalTagHeaderFontColor.value = headerFontColor;
+                modalEditTagHeader.style.display = 'flex';
+            }
+        });
+    }
+
+    if (modalSaveTagHeader) {
+        modalSaveTagHeader.addEventListener('click', () => {
+            if (modalTagHeaderText) headerTitle = modalTagHeaderText.value;
+            if (modalTagHeaderFontStyle) headerFontStyle = modalTagHeaderFontStyle.value;
+            if (modalTagHeaderFontColor) headerFontColor = modalTagHeaderFontColor.value;
+
+            localStorage.setItem('supermarket_header_title', headerTitle);
+            localStorage.setItem('supermarket_header_font_style', headerFontStyle);
+            localStorage.setItem('supermarket_header_font_color', headerFontColor);
+
+            if (controlTitleInput) controlTitleInput.value = headerTitle;
+            if (controlHeaderFontStyleSelect) controlHeaderFontStyleSelect.value = headerFontStyle;
+            if (controlHeaderFontColorSelect) controlHeaderFontColorSelect.value = headerFontColor;
+
+            renderHeaderTitleStyles();
+
+            if (modalEditTagHeader) modalEditTagHeader.style.display = 'none';
+        });
+    }
+
+    if (modalCloseTagHeader) {
+        modalCloseTagHeader.addEventListener('click', () => {
+            if (modalEditTagHeader) modalEditTagHeader.style.display = 'none';
+        });
+    }
+
+    if (modalEditTagHeader) {
+        modalEditTagHeader.addEventListener('click', (e) => {
+            if (e.target === modalEditTagHeader) {
+                modalEditTagHeader.style.display = 'none';
+            }
+        });
+    }
 
     // Footer Editable listener
     if (footerTextDisplay) {
