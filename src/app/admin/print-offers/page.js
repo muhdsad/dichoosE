@@ -237,7 +237,8 @@ export default function PrintOffersPage() {
     const [bannerImage, setBannerImage] = useState(null);
     const [textBannerBgImage, setTextBannerBgImage] = useState(null);
     const [bannerType, setBannerType] = useState('text'); // 'text' | 'image'
-    const [posterTitle, setPosterTitle] = useState('SMILE HYPERMARKET');
+    const [posterTitle, setPosterTitle] = useState('SMILE\nHYPERMARKET');
+    const [headerStyle, setHeaderStyle] = useState('vintage_headline'); // 'vintage_headline' | 'vintage' | 'headline' | 'anton'
     const [posterSubtitle, setPosterSubtitle] = useState('OFFER VALIDITY: 14TH TO 20TH JULY');
     const [logoImage, setLogoImage] = useState(null);
     const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
@@ -651,8 +652,8 @@ export default function PrintOffersPage() {
     // Grid details for Poster
     const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : 2);
     const posterRows = totalRequired / posterCols;
-    // Mathematically split remaining A4 height: A4 = 297mm. Banner = 57mm. Footer = 12mm. Remaining = 228mm.
-    const posterCardHeight = `${228 / posterRows}mm`;
+    // Mathematically split remaining A4 height: A4 = 297mm. Top HR = 4.5mm. Banner = 55mm. Footer = 20mm. Bottom HR = 4.5mm. Remaining Grid = 210mm.
+    const posterCardHeight = `${210 / posterRows}mm`;
 
     const posterLayoutConfigs = {
         '4': {
@@ -867,16 +868,31 @@ export default function PrintOffersPage() {
                             {/* Custom Text Banner Settings */}
                             {bannerType === 'text' && (
                                 <div className="space-y-3">
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-3 gap-2">
                                         <div>
                                             <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Thick Main Header</label>
-                                            <input
-                                                type="text"
+                                            <textarea
+                                                rows={2}
                                                 value={posterTitle}
                                                 onChange={(e) => setPosterTitle(e.target.value)}
-                                                placeholder="e.g. SPECIAL OFFER"
-                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
+                                                placeholder={"e.g.\nSPECIAL OFFER"}
+                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black resize-none"
                                             />
+                                            <p className="text-[9px] text-gray-400 mt-0.5">Use Enter for line breaks.</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Header Font Style</label>
+                                            <select
+                                                value={headerStyle}
+                                                onChange={(e) => setHeaderStyle(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black cursor-pointer"
+                                            >
+                                                <option value="vintage_headline">Line 1 Vintage + Line 2 Headline</option>
+                                                <option value="vintage">Vintage Script (All Lines)</option>
+                                                <option value="headline">Headline Script (All Lines)</option>
+                                                <option value="anton">3D Block Font (Anton)</option>
+                                            </select>
+                                            <p className="text-[9px] text-gray-400 mt-0.5">Custom font combinations.</p>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Offer Duration / Validity</label>
@@ -1189,34 +1205,85 @@ export default function PrintOffersPage() {
                                             {posterSubtitle}
                                         </div>
 
-                                        {/* 3D Styled Title */}
+                                        {/* Header Title with Custom Fonts (Vintage for Line 1, Headline for Line 2) */}
                                         {(() => {
-                                            const words = (posterTitle || '').trim().split(/\s+/);
-                                            const firstWord = words[0] || '';
-                                            const remainingWords = words.slice(1).join(' ');
-                                            if (!firstWord) return null;
+                                            if (!posterTitle) return null;
+                                            const titleLines = posterTitle.includes('\n') 
+                                                ? posterTitle.split('\n').map(l => l.trim()).filter(Boolean)
+                                                : [posterTitle.trim()];
+
+                                            if (titleLines.length === 0) return null;
+
                                             return (
-                                                <div className="flex flex-col items-center justify-center leading-[0.85]">
-                                                    <span 
-                                                        className="font-anton tracking-tight text-[48px] text-[#16a34a] filter drop-shadow-[0_2px_0_#15803d] drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]"
-                                                        style={{ 
-                                                            WebkitTextStroke: '1.5px #ffffff', 
-                                                            paintOrder: 'stroke fill',
-                                                        }}
-                                                    >
-                                                        {firstWord}
-                                                    </span>
-                                                    {remainingWords && (
-                                                        <span 
-                                                            className="font-anton tracking-tight text-[48px] text-[#ea580c] mt-1 filter drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#b45309] drop-shadow-[0_4px_0_#7c2d12]"
-                                                            style={{ 
-                                                                WebkitTextStroke: '1.5px #ffffff', 
-                                                                paintOrder: 'stroke fill',
-                                                            }}
-                                                        >
-                                                            {remainingWords}
-                                                        </span>
-                                                    )}
+                                                <div className="flex flex-col items-center justify-center leading-[0.9] py-1">
+                                                    {titleLines.map((lineText, idx) => {
+                                                        const isFirstLine = idx === 0;
+                                                        const isSecondLine = idx === 1;
+
+                                                        let fontStyleClass = 'font-vintage';
+                                                        let fontFamilyStyle = "'Pacifico', cursive";
+                                                        let textColorClass = 'text-[#16a34a]';
+                                                        let shadowClass = 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
+                                                        let textStroke = '1.2px #ffffff';
+                                                        let fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+
+                                                        if (headerStyle === 'vintage_headline') {
+                                                            if (isSecondLine) {
+                                                                // Headline style: Dancing Script tall handwritten script
+                                                                fontStyleClass = 'font-headline';
+                                                                fontFamilyStyle = "'Dancing Script', cursive";
+                                                                textColorClass = 'text-[#ea580c]';
+                                                                shadowClass = 'drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#7c2d12]';
+                                                                textStroke = '0.8px #ffffff';
+                                                                fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '52px');
+                                                            } else {
+                                                                // Vintage style: Pacifico retro 3D script
+                                                                fontStyleClass = 'font-vintage';
+                                                                fontFamilyStyle = "'Pacifico', cursive";
+                                                                textColorClass = 'text-[#16a34a]';
+                                                                shadowClass = 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
+                                                                textStroke = '1.2px #ffffff';
+                                                                fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                            }
+                                                        } else if (headerStyle === 'vintage') {
+                                                            fontStyleClass = 'font-vintage';
+                                                            fontFamilyStyle = "'Pacifico', cursive";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
+                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                        } else if (headerStyle === 'headline') {
+                                                            fontStyleClass = 'font-headline';
+                                                            fontFamilyStyle = "'Dancing Script', cursive";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_2px_0_#b45309]' : 'drop-shadow-[0_2px_0_#15803d]';
+                                                            textStroke = '0.8px #ffffff';
+                                                            fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '52px');
+                                                        } else {
+                                                            // Anton 3D block
+                                                            fontStyleClass = 'font-anton';
+                                                            fontFamilyStyle = "'Anton', sans-serif";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 
+                                                                ? 'drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#b45309]'
+                                                                : 'drop-shadow-[0_2px_0_#15803d] drop-shadow-[0_3px_0_#15803d]';
+                                                            fontSize = lineText.length > 15 ? '28px' : (lineText.length > 10 ? '36px' : '48px');
+                                                        }
+
+                                                        return (
+                                                            <span 
+                                                                key={idx}
+                                                                className={`${fontStyleClass} tracking-tight text-center ${textColorClass} filter ${shadowClass} ${idx > 0 ? '-mt-1' : ''}`}
+                                                                style={{ 
+                                                                    fontFamily: fontFamilyStyle,
+                                                                    fontSize,
+                                                                    WebkitTextStroke: textStroke, 
+                                                                    paintOrder: 'stroke fill',
+                                                                }}
+                                                            >
+                                                                {lineText}
+                                                            </span>
+                                                        );
+                                                    })}
                                                 </div>
                                             );
                                         })()}

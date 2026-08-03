@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Abel&family=Fira+Sans:wght@300;400;500;600;700&family=Anton&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abel&family=Fira+Sans:wght@300;400;500;600;700&family=Anton&family=Pacifico&family=Dancing+Script:wght@600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,6 +10,8 @@
   --font-sans: "Fira Sans", sans-serif;
   --font-abel: "Abel", sans-serif;
   --font-anton: "Anton", sans-serif;
+  --font-vintage: "Pacifico", cursive;
+  --font-headline: "Dancing Script", cursive;
 }
 
 :root {
