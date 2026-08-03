@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../../../lib/firebase';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { getDirectDriveLink } from '../../../utils/productUtils';
-import { FaImage, FaTrash, FaCheck, FaTimes, FaUndo, FaSearch, FaPencilAlt } from 'react-icons/fa';
+import { FaImage, FaTrash, FaCheck, FaTimes, FaUndo, FaSearch, FaPencilAlt, FaBookmark, FaSave } from 'react-icons/fa';
 
 const getProxiedImageUrl = (url) => {
     if (!url) return '/categories/default.png';
@@ -246,6 +246,12 @@ export default function PrintOffersPage() {
     const [decorImage, setDecorImage] = useState(null);
     const [showProductImages, setShowProductImages] = useState(true);
 
+    // Saved Selections States
+    const [savedSelections, setSavedSelections] = useState([]);
+    const [activePresetId, setActivePresetId] = useState('');
+    const [savingPresetModal, setSavingPresetModal] = useState(false);
+    const [presetNameInput, setPresetNameInput] = useState('');
+
     // Quick Edit Modal States
     const [editingHeaderModal, setEditingHeaderModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -387,6 +393,14 @@ export default function PrintOffersPage() {
             if (savedLogoLocation) {
                 setLogoLocationText(savedLogoLocation);
             }
+            const savedPresetList = localStorage.getItem('dichoose_poster_saved_selections');
+            if (savedPresetList) {
+                try {
+                    setSavedSelections(JSON.parse(savedPresetList));
+                } catch (e) {
+                    console.error('Failed to parse saved selections:', e);
+                }
+            }
         }
     }, []);
 
@@ -435,6 +449,69 @@ export default function PrintOffersPage() {
     const handleResetToDefaultDecor = () => {
         setDecorImage(null);
         localStorage.removeItem('dichoose_poster_decor');
+    };
+
+    // Saved Selections Handlers
+    const handleOpenSaveModal = () => {
+        if (selectedProductIds.size === 0) {
+            alert('Please select at least one product before saving a selection.');
+            return;
+        }
+        const defaultName = `selection_${savedSelections.length + 1}`;
+        setPresetNameInput(defaultName);
+        setSavingPresetModal(true);
+    };
+
+    const handleSaveCurrentSelection = (e) => {
+        e.preventDefault();
+        const finalName = presetNameInput.trim() || `selection_${savedSelections.length + 1}`;
+        
+        const newPreset = {
+            id: `sel_${Date.now()}`,
+            name: finalName,
+            mode: printMode,
+            posterLayout,
+            productIds: Array.from(selectedProductIds),
+            createdAt: new Date().toISOString()
+        };
+
+        const updated = [newPreset, ...savedSelections];
+        setSavedSelections(updated);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dichoose_poster_saved_selections', JSON.stringify(updated));
+        }
+        setActivePresetId(newPreset.id);
+        setSavingPresetModal(false);
+    };
+
+    const handleSelectPreset = (presetId) => {
+        setActivePresetId(presetId);
+        if (!presetId) return;
+
+        const preset = savedSelections.find(s => s.id === presetId);
+        if (preset) {
+            if (preset.mode && (preset.mode === 'poster' || preset.mode === 'normal_poster')) {
+                setPrintMode(preset.mode);
+            }
+            if (preset.posterLayout) {
+                setPosterLayout(preset.posterLayout);
+            }
+            setSelectedProductIds(new Set(preset.productIds || []));
+        }
+    };
+
+    const handleDeletePreset = (e, presetId) => {
+        e.stopPropagation();
+        if (!confirm('Are you sure you want to delete this saved selection?')) return;
+
+        const updated = savedSelections.filter(s => s.id !== presetId);
+        setSavedSelections(updated);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('dichoose_poster_saved_selections', JSON.stringify(updated));
+        }
+        if (activePresetId === presetId) {
+            setActivePresetId('');
+        }
     };
 
     useEffect(() => {
@@ -1072,7 +1149,50 @@ export default function PrintOffersPage() {
                         </div>
 
                         {/* Product Picker Horizontal List */}
-                        <div className="space-y-2">
+                        <div className="space-y-3">
+                            {/* Saved Selections Bar */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-xl">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-extrabold uppercase text-emerald-900 flex items-center gap-1.5">
+                                        <FaBookmark className="text-emerald-600 text-xs" /> Saved Selections:
+                                    </span>
+                                    <select
+                                        value={activePresetId}
+                                        onChange={(e) => handleSelectPreset(e.target.value)}
+                                        className="bg-white border border-emerald-300 text-gray-800 text-xs font-bold rounded-lg px-2.5 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-sm"
+                                    >
+                                        <option value="">-- Load Saved Selection --</option>
+                                        {savedSelections.map((sel) => (
+                                            <option key={sel.id} value={sel.id}>
+                                                {sel.name} ({sel.productIds.length} items{sel.posterLayout ? `, ${sel.posterLayout}-Grid` : ''})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    
+                                    {activePresetId && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleDeletePreset(e, activePresetId)}
+                                            className="text-[11px] bg-red-100 hover:bg-red-200 text-red-700 font-bold px-2 py-1 rounded-md transition flex items-center gap-1 cursor-pointer"
+                                            title="Delete active selection preset"
+                                        >
+                                            <FaTrash className="w-2.5 h-2.5" /> Delete Preset
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleOpenSaveModal}
+                                        disabled={selectedProductIds.size === 0}
+                                        className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                                    >
+                                        <FaSave className="text-xs" /> Save Selection ({selectedProductIds.size})
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs font-extrabold uppercase text-gray-500 tracking-wider">
@@ -2153,6 +2273,60 @@ export default function PrintOffersPage() {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Save Selection Preset Modal */}
+            {savingPresetModal && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl p-5 max-w-sm w-full shadow-2xl border border-gray-150 space-y-4 animate-in fade-in zoom-in duration-150">
+                        <div className="flex justify-between items-center border-b pb-2">
+                            <h3 className="text-base font-extrabold text-gray-900 flex items-center gap-2">
+                                <FaBookmark className="text-emerald-600" /> Save Selection Preset
+                            </h3>
+                            <button
+                                onClick={() => setSavingPresetModal(false)}
+                                className="text-gray-400 hover:text-gray-600 text-sm cursor-pointer"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+                        
+                        <form onSubmit={handleSaveCurrentSelection} className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">
+                                    Selection Preset Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={presetNameInput}
+                                    onChange={(e) => setPresetNameInput(e.target.value)}
+                                    placeholder="e.g. selection_1, selection_2..."
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    autoFocus
+                                />
+                                <p className="text-[11px] text-gray-500 mt-1.5">
+                                    Saves {selectedProductIds.size} selected items in {printMode === 'normal_poster' ? 'Normal Price Poster' : 'Promotional Offer Poster'} mode ({posterLayout}-Grid layout).
+                                </p>
+                            </div>
+
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setSavingPresetModal(false)}
+                                    className="px-3 py-1.5 rounded-lg border border-gray-300 text-xs font-bold text-gray-600 hover:bg-gray-100 cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md cursor-pointer"
+                                >
+                                    Save Preset
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             )}
