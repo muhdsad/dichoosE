@@ -101,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let headerTitle = localStorage.getItem('supermarket_header_title') || 'Todays Essentials';
     let headerFontStyle = localStorage.getItem('supermarket_header_font_style') || 'vintage_headline';
     let headerFontColor = localStorage.getItem('supermarket_header_font_color') || 'brand';
+    let headerDecorImage = localStorage.getItem('supermarket_header_decor_image') || null;
     let footerText = localStorage.getItem('supermarket_footer_text') || 'Smile Hypermarket, SA ARCADE,KAKKKAD,8282893434,Purchase above RS 800 within 5km, Order Before 11 AM';
     let selectedDate = localStorage.getItem('supermarket_selected_date') || getTodayDateString();
     let selectedEndDate = localStorage.getItem('supermarket_selected_end_date') || '';
@@ -172,6 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTagHeaderFontStyle = document.getElementById('modal-tag-header-font-style');
     const modalTagHeaderFontColor = document.getElementById('modal-tag-header-font-color');
     const modalSaveTagHeader = document.getElementById('modal-save-tag-header');
+    const headerDecorTrigger = document.getElementById('header-decor-trigger');
+    const headerDecorImg = document.getElementById('header-decor-img');
+    const hiddenDecorInput = document.getElementById('hidden-decor-input');
+    const decorUploadBtn = document.getElementById('decor-upload-btn');
+    const decorResetBtn = document.getElementById('decor-reset-btn');
+    const decorRemoveBtn = document.getElementById('decor-remove-btn');
     let showProductImages = true;
 
     if (toggleProductImagesCheckbox) {
@@ -978,6 +985,67 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target === modalEditTagHeader) {
                 modalEditTagHeader.style.display = 'none';
             }
+        });
+    }
+
+    // --- Header Center Decor (Mixed Veg & Fruit) ---
+    function renderHeaderDecor() {
+        if (!headerDecorImg) return;
+        if (headerDecorImage === 'none') {
+            headerDecorImg.style.display = 'none';
+        } else if (headerDecorImage) {
+            headerDecorImg.src = headerDecorImage;
+            headerDecorImg.style.display = 'block';
+        } else {
+            headerDecorImg.src = 'images/fruit_basket.png';
+            headerDecorImg.style.display = 'block';
+        }
+    }
+
+    renderHeaderDecor();
+
+    if (headerDecorTrigger) {
+        headerDecorTrigger.addEventListener('click', (e) => {
+            if (e.target !== hiddenDecorInput && hiddenDecorInput) {
+                hiddenDecorInput.click();
+            }
+        });
+    }
+
+    if (decorUploadBtn) {
+        decorUploadBtn.addEventListener('click', () => {
+            if (hiddenDecorInput) hiddenDecorInput.click();
+        });
+    }
+
+    if (hiddenDecorInput) {
+        hiddenDecorInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    headerDecorImage = evt.target.result;
+                    localStorage.setItem('supermarket_header_decor_image', headerDecorImage);
+                    renderHeaderDecor();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (decorRemoveBtn) {
+        decorRemoveBtn.addEventListener('click', () => {
+            headerDecorImage = 'none';
+            localStorage.setItem('supermarket_header_decor_image', 'none');
+            renderHeaderDecor();
+        });
+    }
+
+    if (decorResetBtn) {
+        decorResetBtn.addEventListener('click', () => {
+            headerDecorImage = null;
+            localStorage.removeItem('supermarket_header_decor_image');
+            renderHeaderDecor();
         });
     }
 

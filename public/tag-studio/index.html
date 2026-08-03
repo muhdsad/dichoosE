@@ -34,7 +34,7 @@
                 </div>
                 <div class="header-section" id="header-section">
                     <!-- Option 1: Default Text & Logo Header -->
-                    <div class="header-default-content" id="header-default-content">
+                    <div class="header-default-content" id="header-default-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%; position: relative;">
                         <div class="header-left">
                             <!-- Date Pill -->
                             <div class="date-pill" id="date-pill-trigger" title="Click to change date">
@@ -42,8 +42,15 @@
                                 <span class="date-text" id="header-date">24/04/2026</span>
                             </div>
                             <!-- Title (editable) -->
-                            <h1 class="header-title" id="header-title" contenteditable="true" spellcheck="false" title="Click to edit title">Todays Essentials</h1>
+                            <h1 class="header-title" id="header-title" spellcheck="false" title="Click to edit title">Todays Essentials</h1>
                         </div>
+
+                        <!-- Center Mixed Veg & Fruit Image (Click to Change) -->
+                        <div class="header-center-decor" id="header-decor-trigger" style="display: flex; align-items: center; justify-content: center; height: 100%; max-height: 48mm; cursor: pointer; flex: 1; margin: 0 10px;" title="Click to upload or change mixed veg & fruit center graphic">
+                            <img id="header-decor-img" src="images/fruit_basket.png" alt="Mixed Vegetables & Fruits" style="height: 100%; max-height: 46mm; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); transition: transform 0.2s;">
+                            <input type="file" id="hidden-decor-input" accept="image/*" style="display: none;">
+                        </div>
+
                         <div class="header-right">
                             <!-- Logo -->
                             <div class="logo-container" id="header-logo-trigger" title="Click to upload custom logo">
@@ -168,6 +175,15 @@
                             <option value="blue_indigo">Deep Blue & Indigo</option>
                             <option value="solid_red">Solid Crimson Red</option>
                         </select>
+                    </div>
+                <div class="sidebar-section" id="section-center-decor">
+                    <h3>Header Center Image (Veg & Fruit)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; gap: 6px;">
+                            <button id="decor-upload-btn" class="btn btn-secondary-outline" style="flex: 1; padding: 6px 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">📷 Change Image</button>
+                            <button id="decor-reset-btn" class="btn btn-secondary-outline" style="padding: 6px 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer;" title="Reset to Default Fruit Basket">🔄 Reset</button>
+                        </div>
+                        <button id="decor-remove-btn" class="btn btn-danger-outline" style="width: 100%; padding: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">🗑️ Hide Center Image</button>
                     </div>
                 </div>
 
