@@ -249,6 +249,8 @@ export default function PrintOffersPage() {
     // Quick Edit Modal States
     const [editingHeaderModal, setEditingHeaderModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [editName, setEditName] = useState('');
+    const [editUnit, setEditUnit] = useState('');
     const [editMrp, setEditMrp] = useState('');
     const [editPrice, setEditPrice] = useState('');
     const [editOfferPrice, setEditOfferPrice] = useState('');
@@ -261,6 +263,8 @@ export default function PrintOffersPage() {
         if (!product || product.isPlaceholder) return;
         e.stopPropagation();
         setEditingProduct(product);
+        setEditName(product.name || '');
+        setEditUnit(product.unit || '1 KG');
         setEditMrp(product.mrp !== undefined && product.mrp !== null ? String(product.mrp) : '');
         setEditPrice(product.price !== undefined && product.price !== null ? String(product.price) : '');
         setEditOfferPrice(product.offerPrice !== undefined && product.offerPrice !== null ? String(product.offerPrice) : '');
@@ -288,6 +292,8 @@ export default function PrintOffersPage() {
     const handleSavePriceEdit = async () => {
         if (!editingProduct) return;
 
+        const newName = editName.trim() || editingProduct.name;
+        const newUnit = editUnit.trim() || '1 KG';
         const newMrp = editMrp !== '' ? parseFloat(editMrp) : '';
         const newPrice = editPrice !== '' ? parseFloat(editPrice) : '';
         const newOfferPrice = editOfferPrice !== '' ? parseFloat(editOfferPrice) : '';
@@ -299,6 +305,8 @@ export default function PrintOffersPage() {
                 if (p.id === editingProduct.id) {
                     return {
                         ...p,
+                        name: newName,
+                        unit: newUnit,
                         mrp: newMrp,
                         price: newPrice,
                         offerPrice: newOfferPrice,
@@ -314,6 +322,8 @@ export default function PrintOffersPage() {
             if (saveToDb && editingProduct.id && !editingProduct.id.startsWith('placeholder')) {
                 const productRef = doc(db, "products", editingProduct.id);
                 const updateData = {};
+                if (newName) updateData.name = newName;
+                if (newUnit) updateData.unit = newUnit;
                 if (newMrp !== '') updateData.mrp = newMrp;
                 if (newPrice !== '') updateData.price = newPrice;
                 if (newOfferPrice !== '') updateData.offerPrice = newOfferPrice;
@@ -1502,7 +1512,7 @@ export default function PrintOffersPage() {
                                                     </div>
                                                 )}
 
-                                                {/* Red circular price badge overlapping the image */}
+                                                {/* Red circular price badge overlapping the image (Click to edit price) */}
                                                 {(() => {
                                                     const { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset } = getPosterBadgeStyle(posterLayout);
                                                     const priceVal = sellingPrice;
@@ -1512,7 +1522,8 @@ export default function PrintOffersPage() {
 
                                                     return (
                                                         <div 
-                                                            className="absolute z-[15] rounded-full bg-[#e11b22] text-white flex items-center justify-center font-anton border-2 border-white shadow-[0_4px_6px_rgba(0,0,0,0.15)] select-none"
+                                                            onClick={(e) => handleOpenEditModal(e, product)}
+                                                            className="absolute z-[15] rounded-full bg-[#e11b22] text-white flex items-center justify-center font-anton border-2 border-white shadow-[0_4px_6px_rgba(0,0,0,0.15)] select-none cursor-pointer hover:scale-105 transition-transform"
                                                             style={{
                                                                 width: `${size}px`,
                                                                 height: `${size}px`,
@@ -1520,6 +1531,7 @@ export default function PrintOffersPage() {
                                                                 top: topOffset,
                                                                 transform: 'translateY(-20%)',
                                                             }}
+                                                            title="Click price badge to edit Price & MRP"
                                                         >
                                                             <div className="relative w-full h-full flex items-center justify-center">
                                                                 {/* Rupee Symbol */}
@@ -1564,12 +1576,14 @@ export default function PrintOffersPage() {
                                                     );
                                                 })()}
 
-                                                {/* Card Details Block */}
+                                                {/* Card Details Block (Click title or unit to edit) */}
                                                 <div 
-                                                    className="absolute bottom-2 left-0 right-0 z-[10] px-2 text-center"
+                                                    onClick={(e) => handleOpenEditModal(e, product)}
+                                                    className="absolute bottom-2 left-0 right-0 z-[10] px-2 text-center cursor-pointer group/title"
+                                                    title="Click title to edit Product Name, Unit & Details"
                                                 >
                                                     <h2 
-                                                        className="font-extrabold tracking-tight text-black leading-none text-center" 
+                                                        className="font-extrabold tracking-tight text-black leading-none text-center group-hover/title:text-indigo-700 transition-colors" 
                                                         style={{ 
                                                             ...getPosterDynamicTitleStyle(product.name, posterLayout),
                                                             fontFamily: 'var(--font-sans), sans-serif'
@@ -1963,7 +1977,31 @@ export default function PrintOffersPage() {
                             </button>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
+                            {/* Edit Product Title / Name */}
+                            <div>
+                                <label className="block text-xs font-extrabold uppercase text-gray-600 mb-1">Product Title / Name</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    placeholder="Enter product title..."
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white"
+                                />
+                            </div>
+
+                            {/* Edit Product Unit */}
+                            <div>
+                                <label className="block text-xs font-extrabold uppercase text-gray-600 mb-1">Product Unit</label>
+                                <input
+                                    type="text"
+                                    value={editUnit}
+                                    onChange={(e) => setEditUnit(e.target.value)}
+                                    placeholder="e.g. 1 KG, 500 GM, 1 PC"
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white"
+                                />
+                            </div>
+
                             {/* Edit Product Image Section */}
                             <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 space-y-2.5">
                                 <div className="flex items-center justify-between">
