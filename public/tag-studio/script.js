@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let headerFontStyle = localStorage.getItem('supermarket_header_font_style') || 'vintage_headline';
     let headerFontColor = localStorage.getItem('supermarket_header_font_color') || 'brand';
     let headerDecorImage = localStorage.getItem('supermarket_header_decor_image') || null;
-    let footerText = localStorage.getItem('supermarket_footer_text') || 'Smile Hypermarket, SA ARCADE,KAKKKAD,8282893434,Purchase above RS 800 within 5km, Order Before 11 AM';
+    const NORMAL_POSTER_DEFAULT_FOOTER = '*T&C Apply. Purchase limit may apply. Bulk purchase not allowed for promotional items. Offer valid while stock lasts.\nFREE HOME DELIVERY (Order Before 11 am) | PURCHASE ABOVE 800 with in 5 km | SK arcade, Kakkad 82828 93434';
+    let footerText = localStorage.getItem('supermarket_footer_text') || NORMAL_POSTER_DEFAULT_FOOTER;
     let selectedDate = localStorage.getItem('supermarket_selected_date') || getTodayDateString();
     let selectedEndDate = localStorage.getItem('supermarket_selected_end_date') || '';
     let customLogo = localStorage.getItem('supermarket_custom_logo') || null;
@@ -1050,19 +1051,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Footer Editable listener
-    if (footerTextDisplay) {
-        footerTextDisplay.textContent = footerText;
-    }
-    if (controlFooterInput) {
-        controlFooterInput.value = footerText;
+    function renderFormattedFooter() {
+        if (!footerTextDisplay) return;
+        const rawText = footerText || NORMAL_POSTER_DEFAULT_FOOTER;
+
+        if (rawText.includes('*T&C') || rawText.includes('FREE HOME DELIVERY') || rawText.includes('SK arcade') || rawText.includes('82828')) {
+            let tcText = '*T&C Apply. Purchase limit may apply. Bulk purchase not allowed for promotional items. Offer valid while stock lasts.';
+            if (rawText.includes('\n')) {
+                const lines = rawText.split('\n');
+                tcText = lines[0];
+            }
+
+            footerTextDisplay.innerHTML = `
+                <div class="footer-tc">${tcText}</div>
+                <div class="footer-main-bar">
+                    <div>FREE HOME DELIVERY <span class="footer-sub">(Order Before 11 am)</span></div>
+                    <div>PURCHASE ABOVE 800 <span class="footer-sub">with in 5 km</span></div>
+                    <div>SK arcade, Kakkad <span style="color:#ffffff; font-weight:bold; margin-left:2px;">82828 93434</span></div>
+                </div>
+            `;
+        } else {
+            footerTextDisplay.innerHTML = `<div style="color:#fde047; font-weight:900; font-size:11px; text-transform:uppercase;">${rawText}</div>`;
+        }
     }
 
+    renderFormattedFooter();
+
     if (controlFooterInput) {
+        controlFooterInput.value = footerText;
         controlFooterInput.addEventListener('input', (e) => {
             footerText = e.target.value;
-            if (footerTextDisplay) {
-                footerTextDisplay.textContent = footerText;
-            }
+            renderFormattedFooter();
             localStorage.setItem('supermarket_footer_text', footerText);
         });
     }
@@ -1070,8 +1089,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (footerTextDisplay) {
         footerTextDisplay.addEventListener('blur', () => {
             const text = footerTextDisplay.textContent.trim();
-            footerText = text || 'Smile Hypermarket SA ARCADE KAKKKAD Purchase above RS 800 within 5km, Order Before 11 AM';
-            footerTextDisplay.textContent = footerText;
+            footerText = text || NORMAL_POSTER_DEFAULT_FOOTER;
+            renderFormattedFooter();
             if (controlFooterInput) {
                 controlFooterInput.value = footerText;
             }
