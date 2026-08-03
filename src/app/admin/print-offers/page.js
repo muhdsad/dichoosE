@@ -1569,13 +1569,13 @@ export default function PrintOffersPage() {
                                                     className="absolute bottom-2 left-0 right-0 z-[10] px-2 text-center"
                                                 >
                                                     <h2 
-                                                        className="font-extrabold uppercase tracking-tight text-black leading-none text-center" 
+                                                        className="font-extrabold tracking-tight text-black leading-none text-center" 
                                                         style={{ 
                                                             ...getPosterDynamicTitleStyle(product.name, posterLayout),
                                                             fontFamily: 'var(--font-sans), sans-serif'
                                                         }}
                                                     >
-                                                        {product.name.toUpperCase()}
+                                                        {product.name}
                                                     </h2>
                                                     {product.unit && (
                                                         <div 
@@ -1763,8 +1763,8 @@ export default function PrintOffersPage() {
                                                                         {product.brand}
                                                                     </span>
                                                                 )}
-                                                                <h2 className="font-black leading-tight tracking-tight uppercase text-center" style={getDynamicTitleStyle(product.name, layout === 'landscape')}>
-                                                                    {product.name.toUpperCase()}
+                                                                <h2 className="font-black leading-tight tracking-tight text-center" style={getDynamicTitleStyle(product.name, layout === 'landscape')}>
+                                                                    {product.name}
                                                                 </h2>
                                                                 <div className="font-bold mt-1" style={{ fontSize: layout === 'landscape' ? '11px' : '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                                     {product.unit || '1 KG'}

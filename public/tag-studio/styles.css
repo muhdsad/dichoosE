@@ -208,7 +208,7 @@ body {
     cursor: text;
     transition: background-color 0.2s, border-color 0.2s;
     outline: none;
-    text-transform: capitalize;
+    text-transform: none;
 }
 
 .header-title:hover {
