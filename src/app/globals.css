@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Abel&family=Fira+Sans:wght@300;400;500;600;700&family=Anton&family=Pacifico&family=Dancing+Script:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abel&family=Fira+Sans:wght@300;400;500;600;700&family=Anton&family=Pacifico&family=Dancing+Script:wght@600;700&family=Montserrat:wght@800;900&family=Bebas+Neue&family=Righteous&family=Poppins:wght@800;900&family=Oswald:wght@700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -12,6 +12,11 @@
   --font-anton: "Anton", sans-serif;
   --font-vintage: "Pacifico", cursive;
   --font-headline: "Dancing Script", cursive;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-righteous: "Righteous", cursive;
+  --font-poppins: "Poppins", sans-serif;
+  --font-oswald: "Oswald", sans-serif;
 }
 
 :root {

@@ -889,8 +889,13 @@ export default function PrintOffersPage() {
                                                 className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black cursor-pointer"
                                             >
                                                 <option value="vintage_headline">Line 1 Vintage + Line 2 Headline</option>
-                                                <option value="vintage">Vintage Script (All Lines)</option>
-                                                <option value="headline">Headline Script (All Lines)</option>
+                                                <option value="modern_montserrat">Modern Ultra-Bold (Montserrat)</option>
+                                                <option value="modern_bebas">Modern Tall Headline (Bebas Neue)</option>
+                                                <option value="modern_righteous">Modern Geometric (Righteous)</option>
+                                                <option value="modern_poppins">Modern Heavy (Poppins)</option>
+                                                <option value="modern_oswald">Modern Clean Condensed (Oswald)</option>
+                                                <option value="vintage">Vintage Script (Pacifico)</option>
+                                                <option value="headline">Headline Script (Dancing Script)</option>
                                                 <option value="anton">3D Block Font (Anton)</option>
                                             </select>
                                             <p className="text-[9px] text-gray-400 mt-0.5">Custom font combinations.</p>
@@ -1254,6 +1259,41 @@ export default function PrintOffersPage() {
                                                                 textStroke = '1.2px #ffffff';
                                                                 fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
                                                             }
+                                                        } else if (headerStyle === 'modern_montserrat') {
+                                                            fontStyleClass = 'font-montserrat font-black uppercase';
+                                                            fontFamilyStyle = "'Montserrat', sans-serif";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
+                                                            textStroke = '1.5px #ffffff';
+                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                        } else if (headerStyle === 'modern_bebas') {
+                                                            fontStyleClass = 'font-bebas uppercase tracking-wider';
+                                                            fontFamilyStyle = "'Bebas Neue', sans-serif";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
+                                                            textStroke = '1px #ffffff';
+                                                            fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '54px');
+                                                        } else if (headerStyle === 'modern_righteous') {
+                                                            fontStyleClass = 'font-righteous uppercase';
+                                                            fontFamilyStyle = "'Righteous', cursive";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
+                                                            textStroke = '1.2px #ffffff';
+                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                        } else if (headerStyle === 'modern_poppins') {
+                                                            fontStyleClass = 'font-poppins font-black uppercase';
+                                                            fontFamilyStyle = "'Poppins', sans-serif";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
+                                                            textStroke = '1.2px #ffffff';
+                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                        } else if (headerStyle === 'modern_oswald') {
+                                                            fontStyleClass = 'font-oswald font-bold uppercase tracking-wide';
+                                                            fontFamilyStyle = "'Oswald', sans-serif";
+                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
+                                                            textStroke = '1px #ffffff';
+                                                            fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
                                                         } else if (headerStyle === 'vintage') {
                                                             fontStyleClass = 'font-vintage';
                                                             fontFamilyStyle = "'Pacifico', cursive";
@@ -1809,8 +1849,13 @@ export default function PrintOffersPage() {
                                     className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black cursor-pointer"
                                 >
                                     <option value="vintage_headline">Line 1 Vintage + Line 2 Headline</option>
-                                    <option value="vintage">Vintage Script (All Lines)</option>
-                                    <option value="headline">Headline Script (All Lines)</option>
+                                    <option value="modern_montserrat">Modern Ultra-Bold (Montserrat)</option>
+                                    <option value="modern_bebas">Modern Tall Headline (Bebas Neue)</option>
+                                    <option value="modern_righteous">Modern Geometric (Righteous)</option>
+                                    <option value="modern_poppins">Modern Heavy (Poppins)</option>
+                                    <option value="modern_oswald">Modern Clean Condensed (Oswald)</option>
+                                    <option value="vintage">Vintage Script (Pacifico)</option>
+                                    <option value="headline">Headline Script (Dancing Script)</option>
                                     <option value="anton">3D Block Font (Anton)</option>
                                 </select>
                             </div>
