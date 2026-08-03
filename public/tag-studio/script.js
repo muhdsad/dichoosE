@@ -2434,12 +2434,20 @@ document.addEventListener('DOMContentLoaded', () => {
             syncGdriveBtn.disabled = true;
 
             try {
-                let data = null;
+                let driveFilesList = [];
                 if (apiKey) {
-                    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,webContentLink,thumbnailLink)&key=${apiKey}`;
-                    const resp = await fetch(url);
-                    data = await resp.json();
-                    if (data.error) throw new Error(data.error.message);
+                    let pageToken = '';
+                    do {
+                        let url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&pageSize=1000&fields=nextPageToken,files(id,name,mimeType,webContentLink,thumbnailLink)&key=${apiKey}`;
+                        if (pageToken) url += `&pageToken=${pageToken}`;
+                        const resp = await fetch(url);
+                        const data = await resp.json();
+                        if (data.error) throw new Error(data.error.message);
+                        if (data.files && data.files.length > 0) {
+                            driveFilesList.push(...data.files);
+                        }
+                        pageToken = data.nextPageToken || '';
+                    } while (pageToken);
                 } else {
                     // Try fetching public embedded folder view without API key
                     try {
@@ -2447,17 +2455,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const resp = await fetch(embedUrl);
                         const htmlText = await resp.text();
                         
-                        const driveFiles = [];
                         // Match file IDs and image filenames from public drive HTML
                         const fileRegex = /["']([a-zA-Z0-9_-]{25,50})["'],\s*["']([^"']+\.(?:jpg|jpeg|png|webp|gif|svg))["']/gi;
                         let match;
                         while ((match = fileRegex.exec(htmlText)) !== null) {
-                            driveFiles.push({ id: match[1], name: match[2] });
+                            driveFilesList.push({ id: match[1], name: match[2] });
                         }
 
-                        if (driveFiles.length > 0) {
-                            data = { files: driveFiles };
-                        } else {
+                        if (driveFilesList.length === 0) {
                             throw new Error("Method doesn't allow unregistered callers. API Key required for direct Google API.");
                         }
                     } catch (scrapeErr) {
@@ -2465,7 +2470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                if (!data || !data.files || data.files.length === 0) {
+                if (!driveFilesList || driveFilesList.length === 0) {
                     if (gdriveStatusMsg) {
                         gdriveStatusMsg.style.color = '#ef4444';
                         gdriveStatusMsg.textContent = 'No image files found in the specified Google Drive folder.';
@@ -2474,32 +2479,77 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Map files by title
-                const driveMap = {};
-                data.files.forEach(file => {
-                    const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
-                    if (titleWithoutExt) {
-                        driveMap[titleWithoutExt] = `https://lh3.googleusercontent.com/d/${file.id}`;
-                    }
-                });
+                // Smart Multi-Tier Drive Image Matcher
+                function findMatchingDriveFile(productName, driveFiles) {
+                    if (!productName || !driveFiles || driveFiles.length === 0) return null;
 
-                let matchedCount = 0;
+                    const normProduct = productName.trim().toUpperCase();
+                    const cleanProduct = normProduct.replace(/[^A-Z0-9\s]/g, '').trim();
+                    if (!cleanProduct) return null;
+
+                    const productWords = cleanProduct.split(/\s+/).filter(w => w.length > 1);
+
+                    // 1. Exact match
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        if (fileBase === normProduct) return file;
+                    }
+
+                    // 2. Cleaned alphanumeric match (ignoring spaces, dashes, underscores)
+                    const alphaProduct = cleanProduct.replace(/\s+/g, '');
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        const alphaFile = fileBase.replace(/[^A-Z0-9]/g, '');
+                        if (alphaFile && alphaFile === alphaProduct) return file;
+                    }
+
+                    // 3. Substring match
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        const cleanFile = fileBase.replace(/[^A-Z0-9\s]/g, '').trim();
+                        if (cleanFile.length >= 3 && (cleanProduct.includes(cleanFile) || cleanFile.includes(cleanProduct))) {
+                            return file;
+                        }
+                    }
+
+                    // 4. Significant word overlap match
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        const cleanFile = fileBase.replace(/[^A-Z0-9\s]/g, '').trim();
+                        const fileWords = cleanFile.split(/\s+/).filter(w => w.length > 2);
+
+                        for (let pw of productWords) {
+                            if (pw.length >= 3 && fileWords.includes(pw)) {
+                                return file;
+                            }
+                        }
+                    }
+
+                    return null;
+                }
+
+                let matchedDbCount = 0;
+                let matchedPosterCount = 0;
+
                 importedProducts.forEach(p => {
-                    const normName = (p.name || '').trim().toUpperCase();
-                    if (normName && driveMap[normName]) {
-                        p.image = driveMap[normName];
-                        matchedCount++;
+                    const matchedFile = findMatchingDriveFile(p.name, driveFilesList);
+                    if (matchedFile) {
+                        p.image = `https://lh3.googleusercontent.com/d/${matchedFile.id}`;
+                        matchedDbCount++;
                     }
                 });
 
                 items.forEach(item => {
-                    const normName = (item.name || '').trim().toUpperCase();
-                    if (normName && driveMap[normName]) {
-                        item.image = driveMap[normName];
+                    const matchedFile = findMatchingDriveFile(item.name, driveFilesList);
+                    if (matchedFile) {
+                        item.image = `https://lh3.googleusercontent.com/d/${matchedFile.id}`;
+                        matchedPosterCount++;
                     }
                 });
 
-                if (matchedCount > 0) {
+                const totalMatched = Math.max(matchedDbCount, matchedPosterCount);
+
+                if (totalMatched > 0) {
                     localStorage.setItem('supermarket_imported_products', JSON.stringify(importedProducts));
                     saveItems();
                     renderProductDatabase();
@@ -2507,13 +2557,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (gdriveStatusMsg) {
                         gdriveStatusMsg.style.color = '#16a34a';
-                        gdriveStatusMsg.textContent = `🎉 Success! Matched ${matchedCount} product images from Google Drive!`;
+                        gdriveStatusMsg.textContent = `🎉 Success! Matched ${matchedDbCount} DB entries & ${matchedPosterCount} poster tags from ${driveFilesList.length} Google Drive files!`;
                     }
                     setTimeout(() => closeGdriveModal(), 1800);
                 } else {
                     if (gdriveStatusMsg) {
                         gdriveStatusMsg.style.color = '#eab308';
-                        gdriveStatusMsg.textContent = `Found ${data.files.length} Drive files, but none matched your product names. Ensure Drive filenames match product titles.`;
+                        gdriveStatusMsg.textContent = `Found ${driveFilesList.length} Drive files, but none matched your product names. Ensure Drive filenames match product titles.`;
                     }
                 }
             } catch (err) {
