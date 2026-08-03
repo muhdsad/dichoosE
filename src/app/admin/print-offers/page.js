@@ -238,7 +238,8 @@ export default function PrintOffersPage() {
     const [textBannerBgImage, setTextBannerBgImage] = useState(null);
     const [bannerType, setBannerType] = useState('text'); // 'text' | 'image'
     const [posterTitle, setPosterTitle] = useState('SMILE\nHYPERMARKET');
-    const [headerStyle, setHeaderStyle] = useState('vintage_headline'); // 'vintage_headline' | 'vintage' | 'headline' | 'anton'
+    const [headerStyle, setHeaderStyle] = useState('vintage_headline');
+    const [headerColorTheme, setHeaderColorTheme] = useState('brand'); // 'brand' | 'black_white' | 'solid_black' | 'solid_white' | 'black_gold' | 'red_yellow' | 'blue_indigo' | 'solid_red'
     const [posterSubtitle, setPosterSubtitle] = useState('OFFER VALIDITY: 14TH TO 20TH JULY');
     const [logoImage, setLogoImage] = useState(null);
     const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
@@ -869,7 +870,7 @@ export default function PrintOffersPage() {
                             {/* Custom Text Banner Settings */}
                             {bannerType === 'text' && (
                                 <div className="space-y-3">
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-4 gap-2">
                                         <div>
                                             <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Thick Main Header</label>
                                             <textarea
@@ -898,7 +899,25 @@ export default function PrintOffersPage() {
                                                 <option value="headline">Headline Script (Dancing Script)</option>
                                                 <option value="anton">3D Block Font (Anton)</option>
                                             </select>
-                                            <p className="text-[9px] text-gray-400 mt-0.5">Custom font combinations.</p>
+                                            <p className="text-[9px] text-gray-400 mt-0.5">Font style family.</p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Header Font Colors</label>
+                                            <select
+                                                value={headerColorTheme}
+                                                onChange={(e) => setHeaderColorTheme(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black cursor-pointer"
+                                            >
+                                                <option value="brand">Brand (Green & Orange)</option>
+                                                <option value="black_white">Black & White (Contrast)</option>
+                                                <option value="solid_black">Solid Black</option>
+                                                <option value="solid_white">Solid White</option>
+                                                <option value="black_gold">Black & Gold</option>
+                                                <option value="red_yellow">Red & Yellow</option>
+                                                <option value="blue_indigo">Deep Blue & Indigo</option>
+                                                <option value="solid_red">Solid Crimson Red</option>
+                                            </select>
+                                            <p className="text-[9px] text-gray-400 mt-0.5">Color palette options.</p>
                                         </div>
                                         <div>
                                             <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Offer Duration / Validity</label>
@@ -1231,91 +1250,107 @@ export default function PrintOffersPage() {
                                             return (
                                                 <div className="flex flex-col items-center justify-center leading-[0.9] py-1">
                                                     {titleLines.map((lineText, idx) => {
-                                                        const isFirstLine = idx === 0;
                                                         const isSecondLine = idx === 1;
+                                                        const isOdd = idx % 2 === 1;
 
                                                         let fontStyleClass = 'font-vintage';
                                                         let fontFamilyStyle = "'Pacifico', cursive";
-                                                        let textColorClass = 'text-[#16a34a]';
-                                                        let shadowClass = 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
                                                         let textStroke = '1.2px #ffffff';
                                                         let fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
 
+                                                        // 1. Font Family & Size selection
                                                         if (headerStyle === 'vintage_headline') {
                                                             if (isSecondLine) {
-                                                                // Headline style: Dancing Script tall handwritten script
                                                                 fontStyleClass = 'font-headline';
                                                                 fontFamilyStyle = "'Dancing Script', cursive";
-                                                                textColorClass = 'text-[#ea580c]';
-                                                                shadowClass = 'drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#7c2d12]';
                                                                 textStroke = '0.8px #ffffff';
                                                                 fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '52px');
                                                             } else {
-                                                                // Vintage style: Pacifico retro 3D script
                                                                 fontStyleClass = 'font-vintage';
                                                                 fontFamilyStyle = "'Pacifico', cursive";
-                                                                textColorClass = 'text-[#16a34a]';
-                                                                shadowClass = 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
                                                                 textStroke = '1.2px #ffffff';
                                                                 fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
                                                             }
                                                         } else if (headerStyle === 'modern_montserrat') {
-                                                            fontStyleClass = 'font-montserrat font-black uppercase';
+                                                            fontStyleClass = 'font-montserrat font-black';
                                                             fontFamilyStyle = "'Montserrat', sans-serif";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
                                                             textStroke = '1.5px #ffffff';
                                                             fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
                                                         } else if (headerStyle === 'modern_bebas') {
-                                                            fontStyleClass = 'font-bebas uppercase tracking-wider';
+                                                            fontStyleClass = 'font-bebas tracking-wider';
                                                             fontFamilyStyle = "'Bebas Neue', sans-serif";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
                                                             textStroke = '1px #ffffff';
                                                             fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '54px');
                                                         } else if (headerStyle === 'modern_righteous') {
-                                                            fontStyleClass = 'font-righteous uppercase';
+                                                            fontStyleClass = 'font-righteous';
                                                             fontFamilyStyle = "'Righteous', cursive";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
                                                             textStroke = '1.2px #ffffff';
                                                             fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
                                                         } else if (headerStyle === 'modern_poppins') {
-                                                            fontStyleClass = 'font-poppins font-black uppercase';
+                                                            fontStyleClass = 'font-poppins font-black';
                                                             fontFamilyStyle = "'Poppins', sans-serif";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
                                                             textStroke = '1.2px #ffffff';
                                                             fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
                                                         } else if (headerStyle === 'modern_oswald') {
-                                                            fontStyleClass = 'font-oswald font-bold uppercase tracking-wide';
+                                                            fontStyleClass = 'font-oswald font-bold tracking-wide';
                                                             fontFamilyStyle = "'Oswald', sans-serif";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
                                                             textStroke = '1px #ffffff';
                                                             fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
                                                         } else if (headerStyle === 'vintage') {
                                                             fontStyleClass = 'font-vintage';
                                                             fontFamilyStyle = "'Pacifico', cursive";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_3px_0_#b45309]' : 'drop-shadow-[0_3px_0_#15803d]';
                                                             fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
                                                         } else if (headerStyle === 'headline') {
                                                             fontStyleClass = 'font-headline';
                                                             fontFamilyStyle = "'Dancing Script', cursive";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 ? 'drop-shadow-[0_2px_0_#b45309]' : 'drop-shadow-[0_2px_0_#15803d]';
                                                             textStroke = '0.8px #ffffff';
                                                             fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '52px');
                                                         } else {
-                                                            // Anton 3D block
                                                             fontStyleClass = 'font-anton';
                                                             fontFamilyStyle = "'Anton', sans-serif";
-                                                            textColorClass = idx % 2 === 1 ? 'text-[#ea580c]' : 'text-[#16a34a]';
-                                                            shadowClass = idx % 2 === 1 
-                                                                ? 'drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#b45309]'
-                                                                : 'drop-shadow-[0_2px_0_#15803d] drop-shadow-[0_3px_0_#15803d]';
                                                             fontSize = lineText.length > 15 ? '28px' : (lineText.length > 10 ? '36px' : '48px');
+                                                        }
+
+                                                        // 2. Color Theme Selection
+                                                        let textColorClass = 'text-[#16a34a]';
+                                                        let shadowClass = 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
+
+                                                        if (headerColorTheme === 'black_white') {
+                                                            textColorClass = isOdd ? 'text-white' : 'text-black';
+                                                            textStroke = isOdd ? '1.5px #000000' : '1.5px #ffffff';
+                                                            shadowClass = isOdd 
+                                                                ? 'drop-shadow-[0_2px_0_#000000] drop-shadow-[0_3px_0_#000000]' 
+                                                                : 'drop-shadow-[0_2px_0_#444444] drop-shadow-[0_3px_0_#666666]';
+                                                        } else if (headerColorTheme === 'solid_black') {
+                                                            textColorClass = 'text-black';
+                                                            textStroke = '1.5px #ffffff';
+                                                            shadowClass = 'drop-shadow-[0_2px_0_#333333] drop-shadow-[0_3px_0_#555555]';
+                                                        } else if (headerColorTheme === 'solid_white') {
+                                                            textColorClass = 'text-white';
+                                                            textStroke = '1.5px #000000';
+                                                            shadowClass = 'drop-shadow-[0_2px_0_#000000] drop-shadow-[0_3px_0_#000000]';
+                                                        } else if (headerColorTheme === 'black_gold') {
+                                                            textColorClass = isOdd ? 'text-[#d97706]' : 'text-black';
+                                                            textStroke = '1.5px #ffffff';
+                                                            shadowClass = isOdd ? 'drop-shadow-[0_2px_0_#92400e]' : 'drop-shadow-[0_2px_0_#333333]';
+                                                        } else if (headerColorTheme === 'red_yellow') {
+                                                            textColorClass = isOdd ? 'text-[#eab308]' : 'text-[#e11b22]';
+                                                            textStroke = '1.5px #ffffff';
+                                                            shadowClass = isOdd ? 'drop-shadow-[0_2px_0_#854d0e]' : 'drop-shadow-[0_2px_0_#991b1b]';
+                                                        } else if (headerColorTheme === 'blue_indigo') {
+                                                            textColorClass = isOdd ? 'text-[#4338ca]' : 'text-[#1d4ed8]';
+                                                            textStroke = '1.5px #ffffff';
+                                                            shadowClass = isOdd ? 'drop-shadow-[0_2px_0_#312e81]' : 'drop-shadow-[0_2px_0_#1e40af]';
+                                                        } else if (headerColorTheme === 'solid_red') {
+                                                            textColorClass = 'text-[#e11b22]';
+                                                            textStroke = '1.5px #ffffff';
+                                                            shadowClass = 'drop-shadow-[0_2px_0_#991b1b]';
+                                                        } else {
+                                                            // Default Brand Colors
+                                                            textColorClass = isOdd ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            shadowClass = isOdd 
+                                                                ? 'drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#7c2d12]' 
+                                                                : 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
                                                         }
 
                                                         return (
@@ -1857,6 +1892,26 @@ export default function PrintOffersPage() {
                                     <option value="vintage">Vintage Script (Pacifico)</option>
                                     <option value="headline">Headline Script (Dancing Script)</option>
                                     <option value="anton">3D Block Font (Anton)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
+                                    Header Font Colors
+                                </label>
+                                <select
+                                    value={headerColorTheme}
+                                    onChange={(e) => setHeaderColorTheme(e.target.value)}
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black cursor-pointer"
+                                >
+                                    <option value="brand">Brand Colors (Green & Orange)</option>
+                                    <option value="black_white">Black & White (High Contrast)</option>
+                                    <option value="solid_black">Solid Black</option>
+                                    <option value="solid_white">Solid White</option>
+                                    <option value="black_gold">Black & Gold</option>
+                                    <option value="red_yellow">Red & Yellow</option>
+                                    <option value="blue_indigo">Deep Blue & Indigo</option>
+                                    <option value="solid_red">Solid Crimson Red</option>
                                 </select>
                             </div>
 
