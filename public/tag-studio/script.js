@@ -458,6 +458,66 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="add-text">Add Item ${index + 1}</div>
                 `;
                 card.onclick = () => openEditor(index);
+            } else if (activeLayout === '12-poster') {
+                // --- Normal Price Poster Style (3x4 Poster) ---
+                const mrpVal = parseFloat(item.mrp);
+                const spVal = parseFloat(item.sellingPrice);
+                const hasMrp = !isNaN(mrpVal) && mrpVal > 0 && (!isNaN(spVal) ? mrpVal > spVal : true);
+                const hasSavings = !isNaN(mrpVal) && !isNaN(spVal) && mrpVal > spVal;
+                const discountPercent = hasSavings ? Math.round(((mrpVal - spVal) / mrpVal) * 100) : 0;
+
+                let integerPart = '0';
+                let decimalPart = '';
+                if (item.sellingPrice !== undefined && item.sellingPrice !== null && item.sellingPrice !== '') {
+                    const parsedSp = parseFloat(item.sellingPrice);
+                    if (!isNaN(parsedSp)) {
+                        const isInteger = parsedSp % 1 === 0;
+                        integerPart = Math.floor(parsedSp).toString();
+                        decimalPart = isInteger ? '' : (parsedSp % 1).toFixed(2).substring(1);
+                    } else {
+                        integerPart = item.sellingPrice.toString().replace(/[^0-9.]/g, '');
+                    }
+                }
+
+                let posterTopBadgesHtml = '';
+                if (hasMrp || hasSavings) {
+                    posterTopBadgesHtml = `
+                        <div class="poster-badges-bar">
+                            ${hasMrp ? `<div class="poster-mrp-badge">MRP ${mrpVal.toFixed(2)}</div>` : ''}
+                            ${hasSavings ? `<div class="poster-discount-badge">${discountPercent}% OFF</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                const circlePriceBadgeHtml = `
+                    <div class="poster-red-circle-price">
+                        <span class="circle-rupee">₹</span>
+                        <span class="circle-integer">${integerPart}</span>
+                        ${decimalPart ? `<span class="circle-decimal">${decimalPart}</span>` : ''}
+                    </div>
+                `;
+
+                let unitClean = (item.unit || '').trim();
+                if (unitClean.startsWith('/')) {
+                    unitClean = unitClean.substring(1).trim();
+                }
+                unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
+
+                card.onclick = () => openEditor(index);
+                const hasProductImg = showProductImages && Boolean(item.image);
+
+                card.innerHTML = `
+                    <div class="edit-badge">Edit</div>
+                    ${posterTopBadgesHtml}
+                    <div class="card-image-wrapper">
+                        ${hasProductImg ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
+                    </div>
+                    ${circlePriceBadgeHtml}
+                    <div class="poster-card-details">
+                        <h2 class="poster-product-title">${item.name || ''}</h2>
+                        ${unitClean ? `<div class="poster-unit-value">/ ${unitClean}</div>` : ''}
+                    </div>
+                `;
             } else {
                 const isLongTitle = item.name && item.name.length > 10;
                 const titleClass = isLongTitle ? 'product-title long-title' : 'product-title';
