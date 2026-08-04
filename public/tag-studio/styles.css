@@ -1291,7 +1291,7 @@ highlight-word {
     align-items: center !important;
     justify-content: center !important;
     z-index: 15 !important;
-    font-family: 'Anton', 'Bebas Neue', sans-serif !important;
+    font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
     user-select: none !important;
     pointer-events: none !important;
 }
@@ -1300,19 +1300,23 @@ highlight-word {
     top: 10px !important;
     left: 6px !important;
     font-size: 13px !important;
-    font-family: sans-serif !important;
+    font-family: 'Impact', 'Montserrat', sans-serif !important;
     font-weight: 900 !important;
     line-height: 1 !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-integer {
-    font-size: 33px !important;
-    font-weight: 400 !important;
+    font-size: 34px !important;
+    font-weight: 900 !important;
+    font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
     line-height: 1 !important;
-    letter-spacing: -0.8px !important;
+    letter-spacing: -0.5px !important;
     margin-left: 8px !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-integer.long-integer {
-    font-size: 26px !important;
+    font-size: 27px !important;
+    font-weight: 900 !important;
+    font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
+    letter-spacing: -0.8px !important;
     margin-left: 8px !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-decimal {
@@ -1320,7 +1324,8 @@ highlight-word {
     top: 11px !important;
     right: 5px !important;
     font-size: 12px !important;
-    font-weight: 700 !important;
+    font-family: 'Impact', 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
     line-height: 1 !important;
 }
 
