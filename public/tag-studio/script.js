@@ -774,7 +774,163 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === editorModal) {
             closeEditor();
         }
+        if (event.target === modalSaveSelection) {
+            closeSaveSelectionModal();
+        }
     };
+
+    // --- Saved Selections Engine ---
+    let savedSelections = JSON.parse(localStorage.getItem('supermarket_saved_selections')) || [];
+    let activePresetId = '';
+
+    const savedSelectionsSelect = document.getElementById('saved-selections-select');
+    const saveSelectionTriggerBtn = document.getElementById('save-selection-trigger-btn');
+    const deleteSelectionBtn = document.getElementById('delete-selection-btn');
+    const modalSaveSelection = document.getElementById('modal-save-selection');
+    const modalCloseSaveSelection = document.getElementById('modal-close-save-selection');
+    const modalCancelSaveSelection = document.getElementById('modal-cancel-save-selection');
+    const saveSelectionForm = document.getElementById('save-selection-form');
+    const modalSelectionNameInput = document.getElementById('modal-selection-name-input');
+
+    function renderSavedSelectionsDropdown() {
+        if (!savedSelectionsSelect) return;
+        savedSelectionsSelect.innerHTML = '<option value="">-- Load Saved Selection --</option>';
+        savedSelections.forEach(sel => {
+            const opt = document.createElement('option');
+            opt.value = sel.id;
+            const filledCount = sel.items ? sel.items.filter(i => i && i.name && i.name.trim() !== '').length : 0;
+            opt.textContent = `${sel.name} (${filledCount} items${sel.layout ? `, ${sel.layout}-Grid` : ''})`;
+            savedSelectionsSelect.appendChild(opt);
+        });
+        savedSelectionsSelect.value = activePresetId || '';
+        if (deleteSelectionBtn) {
+            deleteSelectionBtn.style.display = activePresetId ? 'inline-flex' : 'none';
+        }
+    }
+
+    function openSaveSelectionModal() {
+        if (!modalSaveSelection) return;
+        const defaultName = `selection_${savedSelections.length + 1}`;
+        if (modalSelectionNameInput) {
+            modalSelectionNameInput.value = defaultName;
+        }
+        modalSaveSelection.style.display = 'flex';
+    }
+
+    function closeSaveSelectionModal() {
+        if (!modalSaveSelection) return;
+        modalSaveSelection.style.display = 'none';
+    }
+
+    function handleSaveSelectionSubmit(e) {
+        if (e) e.preventDefault();
+        const finalName = modalSelectionNameInput ? modalSelectionNameInput.value.trim() : '';
+        const nameToSave = finalName || `selection_${savedSelections.length + 1}`;
+
+        const newPreset = {
+            id: `sel_${Date.now()}`,
+            name: nameToSave,
+            layout: activeLayout,
+            items: JSON.parse(JSON.stringify(items)),
+            headerTitle: headerTitle,
+            headerFontStyle: headerFontStyle,
+            headerFontColor: headerFontColor,
+            footerText: footerText,
+            selectedDate: selectedDate,
+            selectedEndDate: selectedEndDate,
+            headerType: headerType,
+            createdAt: new Date().toISOString()
+        };
+
+        savedSelections = [newPreset, ...savedSelections];
+        localStorage.setItem('supermarket_saved_selections', JSON.stringify(savedSelections));
+        activePresetId = newPreset.id;
+        renderSavedSelectionsDropdown();
+        closeSaveSelectionModal();
+    }
+
+    function handleSelectPreset(presetId) {
+        activePresetId = presetId;
+        if (!presetId) {
+            if (deleteSelectionBtn) deleteSelectionBtn.style.display = 'none';
+            return;
+        }
+
+        const preset = savedSelections.find(s => s.id === presetId);
+        if (preset) {
+            if (preset.layout) {
+                activeLayout = preset.layout;
+                localStorage.setItem('supermarket_active_layout', activeLayout);
+                updateLayoutUI(activeLayout);
+            }
+            if (preset.items && Array.isArray(preset.items)) {
+                items = JSON.parse(JSON.stringify(preset.items));
+                while (items.length < 18) {
+                    items.push({ id: items.length, name: '', unit: 'KG', mrp: '', sellingPrice: '', image: null });
+                }
+                saveItems();
+            }
+            if (preset.headerTitle !== undefined) {
+                headerTitle = preset.headerTitle;
+                localStorage.setItem('supermarket_header_title', headerTitle);
+                if (headerTitleEl) headerTitleEl.innerText = headerTitle;
+                if (controlTitleInput) controlTitleInput.value = headerTitle;
+            }
+            if (preset.headerFontStyle) {
+                headerFontStyle = preset.headerFontStyle;
+                localStorage.setItem('supermarket_header_font_style', headerFontStyle);
+                const styleSelect = document.getElementById('control-header-font-style');
+                if (styleSelect) styleSelect.value = headerFontStyle;
+                renderHeaderTitleStyles();
+            }
+            if (preset.headerFontColor) {
+                headerFontColor = preset.headerFontColor;
+                localStorage.setItem('supermarket_header_font_color', headerFontColor);
+                const colorSelect = document.getElementById('control-header-font-color');
+                if (colorSelect) colorSelect.value = headerFontColor;
+                renderHeaderTitleStyles();
+            }
+            if (preset.footerText !== undefined) {
+                footerText = preset.footerText;
+                localStorage.setItem('supermarket_footer_text', footerText);
+                if (controlFooterInput) controlFooterInput.value = footerText;
+                renderFormattedFooter();
+            }
+            renderGrid();
+            if (deleteSelectionBtn) deleteSelectionBtn.style.display = 'inline-flex';
+        }
+    }
+
+    function handleDeletePreset(presetId) {
+        if (!presetId) return;
+        if (!confirm('Are you sure you want to delete this saved selection?')) return;
+
+        savedSelections = savedSelections.filter(s => s.id !== presetId);
+        localStorage.setItem('supermarket_saved_selections', JSON.stringify(savedSelections));
+        if (activePresetId === presetId) {
+            activePresetId = '';
+        }
+        renderSavedSelectionsDropdown();
+    }
+
+    if (saveSelectionTriggerBtn) {
+        saveSelectionTriggerBtn.addEventListener('click', openSaveSelectionModal);
+    }
+    if (modalCloseSaveSelection) {
+        modalCloseSaveSelection.addEventListener('click', closeSaveSelectionModal);
+    }
+    if (modalCancelSaveSelection) {
+        modalCancelSaveSelection.addEventListener('click', closeSaveSelectionModal);
+    }
+    if (saveSelectionForm) {
+        saveSelectionForm.addEventListener('submit', handleSaveSelectionSubmit);
+    }
+    if (savedSelectionsSelect) {
+        savedSelectionsSelect.addEventListener('change', (e) => handleSelectPreset(e.target.value));
+    }
+    if (deleteSelectionBtn) {
+        deleteSelectionBtn.addEventListener('click', () => handleDeletePreset(activePresetId));
+    }
 
     const itemNameInput = document.getElementById('item-name');
     if (itemNameInput) {
@@ -1143,6 +1299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Header Mode & Custom Banner logic
     renderHeaderMode();
     renderLogo();
+    renderSavedSelectionsDropdown();
 
     if (headerTypeDefaultBtn) {
         headerTypeDefaultBtn.addEventListener('click', () => {
@@ -1367,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Reset variables to defaults
                 headerTitle = 'Todays Essentials';
-                footerText = 'Smile Hypermarket SA ARCADE KAKKKAD Purchase above RS 800 within 5km, Order Before 11 AM';
+                footerText = NORMAL_POSTER_DEFAULT_FOOTER;
                 selectedDate = getTodayDateString();
                 selectedEndDate = '';
                 customLogo = null;
@@ -1389,9 +1546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     controlTitleInput.value = headerTitle;
                 }
 
-                if (footerTextDisplay) {
-                    footerTextDisplay.textContent = footerText;
-                }
+                renderFormattedFooter();
                 if (controlFooterInput) {
                     controlFooterInput.value = footerText;
                 }

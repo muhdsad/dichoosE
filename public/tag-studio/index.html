@@ -100,6 +100,25 @@
 
             <!-- Tab 1: Design Settings -->
             <div id="tab-design-content" class="tab-content active">
+                <div class="sidebar-section" id="section-saved-selections" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
+                    <h3 style="color: #10b981; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <span>🔖 Saved Selections</span>
+                    </h3>
+                    <div class="control-group" style="display: flex; flex-direction: column; gap: 8px;">
+                        <select id="saved-selections-select" style="width: 100%; padding: 8px; border-radius: 6px; background: #1e293b; color: white; border: 1px solid #334155; font-size: 0.85rem; cursor: pointer; font-weight: 600;">
+                            <option value="">-- Load Saved Selection --</option>
+                        </select>
+                        <div style="display: flex; gap: 6px;">
+                            <button id="save-selection-trigger-btn" class="btn btn-primary btn-sm" style="flex: 1; padding: 7px 10px; font-size: 0.8rem; font-weight: 700; background-color: #10b981; border: none; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; cursor: pointer;">
+                                💾 Save Selection
+                            </button>
+                            <button id="delete-selection-btn" class="btn btn-danger-outline btn-sm" style="display: none; padding: 7px 10px; font-size: 0.8rem; font-weight: 700; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; cursor: pointer; color: #ef4444; border-color: #ef4444;">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="sidebar-section">
                     <h3>Header Mode</h3>
                     <div class="header-type-toggle" style="display: flex; gap: 6px; margin-bottom: 6px;">
@@ -445,6 +464,30 @@
             <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
                 <button id="modal-save-tag-header" style="background: #4f46e5; color: white; border: none; font-weight: 700; font-size: 0.8rem; padding: 10px 24px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(79,70,229,0.2);">Save Changes</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Save Selection Preset Modal -->
+    <div id="modal-save-selection" class="modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-box" style="background: white; border-radius: 16px; max-width: 440px; width: 100%; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); border: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px;">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0;">🔖 Save Selection Preset</h3>
+                    <p style="font-size: 0.75rem; color: #10b981; font-weight: 700; margin-top: 2px;">Save current poster layout &amp; product selections</p>
+                </div>
+                <button id="modal-close-save-selection" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8;">✖</button>
+            </div>
+            <form id="save-selection-form" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Preset Name</label>
+                    <input type="text" id="modal-selection-name-input" placeholder="e.g. selection_1" style="width: 100%; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; font-size: 0.85rem; font-weight: 700; color: #0f172a; box-sizing: border-box;" required />
+                    <p style="font-size: 0.65rem; color: #94a3b8; margin-top: 3px;">Enter a unique name to easily reload this poster configuration.</p>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                    <button type="button" id="modal-cancel-save-selection" style="background: #e2e8f0; color: #475569; border: none; font-weight: 700; font-size: 0.8rem; padding: 10px 18px; border-radius: 10px; cursor: pointer;">Cancel</button>
+                    <button type="submit" id="modal-confirm-save-selection" style="background: #10b981; color: white; border: none; font-weight: 700; font-size: 0.8rem; padding: 10px 24px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(16,185,129,0.2);">Save Selection</button>
+                </div>
+            </form>
         </div>
     </div>
 
