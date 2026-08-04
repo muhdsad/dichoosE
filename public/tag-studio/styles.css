@@ -1274,19 +1274,19 @@ highlight-word {
     object-fit: contain !important;
 }
 
-/* Red Circular Price Badge for 12-poster */
+/* Red Circular Price Badge for 12-poster (Bigger & Overlapping Product Image) */
 .grid-container.layout-12-poster .poster-red-circle-price {
     position: absolute !important;
     right: 4px !important;
-    top: 40% !important;
+    top: 42% !important;
     transform: translateY(-50%) !important;
-    width: 48px !important;
-    height: 48px !important;
+    width: 68px !important;
+    height: 68px !important;
     background-color: #e11b22 !important;
     color: #ffffff !important;
-    border: 2px solid #ffffff !important;
+    border: 2.5px solid #ffffff !important;
     border-radius: 50% !important;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1297,25 +1297,29 @@ highlight-word {
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-rupee {
     position: absolute !important;
-    top: 7px !important;
-    left: 4px !important;
-    font-size: 10px !important;
+    top: 10px !important;
+    left: 6px !important;
+    font-size: 13px !important;
     font-family: sans-serif !important;
     font-weight: 900 !important;
     line-height: 1 !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-integer {
-    font-size: 22px !important;
+    font-size: 33px !important;
     font-weight: 400 !important;
     line-height: 1 !important;
-    letter-spacing: -0.5px !important;
-    margin-left: 6px !important;
+    letter-spacing: -0.8px !important;
+    margin-left: 8px !important;
+}
+.grid-container.layout-12-poster .poster-red-circle-price .circle-integer.long-integer {
+    font-size: 26px !important;
+    margin-left: 8px !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-decimal {
     position: absolute !important;
-    top: 9px !important;
-    right: 3px !important;
-    font-size: 9px !important;
+    top: 11px !important;
+    right: 5px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
     line-height: 1 !important;
 }

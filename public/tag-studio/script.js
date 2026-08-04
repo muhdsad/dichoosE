@@ -489,10 +489,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
 
+                const isLongInteger = integerPart.length >= 4;
                 const circlePriceBadgeHtml = `
                     <div class="poster-red-circle-price">
                         <span class="circle-rupee">₹</span>
-                        <span class="circle-integer">${integerPart}</span>
+                        <span class="circle-integer ${isLongInteger ? 'long-integer' : ''}">${integerPart}</span>
                         ${decimalPart ? `<span class="circle-decimal">${decimalPart}</span>` : ''}
                     </div>
                 `;
