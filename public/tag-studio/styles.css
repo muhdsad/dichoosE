@@ -626,11 +626,11 @@ highlight-word {
 .grid-container.layout-12 .price-value {
     font-size: 58px !important;
     font-family: 'Anton', sans-serif !important;
-    color: #e11b22 !important;
-    -webkit-text-stroke: 0.8px #000000 !important;
+    color: #ffffff !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 3px #000000, 0px 0px 3px #000000 !important;
-    letter-spacing: 0.5px !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
 }
 .grid-container.layout-12 .unit-value {
     font-size: 18px !important;
@@ -1116,11 +1116,11 @@ highlight-word {
     font-size: 56px !important;
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
-    color: #e11b22 !important;
-    -webkit-text-stroke: 0.8px #000000 !important;
+    color: #ffffff !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 3px #000000, 0px 0px 3px #000000 !important;
-    letter-spacing: 0.5px !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
 }
 .grid-container.layout-16-landscape .price-value.long-price,
 .grid-container.layout-18 .price-value.long-price {
@@ -1591,16 +1591,17 @@ highlight-word {
 
 .price-value {
     font-size: 44px;
-    font-weight: 900;
-    color: #e11b22 !important;
+    font-weight: 700;
+    color: #ffffff !important;
     font-family: 'Anton', sans-serif !important;
-    -webkit-text-stroke: 1.5px #000000 !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 5px #000000 !important;
-    letter-spacing: -0.5px;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
     line-height: 0.95;
     flex-shrink: 0;
     z-index: 3;
+    position: relative !important;
 }
 
 .price-value.long-price {
@@ -2552,16 +2553,18 @@ highlight-word {
 
 .price-card .price-value {
     font-family: 'Anton', sans-serif !important;
-    color: #e11b22 !important;
-    -webkit-text-stroke: 1px #000000 !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #000000, 0px 0px 4px #000000 !important;
-    letter-spacing: 0.5px !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
     text-align: center !important;
     display: block !important;
     width: 100% !important;
+    position: relative !important;
     z-index: 3 !important;
 }
 
