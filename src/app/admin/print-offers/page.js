@@ -986,6 +986,7 @@ export default function PrintOffersPage() {
                                         { id: '1', label: '1 Item' },
                                         { id: '2_portrait', label: '2 Portrait' },
                                         { id: '2_landscape', label: '2 Landscape' },
+                                        { id: '3_landscape', label: '3 Landscape' },
                                         { id: '4', label: '4 Items' },
                                         { id: '6', label: '6 Items' },
                                         { id: '8', label: '8 Items' },
