@@ -73,7 +73,11 @@ const getDynamicPriceStyle = (price, isNarrow = false) => {
 const getPosterDynamicTitleStyle = (name, layout) => {
     const len = (name || '').length;
     let baseSize = 24; // Default for '8'
-    if (layout === '4') {
+    if (layout === '1') {
+        baseSize = 60;
+    } else if (layout === '2') {
+        baseSize = 46;
+    } else if (layout === '4') {
         baseSize = 48;
     } else if (layout === '6') {
         baseSize = 34;
@@ -100,7 +104,7 @@ const getPosterDynamicTitleStyle = (name, layout) => {
         textTransform: 'uppercase',
         textAlign: 'center',
         wordBreak: 'break-word',
-        WebkitTextStroke: (layout === '4' || layout === '6') ? '1.5px #ffffff' : '1px #ffffff',
+        WebkitTextStroke: (layout === '1' || layout === '2' || layout === '4' || layout === '6') ? '1.5px #ffffff' : '1px #ffffff',
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
@@ -110,7 +114,11 @@ const getPosterDynamicPriceStyle = (price, layout) => {
     const text = `₹${Number(price || 0).toFixed(2)}`;
     const len = text.length;
     let baseSize = 32; // Default for '8'
-    if (layout === '4') {
+    if (layout === '1') {
+        baseSize = 96;
+    } else if (layout === '2') {
+        baseSize = 72;
+    } else if (layout === '4') {
         baseSize = 64;
     } else if (layout === '6') {
         baseSize = 46;
@@ -136,13 +144,15 @@ const getPosterDynamicPriceStyle = (price, layout) => {
         color: '#000000',
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-        WebkitTextStroke: (layout === '4' || layout === '6') ? '1.8px #ffffff' : '1.2px #ffffff',
+        WebkitTextStroke: (layout === '1' || layout === '2' || layout === '4' || layout === '6') ? '1.8px #ffffff' : '1.2px #ffffff',
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
 };
 
 const getUnitFontSize = (layout) => {
+    if (layout === '1') return '24px';
+    if (layout === '2') return '20px';
     if (layout === '4') return '18px';
     if (layout === '6') return '14px';
     if (layout === '8') return '12px';
@@ -151,6 +161,8 @@ const getUnitFontSize = (layout) => {
 };
 
 const getBrandFontSize = (layout) => {
+    if (layout === '1') return '18px';
+    if (layout === '2') return '16px';
     if (layout === '4') return '14px';
     if (layout === '6') return '11px';
     if (layout === '8') return '10px';
@@ -159,6 +171,8 @@ const getBrandFontSize = (layout) => {
 };
 
 const getMrpFontSize = (layout) => {
+    if (layout === '1') return '22px';
+    if (layout === '2') return '20px';
     if (layout === '4') return '18px';
     if (layout === '6') return '14px';
     if (layout === '8') return '12px';
@@ -167,6 +181,8 @@ const getMrpFontSize = (layout) => {
 };
 
 const getDiscountFontSize = (layout) => {
+    if (layout === '1') return '20px';
+    if (layout === '2') return '18px';
     if (layout === '4') return '16px';
     if (layout === '6') return '13px';
     if (layout === '8') return '11px';
@@ -182,7 +198,21 @@ const getPosterBadgeStyle = (layout) => {
     let rightOffset = '8%';
     let topOffset = '35%';
 
-    if (layout === '4') {
+    if (layout === '1') {
+        size = 190;
+        rupeeSize = 32;
+        integerSize = 94;
+        decimalSize = 38;
+        rightOffset = '10%';
+        topOffset = '30%';
+    } else if (layout === '2') {
+        size = 145;
+        rupeeSize = 24;
+        integerSize = 72;
+        decimalSize = 28;
+        rightOffset = '8%';
+        topOffset = '28%';
+    } else if (layout === '4') {
         size = 135;
         rupeeSize = 22;
         integerSize = 64;
@@ -739,12 +769,30 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : 2);
+    const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2' ? 1 : 2));
     const posterRows = totalRequired / posterCols;
     // Mathematically split remaining A4 height: A4 = 297mm. Top HR = 4.5mm. Banner = 55mm. Footer = 20mm. Bottom HR = 4.5mm. Remaining Grid = 210mm.
     const posterCardHeight = `${210 / posterRows}mm`;
 
     const posterLayoutConfigs = {
+        '1': {
+            imageTop: '65px',
+            imageBottom: '180px',
+            titleFontSize: 'text-[30px] sm:text-[36px] md:text-[42px]',
+            priceFontSize: 'text-[42px] sm:text-[52px] md:text-[62px]',
+            oldPriceFontSize: 'text-xl sm:text-2xl',
+            unitFontSize: 'text-lg sm:text-xl',
+            discountFontSize: 'text-base sm:text-lg'
+        },
+        '2': {
+            imageTop: '55px',
+            imageBottom: '145px',
+            titleFontSize: 'text-[22px] sm:text-[26px] md:text-[30px]',
+            priceFontSize: 'text-[30px] sm:text-[36px] md:text-[44px]',
+            oldPriceFontSize: 'text-lg sm:text-xl',
+            unitFontSize: 'text-base sm:text-lg',
+            discountFontSize: 'text-sm sm:text-base'
+        },
         '4': {
             imageTop: '50px',
             imageBottom: '135px',
@@ -874,14 +922,14 @@ export default function PrintOffersPage() {
                             {/* Layout Selection */}
                             <div className="space-y-2">
                                 <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Poster Grid Layout</label>
-                                <div className="flex gap-2">
-                                    {['4', '6', '8', '12', '16'].map(num => (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {['1', '2', '4', '6', '8', '12', '16'].map(num => (
                                         <button
                                             key={num}
                                             onClick={() => handlePosterLayoutChange(num)}
-                                            className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === num ? 'bg-indigo-650 text-white border-transparent' : 'bg-gray-50 text-gray-700 border-gray-300'}`}
+                                            className={`flex-1 min-w-[55px] py-2 px-1 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === num ? 'bg-indigo-650 text-white border-transparent shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}`}
                                         >
-                                            {num} Items
+                                            {num === '1' ? '1 Item' : (num === '2' ? '2 Landscape' : `${num} Items`)}
                                         </button>
                                     ))}
                                 </div>
@@ -1541,7 +1589,7 @@ export default function PrintOffersPage() {
 
                         {/* Poster Grid of Cards */}
                         <div 
-                            className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : 'grid-cols-2')} flex-grow animate-fadeIn bg-white`}
+                            className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : (posterLayout === '1' || posterLayout === '2' ? 'grid-cols-1' : 'grid-cols-2'))} flex-grow animate-fadeIn bg-white`}
                         >
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
