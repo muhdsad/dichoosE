@@ -784,10 +784,12 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_landscape' ? 1 : 2));
+    const isLandscapePoster = posterLayout === '2_landscape';
+    const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 1 : 2));
     const posterRows = totalRequired / posterCols;
-    // Mathematically split remaining A4 height: A4 = 297mm. Top HR = 4.5mm. Banner = 55mm. Footer = 20mm. Bottom HR = 4.5mm. Remaining Grid = 210mm.
-    const posterCardHeight = `${210 / posterRows}mm`;
+    // Mathematically split remaining A4 height: A4 Portrait = 297mm (Grid = 210mm). A4 Landscape = 210mm (Grid = 132mm).
+    const gridAvailableHeight = isLandscapePoster ? 132 : 210;
+    const posterCardHeight = `${gridAvailableHeight / posterRows}mm`;
 
     const posterLayoutConfigs = {
         '1': {
@@ -1400,11 +1402,11 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? 'max-w-[210mm] p-2 bg-white' : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
+            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (posterLayout === '2_landscape' ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
                 
                 {(printMode === 'poster' || printMode === 'normal_poster') ? (
                     /* POSTER LAYOUT CONTAINER */
-                    <div className="w-full h-[297mm] flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative">
+                    <div className={`w-full ${posterLayout === '2_landscape' ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative`}>
                         
                         {/* Top HR Bars (Green 10px & Red 5px with narrow space) */}
                         <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
@@ -1413,7 +1415,7 @@ export default function PrintOffersPage() {
                         </div>
 
                         {/* Top Poster Banner */}
-                        <div className="w-full h-[55mm] relative flex-shrink-0 bg-white">
+                        <div className={`w-full ${posterLayout === '2_landscape' ? 'h-[45mm]' : 'h-[55mm]'} relative flex-shrink-0 bg-white`}>
                             {bannerType === 'image' && bannerImage ? (
                                 <img src={bannerImage} alt="Poster Banner" className="w-full h-full object-cover" />
                             ) : (
@@ -2031,7 +2033,7 @@ export default function PrintOffersPage() {
             <style jsx global>{`
                 @media print {
                     @page {
-                        size: ${(printMode === 'poster' || printMode === 'normal_poster') ? 'A4 portrait' : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
+                        size: ${(printMode === 'poster' || printMode === 'normal_poster') ? (posterLayout === '2_landscape' ? 'A4 landscape' : 'A4 portrait') : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
                         margin: 0 !important;
                     }
                     html, body {
