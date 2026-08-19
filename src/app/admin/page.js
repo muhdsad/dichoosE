@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaBox, FaShoppingBag, FaUsers, FaMoneyBillWave, FaStore, FaPhone, FaMapMarkerAlt, FaEnvelope, FaTags } from 'react-icons/fa';
+import { FaBox, FaShoppingBag, FaUsers, FaMoneyBillWave, FaStore, FaPhone, FaMapMarkerAlt, FaEnvelope } from 'react-icons/fa';
 import { db } from '../../lib/firebase';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { categories } from '../../utils/categories';
@@ -167,13 +167,6 @@ export default function AdminDashboard() {
             <div className="flex flex-col space-y-4 mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
-                    <Link
-                        href="/admin/tag-studio"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-950 font-bold rounded-xl shadow-sm transition-all cursor-pointer w-fit text-sm"
-                    >
-                        <FaTags className="text-sm" />
-                        <span>Open Tag Studio</span>
-                    </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
