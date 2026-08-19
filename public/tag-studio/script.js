@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const controlTitleInput = document.getElementById('control-title-input');
     const controlFooterInput = document.getElementById('control-footer-input');
     const layout1Btn = document.getElementById('layout-1-btn');
+    const layout1PosterBtn = document.getElementById('layout-1-poster-btn');
     const layout2Btn = document.getElementById('layout-2-btn');
     const layout4Btn = document.getElementById('layout-4-btn');
     const layout8Btn = document.getElementById('layout-8-btn');
@@ -412,6 +413,8 @@ document.addEventListener('DOMContentLoaded', () => {
             limit = 16;
         } else if (activeLayout === '18') {
             limit = 18;
+        } else if (activeLayout === '1-poster' || activeLayout === '1') {
+            limit = 1;
         } else {
             limit = parseInt(activeLayout, 10);
         }
@@ -458,8 +461,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="add-text">Add Item ${index + 1}</div>
                 `;
                 card.onclick = () => openEditor(index);
-            } else if (activeLayout === '12-poster') {
-                // --- Normal Price Poster Style (3x4 Poster) ---
+            } else if (activeLayout === '12-poster' || activeLayout === '1-poster' || activeLayout === '1') {
+                // --- Normal Price Poster Style (3x4 Poster & 1 Tag Single Item Poster) ---
                 const mrpVal = parseFloat(item.mrp);
                 const spVal = parseFloat(item.sellingPrice);
                 const hasMrp = !isNaN(mrpVal) && mrpVal > 0 && (!isNaN(spVal) ? mrpVal > spVal : true);
@@ -1632,11 +1635,12 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('supermarket_active_layout', layout);
 
         // Update active class on selector buttons
-        [layout1Btn, layout2Btn, layout4Btn, layout8Btn, layout12Btn, layout12PosterBtn, layout14Btn, layout16Btn, layout18Btn, layout2LandscapeBtn, layout3LandscapeBtn, layout6LandscapeBtn, layout8LandscapeBtn, layout12LandscapeBtn, layout16LandscapeBtn].forEach(btn => {
+        [layout1Btn, layout1PosterBtn, layout2Btn, layout4Btn, layout8Btn, layout12Btn, layout12PosterBtn, layout14Btn, layout16Btn, layout18Btn, layout2LandscapeBtn, layout3LandscapeBtn, layout6LandscapeBtn, layout8LandscapeBtn, layout12LandscapeBtn, layout16LandscapeBtn].forEach(btn => {
             if (btn) btn.classList.remove('active');
         });
 
         if (layout === '1' && layout1Btn) layout1Btn.classList.add('active');
+        if (layout === '1-poster' && layout1PosterBtn) layout1PosterBtn.classList.add('active');
         if (layout === '2' && layout2Btn) layout2Btn.classList.add('active');
         if (layout === '4' && layout4Btn) layout4Btn.classList.add('active');
         if (layout === '8' && layout8Btn) layout8Btn.classList.add('active');
@@ -1683,7 +1687,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const brandSubtitle = document.querySelector('.brand-details p');
         if (brandSubtitle) {
             let desc = "A4 Portrait 3x4 Grid";
-            if (layout === '1') desc = "A4 Portrait 1 Tag";
+            if (layout === '1') desc = "A4 Portrait 1 Tag Poster";
+            else if (layout === '1-poster') desc = "A4 Portrait 1 Tag (Normal Price Poster)";
             else if (layout === '2') desc = "A4 Portrait 1x2 Grid";
             else if (layout === '4') desc = "A4 Portrait 2x2 Grid";
             else if (layout === '8') desc = "A4 Portrait 2x4 Grid";
@@ -1718,6 +1723,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (layout1Btn) layout1Btn.addEventListener('click', () => updateLayoutUI('1'));
+    if (layout1PosterBtn) layout1PosterBtn.addEventListener('click', () => updateLayoutUI('1-poster'));
     if (layout2Btn) layout2Btn.addEventListener('click', () => updateLayoutUI('2'));
     if (layout4Btn) layout4Btn.addEventListener('click', () => updateLayoutUI('4'));
     if (layout8Btn) layout8Btn.addEventListener('click', () => updateLayoutUI('8'));
@@ -1988,6 +1994,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (activeLayout === '12-landscape') limit = 12;
         else if (activeLayout === '16-landscape') limit = 16;
         else if (activeLayout === '18') limit = 18;
+        else if (activeLayout === '1-poster' || activeLayout === '1') limit = 1;
         else limit = parseInt(activeLayout, 10) || 12;
         return limit;
     }

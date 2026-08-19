@@ -1370,6 +1370,213 @@ highlight-word {
     text-shadow: none !important;
 }
 
+/* Layout 1-poster & Layout 1 (Single Item Normal Price Poster - Full A4 Area) */
+.grid-container.layout-1-poster,
+.grid-container.layout-1 {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+    gap: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.grid-container.layout-1-poster .price-card,
+.grid-container.layout-1 .price-card {
+    border: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 12px !important;
+    text-align: center !important;
+    position: relative !important;
+    overflow: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Top Badges Bar for Single Item Poster */
+.grid-container.layout-1-poster .poster-badges-bar,
+.grid-container.layout-1 .poster-badges-bar {
+    position: absolute !important;
+    top: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    z-index: 20 !important;
+    width: max-content !important;
+    max-width: 95% !important;
+}
+
+.grid-container.layout-1-poster .poster-mrp-badge,
+.grid-container.layout-1 .poster-mrp-badge {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    font-family: 'Poppins', 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: 24px !important;
+    text-transform: uppercase !important;
+    padding: 4px 16px !important;
+    line-height: 1.2 !important;
+    text-decoration: line-through !important;
+    text-decoration-color: #000000 !important;
+    border-radius: 4px !important;
+    white-space: nowrap !important;
+}
+
+.grid-container.layout-1-poster .poster-discount-badge,
+.grid-container.layout-1 .poster-discount-badge {
+    background-color: #e11b22 !important;
+    color: #ffffff !important;
+    font-family: 'Poppins', 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: 24px !important;
+    text-transform: uppercase !important;
+    padding: 4px 16px !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    white-space: nowrap !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+}
+
+/* Image Wrapper for Single Item Poster - Enlarged to consume central page area */
+.grid-container.layout-1-poster .card-image-wrapper,
+.grid-container.layout-1 .card-image-wrapper {
+    position: absolute !important;
+    top: 65px !important;
+    left: 20px !important;
+    right: 20px !important;
+    bottom: 145px !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 1 !important;
+}
+
+.grid-container.layout-1-poster .card-image-wrapper img,
+.grid-container.layout-1 .card-image-wrapper img {
+    max-width: 95% !important;
+    max-height: 95% !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.12)) !important;
+}
+
+/* Red Circular Price Badge for Single Item Poster (Giant & Overlapping Product Image) */
+.grid-container.layout-1-poster .poster-red-circle-price,
+.grid-container.layout-1 .poster-red-circle-price {
+    position: absolute !important;
+    right: 25px !important;
+    top: 48% !important;
+    transform: translateY(-50%) !important;
+    width: 230px !important;
+    height: 230px !important;
+    background-color: #e11b22 !important;
+    color: #ffffff !important;
+    border: 7px solid #ffffff !important;
+    border-radius: 50% !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 25 !important;
+    font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
+    user-select: none !important;
+    pointer-events: none !important;
+}
+
+.grid-container.layout-1-poster .poster-red-circle-price .circle-rupee,
+.grid-container.layout-1 .poster-red-circle-price .circle-rupee {
+    position: absolute !important;
+    top: 32px !important;
+    left: 20px !important;
+    font-size: 42px !important;
+    font-family: 'Impact', 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+}
+
+.grid-container.layout-1-poster .poster-red-circle-price .circle-integer,
+.grid-container.layout-1 .poster-red-circle-price .circle-integer {
+    font-size: 110px !important;
+    font-weight: 700 !important;
+    font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
+    line-height: 1 !important;
+    letter-spacing: 2px !important;
+    margin-left: 22px !important;
+}
+
+.grid-container.layout-1-poster .poster-red-circle-price .circle-integer.long-integer,
+.grid-container.layout-1 .poster-red-circle-price .circle-integer.long-integer {
+    font-size: 85px !important;
+    font-weight: 700 !important;
+    font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
+    letter-spacing: 1px !important;
+    margin-left: 22px !important;
+}
+
+.grid-container.layout-1-poster .poster-red-circle-price .circle-decimal,
+.grid-container.layout-1 .poster-red-circle-price .circle-decimal {
+    position: absolute !important;
+    top: 36px !important;
+    right: 18px !important;
+    font-size: 38px !important;
+    font-family: 'Impact', 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+}
+
+/* Product Details at Bottom for Single Item Poster */
+.grid-container.layout-1-poster .poster-card-details,
+.grid-container.layout-1 .poster-card-details {
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 14px !important;
+    right: 14px !important;
+    width: auto !important;
+    padding: 0 !important;
+    text-align: center !important;
+    z-index: 20 !important;
+}
+
+.grid-container.layout-1-poster .poster-product-title,
+.grid-container.layout-1 .poster-product-title {
+    font-size: 48px !important;
+    font-weight: 900 !important;
+    font-family: 'Poppins', 'Montserrat', 'Inter', sans-serif !important;
+    color: #000000 !important;
+    text-transform: uppercase !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+    margin: 0 0 4px 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    -webkit-text-stroke: 0 !important;
+    text-shadow: none !important;
+}
+
+.grid-container.layout-1-poster .poster-unit-value,
+.grid-container.layout-1 .poster-unit-value {
+    font-size: 32px !important;
+    font-weight: 900 !important;
+    font-family: 'Poppins', 'Montserrat', sans-serif !important;
+    color: #1d4ed8 !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
+}
+
 @media screen {
     .price-card:hover {
         background-color: #fafbfd;
