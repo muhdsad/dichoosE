@@ -77,6 +77,8 @@ const getPosterDynamicTitleStyle = (name, layout) => {
         baseSize = 60;
     } else if (layout === '2_landscape') {
         baseSize = 46;
+    } else if (layout === '3_landscape') {
+        baseSize = 34;
     } else if (layout === '2_portrait' || layout === '2') {
         baseSize = 38;
     } else if (layout === '4') {
@@ -106,7 +108,7 @@ const getPosterDynamicTitleStyle = (name, layout) => {
         textTransform: 'uppercase',
         textAlign: 'center',
         wordBreak: 'break-word',
-        WebkitTextStroke: (layout === '1' || layout === '2_landscape' || layout === '2_portrait' || layout === '2' || layout === '4' || layout === '6') ? '1.5px #ffffff' : '1px #ffffff',
+        WebkitTextStroke: (layout === '1' || layout === '2_landscape' || layout === '3_landscape' || layout === '2_portrait' || layout === '2' || layout === '4' || layout === '6') ? '1.5px #ffffff' : '1px #ffffff',
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
@@ -120,6 +122,8 @@ const getPosterDynamicPriceStyle = (price, layout) => {
         baseSize = 96;
     } else if (layout === '2_landscape') {
         baseSize = 72;
+    } else if (layout === '3_landscape') {
+        baseSize = 52;
     } else if (layout === '2_portrait' || layout === '2') {
         baseSize = 56;
     } else if (layout === '4') {
@@ -148,7 +152,7 @@ const getPosterDynamicPriceStyle = (price, layout) => {
         color: '#000000',
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-        WebkitTextStroke: (layout === '1' || layout === '2_landscape' || layout === '2_portrait' || layout === '2' || layout === '4' || layout === '6') ? '1.8px #ffffff' : '1.2px #ffffff',
+        WebkitTextStroke: (layout === '1' || layout === '2_landscape' || layout === '3_landscape' || layout === '2_portrait' || layout === '2' || layout === '4' || layout === '6') ? '1.8px #ffffff' : '1.2px #ffffff',
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 6px #ffffff, 0px 0px 6px #ffffff, 0px 0px 6px #ffffff'
     };
@@ -157,6 +161,7 @@ const getPosterDynamicPriceStyle = (price, layout) => {
 const getUnitFontSize = (layout) => {
     if (layout === '1') return '24px';
     if (layout === '2_landscape') return '20px';
+    if (layout === '3_landscape') return '14px';
     if (layout === '2_portrait' || layout === '2') return '16px';
     if (layout === '4') return '18px';
     if (layout === '6') return '14px';
@@ -168,6 +173,7 @@ const getUnitFontSize = (layout) => {
 const getBrandFontSize = (layout) => {
     if (layout === '1') return '18px';
     if (layout === '2_landscape') return '16px';
+    if (layout === '3_landscape') return '11px';
     if (layout === '2_portrait' || layout === '2') return '13px';
     if (layout === '4') return '14px';
     if (layout === '6') return '11px';
@@ -179,6 +185,7 @@ const getBrandFontSize = (layout) => {
 const getMrpFontSize = (layout) => {
     if (layout === '1') return '22px';
     if (layout === '2_landscape') return '20px';
+    if (layout === '3_landscape') return '14px';
     if (layout === '2_portrait' || layout === '2') return '16px';
     if (layout === '4') return '18px';
     if (layout === '6') return '14px';
@@ -190,6 +197,7 @@ const getMrpFontSize = (layout) => {
 const getDiscountFontSize = (layout) => {
     if (layout === '1') return '20px';
     if (layout === '2_landscape') return '18px';
+    if (layout === '3_landscape') return '13px';
     if (layout === '2_portrait' || layout === '2') return '15px';
     if (layout === '4') return '16px';
     if (layout === '6') return '13px';
@@ -219,6 +227,13 @@ const getPosterBadgeStyle = (layout) => {
         integerSize = 72;
         decimalSize = 28;
         rightOffset = '8%';
+        topOffset = '28%';
+    } else if (layout === '3_landscape') {
+        size = 110;
+        rupeeSize = 18;
+        integerSize = 52;
+        decimalSize = 22;
+        rightOffset = '6%';
         topOffset = '28%';
     } else if (layout === '2_portrait' || layout === '2') {
         size = 125;
@@ -784,8 +799,8 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const isLandscapePoster = posterLayout === '2_landscape';
-    const posterCols = posterLayout === '12' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 1 : 2));
+    const isLandscapePoster = posterLayout === '2_landscape' || posterLayout === '3_landscape';
+    const posterCols = posterLayout === '12' || posterLayout === '3_landscape' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 1 : 2));
     const posterRows = totalRequired / posterCols;
     // Mathematically split remaining A4 height: A4 Portrait = 297mm (Grid = 210mm). A4 Landscape = 210mm (Grid = 132mm).
     const gridAvailableHeight = isLandscapePoster ? 132 : 210;
@@ -809,6 +824,15 @@ export default function PrintOffersPage() {
             oldPriceFontSize: 'text-lg sm:text-xl',
             unitFontSize: 'text-base sm:text-lg',
             discountFontSize: 'text-sm sm:text-base'
+        },
+        '3_landscape': {
+            imageTop: '45px',
+            imageBottom: '120px',
+            titleFontSize: 'text-[16px] sm:text-[18px] md:text-[20px]',
+            priceFontSize: 'text-[22px] sm:text-[26px] md:text-[30px]',
+            oldPriceFontSize: 'text-sm sm:text-base',
+            unitFontSize: 'text-xs sm:text-sm',
+            discountFontSize: 'text-[11px] sm:text-xs'
         },
         '2_portrait': {
             imageTop: '50px',
@@ -1402,11 +1426,11 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (posterLayout === '2_landscape' ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
+            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
                 
                 {(printMode === 'poster' || printMode === 'normal_poster') ? (
                     /* POSTER LAYOUT CONTAINER */
-                    <div className={`w-full ${posterLayout === '2_landscape' ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative`}>
+                    <div className={`w-full ${isLandscapePoster ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative`}>
                         
                         {/* Top HR Bars (Green 10px & Red 5px with narrow space) */}
                         <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
@@ -1415,7 +1439,7 @@ export default function PrintOffersPage() {
                         </div>
 
                         {/* Top Poster Banner */}
-                        <div className={`w-full ${posterLayout === '2_landscape' ? 'h-[45mm]' : 'h-[55mm]'} relative flex-shrink-0 bg-white`}>
+                        <div className={`w-full ${isLandscapePoster ? 'h-[45mm]' : 'h-[55mm]'} relative flex-shrink-0 bg-white`}>
                             {bannerType === 'image' && bannerImage ? (
                                 <img src={bannerImage} alt="Poster Banner" className="w-full h-full object-cover" />
                             ) : (
@@ -1633,7 +1657,7 @@ export default function PrintOffersPage() {
 
                         {/* Poster Grid of Cards */}
                         <div 
-                            className={`grid ${posterLayout === '12' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : (posterLayout === '1' || posterLayout === '2' ? 'grid-cols-1' : 'grid-cols-2'))} flex-grow animate-fadeIn bg-white`}
+                            className={`grid ${posterLayout === '12' || posterLayout === '3_landscape' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 'grid-cols-1' : 'grid-cols-2'))} flex-grow animate-fadeIn bg-white`}
                         >
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
@@ -2033,7 +2057,7 @@ export default function PrintOffersPage() {
             <style jsx global>{`
                 @media print {
                     @page {
-                        size: ${(printMode === 'poster' || printMode === 'normal_poster') ? (posterLayout === '2_landscape' ? 'A4 landscape' : 'A4 portrait') : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
+                        size: ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'A4 landscape' : 'A4 portrait') : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
                         margin: 0 !important;
                     }
                     html, body {
