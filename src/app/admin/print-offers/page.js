@@ -285,23 +285,39 @@ const getPosterBadgeStyle = (layout) => {
 const getNormalPosterLogoHeight = (layout) => {
     if (layout === '1') return '70px';
     if (layout === '2_landscape' || layout === '2') return '56px';
-    if (layout === '3_landscape' || layout === '3') return '48px';
-    if (layout === '4') return '46px';
-    if (layout === '6') return '36px';
-    if (layout === '8') return '30px';
-    if (layout === '12') return '24px';
-    return '20px';
+    if (layout === '3_landscape' || layout === '3') return '46px';
+    if (layout === '4') return '42px';
+    if (layout === '6') return '32px';
+    if (layout === '8') return '26px';
+    if (layout === '12') return '21px';
+    return '18px';
 };
 
 const getNormalPosterBadgeFontSize = (layout) => {
     if (layout === '1') return '24px';
     if (layout === '2_landscape' || layout === '2') return '19px';
     if (layout === '3_landscape' || layout === '3') return '16px';
-    if (layout === '4') return '15.5px';
-    if (layout === '6') return '12.5px';
-    if (layout === '8') return '11px';
-    if (layout === '12') return '9.5px';
-    return '8.5px';
+    if (layout === '4') return '14.5px';
+    if (layout === '6') return '12px';
+    if (layout === '8') return '10px';
+    if (layout === '12') return '8.5px';
+    return '7.5px';
+};
+
+const getNormalPosterCardLayout = (layout) => {
+    if (layout === '12' || layout === '16') {
+        return { imgWidth: 'w-[36%]', detailWidth: 'w-[64%]', padding: 'p-1 px-1.5' };
+    }
+    if (layout === '8') {
+        return { imgWidth: 'w-[38%]', detailWidth: 'w-[62%]', padding: 'p-1.5 px-2' };
+    }
+    if (layout === '6') {
+        return { imgWidth: 'w-[40%]', detailWidth: 'w-[60%]', padding: 'p-2' };
+    }
+    if (layout === '4') {
+        return { imgWidth: 'w-[42%]', detailWidth: 'w-[58%]', padding: 'p-3' };
+    }
+    return { imgWidth: 'w-[44%]', detailWidth: 'w-[56%]', padding: 'p-4' };
 };
 
 const getNormalPosterTitleStyle = (name, layout) => {
@@ -337,32 +353,41 @@ const getNormalPosterTitleStyle = (name, layout) => {
 const getNormalPosterPriceFontSize = (price, layout) => {
     const text = `${Number(price || 0).toFixed(2)}`;
     const len = text.length;
-    let baseSize = 60; // Default for 4-grid (2x2)
-    if (layout === '1') baseSize = 108;
-    else if (layout === '2_landscape' || layout === '2') baseSize = 80;
-    else if (layout === '3_landscape' || layout === '3') baseSize = 66;
-    else if (layout === '4') baseSize = 60;
-    else if (layout === '6') baseSize = 42;
-    else if (layout === '8') baseSize = 34;
-    else if (layout === '12') baseSize = 26;
-    else if (layout === '16') baseSize = 21;
+    let baseSize = 58; // Default for 4-grid (2x2)
+    if (layout === '1') baseSize = 104;
+    else if (layout === '2_landscape' || layout === '2') baseSize = 78;
+    else if (layout === '3_landscape' || layout === '3') baseSize = 64;
+    else if (layout === '4') baseSize = 58;
+    else if (layout === '6') baseSize = 40;
+    else if (layout === '8') baseSize = 32;
+    else if (layout === '12') baseSize = 24;
+    else if (layout === '16') baseSize = 19;
 
     let sizeFactor = 1.0;
-    if (len > 8) sizeFactor = 0.82;
-    else if (len > 6) sizeFactor = 0.92;
+    if (len >= 8) sizeFactor = 0.74;
+    else if (len >= 7) sizeFactor = 0.82;
+    else if (len >= 6) sizeFactor = 0.90; // e.g. 100.00, 139.00
 
     return `${Math.round(baseSize * sizeFactor)}px`;
 };
 
-const getNormalPosterUnitFontSize = (layout) => {
-    if (layout === '1') return '56px';
-    if (layout === '2_landscape' || layout === '2') return '44px';
-    if (layout === '3_landscape' || layout === '3') return '36px';
-    if (layout === '4') return '34px';
-    if (layout === '6') return '24px';
-    if (layout === '8') return '19px';
-    if (layout === '12') return '15px';
-    return '12px';
+const getNormalPosterUnitFontSize = (layout, unit = '') => {
+    const uLen = (unit || '').length;
+    let baseSize = 32;
+    if (layout === '1') baseSize = 54;
+    else if (layout === '2_landscape' || layout === '2') baseSize = 42;
+    else if (layout === '3_landscape' || layout === '3') baseSize = 34;
+    else if (layout === '4') baseSize = 30;
+    else if (layout === '6') baseSize = 22;
+    else if (layout === '8') baseSize = 17;
+    else if (layout === '12') baseSize = 12.5;
+    else if (layout === '16') baseSize = 10;
+
+    let sizeFactor = 1.0;
+    if (uLen > 6) sizeFactor = 0.82;
+    else if (uLen > 4) sizeFactor = 0.90;
+
+    return `${Math.round(baseSize * sizeFactor)}px`;
 };
 
 export default function PrintOffersPage() {
@@ -835,17 +860,29 @@ export default function PrintOffersPage() {
         setSaving(true);
         try {
             const html2canvas = (await import('html2canvas-pro')).default;
-            const element = document.getElementById('print-offers-container');
+            const element = printMode === 'normal_poster' 
+                ? (document.getElementById('normal-poster-a4-target') || document.getElementById('print-offers-container'))
+                : document.getElementById('print-offers-container');
             if (!element) {
                 alert("Error: Print container not found.");
                 return;
             }
 
+            // Calculate exact A4 dimensions at 96 CSS DPI (297mm = 1122.52px, 210mm = 793.70px)
+            const isLandscape = printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape';
+            const targetWidthPx = isLandscape ? 1122.52 : 793.70;
+            const targetHeightPx = isLandscape ? 793.70 : 1122.52;
+
+            // Scale 3.125 produces exact 3508px x 2480px (300 DPI A4 print standard)
             const canvas = await html2canvas(element, {
-                scale: 4, // High resolution
+                scale: 3.125,
                 useCORS: true,
                 backgroundColor: '#ffffff',
-                logging: true
+                width: targetWidthPx,
+                height: targetHeightPx,
+                windowWidth: targetWidthPx,
+                windowHeight: targetHeightPx,
+                logging: false
             });
 
             const dataUrl = canvas.toDataURL('image/png');
@@ -853,7 +890,7 @@ export default function PrintOffersPage() {
             link.download = printMode === 'poster' 
                 ? `offers-poster-${posterLayout}.png` 
                 : (printMode === 'normal_poster' 
-                    ? `normal-price-poster-${posterLayout}.png` 
+                    ? `normal-price-poster-${posterLayout}-a4-landscape.png` 
                     : `offers-sheet-${layout}.png`);
             link.href = dataUrl;
             link.click();
@@ -1594,11 +1631,24 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
+            <div id="print-offers-container" className="w-full flex justify-center items-center overflow-x-auto print:overflow-visible print:w-full print:p-0 p-2 sm:p-4 bg-gray-100 print:bg-white">
                 
                 {printMode === 'normal_poster' ? (
-                    /* NORMAL PRICE POSTER CONTAINER (A4 LANDSCAPE - EXACT COPY OF UPLOADED POSTER STYLE) */
-                    <div className="w-full max-w-[297mm] h-[210mm] mx-auto bg-white p-[3.5mm] box-border flex flex-col justify-between overflow-hidden select-none relative shadow-sm border border-gray-200 print:shadow-none print:border-none print:p-[3mm] normal-poster-a4-landscape">
+                    /* NORMAL PRICE POSTER CONTAINER (EXACT A4 LANDSCAPE 297mm x 210mm) */
+                    <div 
+                        id="normal-poster-a4-target"
+                        className="normal-poster-a4-landscape bg-white mx-auto box-border flex flex-col justify-between overflow-hidden select-none relative shadow-sm border border-gray-200 print:shadow-none print:border-none"
+                        style={{
+                            width: '297mm',
+                            minWidth: '297mm',
+                            maxWidth: '297mm',
+                            height: '210mm',
+                            minHeight: '210mm',
+                            maxHeight: '210mm',
+                            padding: '3mm',
+                            boxSizing: 'border-box'
+                        }}
+                    >
                         {/* Grid of Cards */}
                         <div 
                             className={`w-full flex-grow grid gap-[3mm] print:gap-[2.5mm] ${
@@ -1619,6 +1669,9 @@ export default function PrintOffersPage() {
                                 const sellingPrice = product.price ? parseFloat(product.price) : 0;
                                 const savingsVal = (mrpVal > 0 ? mrpVal : 0) - sellingPrice;
                                 const hasSavings = mrpVal > 0 && savingsVal > 0;
+                                const formattedMrp = mrpVal > 0 ? (mrpVal % 1 === 0 ? mrpVal.toFixed(0) : mrpVal.toFixed(2)) : '0';
+                                const formattedSavings = savingsVal > 0 ? (savingsVal % 1 === 0 ? savingsVal.toFixed(0) : savingsVal.toFixed(2)) : '0';
+                                const { imgWidth, detailWidth, padding } = getNormalPosterCardLayout(posterLayout);
 
                                 return (
                                     <div
@@ -1634,17 +1687,17 @@ export default function PrintOffersPage() {
                                             </div>
                                         ) : (
                                             <>
-                                                {/* Left Column: Product Image (Made larger as requested) */}
+                                                {/* Left Column: Product Image (z-index 0 / bottom, transparent bg) */}
                                                 <div 
                                                     onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className="w-[44%] h-full flex items-center justify-center p-3 relative overflow-hidden bg-white cursor-pointer group/img shrink-0"
+                                                    className={`${imgWidth} h-full flex items-center justify-center p-1.5 relative overflow-hidden bg-transparent cursor-pointer group/img shrink-0 z-0`}
                                                     title="Click to edit Image, Price, MRP & Details"
                                                 >
                                                     {showProductImages && (
                                                         <img
                                                             src={getProxiedImageUrl(product.image)}
                                                             alt={product.name}
-                                                            className="max-w-[96%] max-h-[94%] object-contain transition-transform group-hover/img:scale-105"
+                                                            className="max-w-[95%] max-h-[92%] object-contain transition-transform group-hover/img:scale-105 relative z-0"
                                                             referrerPolicy="no-referrer"
                                                         />
                                                     )}
@@ -1656,54 +1709,65 @@ export default function PrintOffersPage() {
                                                 {/* Right Column: Logo, Badges, Title, Price */}
                                                 <div 
                                                     onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className="w-[56%] h-full flex flex-col justify-between items-center text-center p-3.5 sm:p-4 box-border bg-white cursor-pointer group/details min-w-0"
+                                                    className={`${detailWidth} h-full flex flex-col justify-between items-center text-center ${padding} box-border bg-white cursor-pointer group/details min-w-0 relative z-10`}
                                                     title="Click to edit Image, Price, MRP & Details"
                                                 >
-                                                    {/* Top Logo */}
-                                                    <div className="w-full flex items-center justify-center shrink-0">
+                                                    {/* Top Logo - centered in column */}
+                                                    <div className="w-full flex items-center justify-center shrink-0 pt-0.5">
                                                         <img 
                                                             src={logoImage || "/BIGSAVE.PNG"} 
                                                             alt="BIG SAVE Smile" 
-                                                            className="object-contain"
-                                                            style={{ maxHeight: getNormalPosterLogoHeight(posterLayout), maxWidth: '85%' }}
+                                                            className="mx-auto object-contain block"
+                                                            style={{ maxHeight: getNormalPosterLogoHeight(posterLayout), maxWidth: '88%' }}
                                                         />
                                                     </div>
 
-                                                    {/* Badges Row: MRP with red strike & Save Badge */}
+                                                    {/* Badges Row: MRP with red strike & Save Badge - centered in column */}
                                                     {hasSavings ? (
-                                                        <div className="flex items-center justify-center gap-2.5 my-1 flex-nowrap max-w-full overflow-hidden shrink-0">
+                                                        <div className="w-full flex items-center justify-center gap-1.5 my-0.5 flex-nowrap shrink-0">
                                                             <div 
                                                                 className="font-black text-black uppercase tracking-tight whitespace-nowrap flex items-center shrink-0"
-                                                                style={{ fontSize: getNormalPosterBadgeFontSize(posterLayout), fontFamily: "'Inter', sans-serif" }}
+                                                                style={{ 
+                                                                    fontSize: getNormalPosterBadgeFontSize(posterLayout), 
+                                                                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                                                                }}
                                                             >
                                                                 <span>MRP </span>
-                                                                <span className="relative inline-block ml-1 line-through decoration-red-600 decoration-2 text-black">
-                                                                    {mrpVal.toFixed(1)}
+                                                                <span className="relative inline-block ml-0.5 line-through decoration-red-600 decoration-2 text-black">
+                                                                    {formattedMrp}
                                                                 </span>
                                                             </div>
                                                             <div 
-                                                                className="bg-[#d80000] text-white font-extrabold uppercase px-2 py-0.5 rounded-[2px] tracking-wide whitespace-nowrap shrink-0 leading-tight"
-                                                                style={{ fontSize: getNormalPosterBadgeFontSize(posterLayout), fontFamily: "'Inter', sans-serif" }}
+                                                                className="bg-[#d80000] text-white font-black uppercase px-1.5 py-0.5 rounded-[2px] tracking-wide whitespace-nowrap shrink-0 leading-tight flex items-center"
+                                                                style={{ 
+                                                                    fontSize: getNormalPosterBadgeFontSize(posterLayout), 
+                                                                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                                                                }}
                                                             >
-                                                                SAVE ₹{savingsVal.toFixed(2)}
+                                                                <span>SAVE </span>
+                                                                <span className="font-sans font-bold ml-0.5">₹</span>
+                                                                <span>{formattedSavings}</span>
                                                             </div>
                                                         </div>
                                                     ) : mrpVal > 0 ? (
                                                         <div 
-                                                            className="font-black text-black uppercase tracking-tight whitespace-nowrap shrink-0 my-1"
-                                                            style={{ fontSize: getNormalPosterBadgeFontSize(posterLayout), fontFamily: "'Inter', sans-serif" }}
+                                                            className="w-full flex items-center justify-center font-black text-black uppercase tracking-tight whitespace-nowrap shrink-0 my-0.5"
+                                                            style={{ 
+                                                                fontSize: getNormalPosterBadgeFontSize(posterLayout), 
+                                                                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                                                            }}
                                                         >
                                                             <span>MRP </span>
-                                                            <span className="relative inline-block ml-1 line-through decoration-red-600 decoration-2 text-black">
-                                                                {mrpVal.toFixed(1)}
+                                                            <span className="relative inline-block ml-0.5 line-through decoration-red-600 decoration-2 text-black">
+                                                                {formattedMrp}
                                                             </span>
                                                         </div>
                                                     ) : (
-                                                        <div className="h-2 shrink-0" />
+                                                        <div className="h-1 shrink-0" />
                                                     )}
 
                                                     {/* Product Title (Large Bold Uppercase Sans-Serif) */}
-                                                    <div className="flex-1 flex items-center justify-center w-full px-1 my-auto min-h-0">
+                                                    <div className="flex-1 flex items-center justify-center w-full px-0.5 my-auto min-h-0">
                                                         <h2 
                                                             className="font-black tracking-tight uppercase text-black text-center leading-[1.08] break-words line-clamp-3"
                                                             style={getNormalPosterTitleStyle(product.name, posterLayout)}
@@ -1713,21 +1777,21 @@ export default function PrintOffersPage() {
                                                     </div>
 
                                                     {/* Price & Unit (Massive Bold Black Font) */}
-                                                    <div className="w-full flex items-baseline justify-center text-center shrink-0 whitespace-nowrap pt-1">
+                                                    <div className="w-full flex items-baseline justify-center text-center shrink-0 whitespace-nowrap pt-0.5 relative z-10">
                                                         <span 
                                                             className="font-black text-black leading-none tracking-tight"
                                                             style={{ 
                                                                 fontSize: getNormalPosterPriceFontSize(sellingPrice, posterLayout),
-                                                                fontFamily: "'Inter', 'Montserrat', sans-serif"
+                                                                fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
                                                             }}
                                                         >
                                                             {sellingPrice.toFixed(2)}
                                                         </span>
                                                         <span 
-                                                            className="font-black text-black uppercase ml-1.5 leading-none"
+                                                            className="font-black text-black uppercase ml-1 leading-none"
                                                             style={{ 
-                                                                fontSize: getNormalPosterUnitFontSize(posterLayout),
-                                                                fontFamily: "'Inter', 'Montserrat', sans-serif"
+                                                                fontSize: getNormalPosterUnitFontSize(posterLayout, product.unit),
+                                                                fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
                                                             }}
                                                         >
                                                             / {(product.unit || '1 KG').toUpperCase()}
@@ -2387,32 +2451,48 @@ export default function PrintOffersPage() {
             </div>
 
             <style jsx global>{`
+                @page {
+                    size: ${
+                        (printMode === 'normal_poster' || isLandscapePoster) 
+                            ? '297mm 210mm' 
+                            : (layout === 'landscape' ? '297mm 210mm' : '210mm 297mm')
+                    };
+                    margin: 0mm !important;
+                }
                 @media print {
-                    @page {
-                        size: ${(printMode === 'normal_poster' || isLandscapePoster) ? 'A4 landscape' : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
-                        margin: 0 !important;
-                    }
                     html, body {
                         margin: 0 !important;
                         padding: 0 !important;
-                        width: 100% !important;
-                        height: 100% !important;
+                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
+                        height: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '210mm' : '297mm'} !important;
                         background: white !important;
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
                     }
+                    body > div, main {
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        max-width: none !important;
+                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
+                        overflow: visible !important;
+                    }
                     #print-offers-container {
-                        width: 100% !important;
+                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
+                        min-width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
                         max-width: none !important;
                         padding: 0 !important;
                         margin: 0 !important;
+                        background: white !important;
                     }
                     .normal-poster-a4-landscape {
                         width: 297mm !important;
-                        height: 210mm !important;
+                        min-width: 297mm !important;
                         max-width: 297mm !important;
+                        height: 210mm !important;
+                        min-height: 210mm !important;
                         max-height: 210mm !important;
                         padding: 3mm !important;
+                        margin: 0 auto !important;
                         box-sizing: border-box !important;
                         page-break-inside: avoid !important;
                         break-inside: avoid !important;
