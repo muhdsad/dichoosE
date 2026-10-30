@@ -282,6 +282,89 @@ const getPosterBadgeStyle = (layout) => {
     return { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset };
 };
 
+const getNormalPosterLogoHeight = (layout) => {
+    if (layout === '1') return '70px';
+    if (layout === '2_landscape' || layout === '2') return '56px';
+    if (layout === '3_landscape' || layout === '3') return '48px';
+    if (layout === '4') return '46px';
+    if (layout === '6') return '36px';
+    if (layout === '8') return '30px';
+    if (layout === '12') return '24px';
+    return '20px';
+};
+
+const getNormalPosterBadgeFontSize = (layout) => {
+    if (layout === '1') return '24px';
+    if (layout === '2_landscape' || layout === '2') return '19px';
+    if (layout === '3_landscape' || layout === '3') return '16px';
+    if (layout === '4') return '15.5px';
+    if (layout === '6') return '12.5px';
+    if (layout === '8') return '11px';
+    if (layout === '12') return '9.5px';
+    return '8.5px';
+};
+
+const getNormalPosterTitleStyle = (name, layout) => {
+    const len = (name || '').length;
+    let baseSize = 38; // Default for 4-grid (2x2)
+    if (layout === '1') baseSize = 72;
+    else if (layout === '2_landscape' || layout === '2') baseSize = 52;
+    else if (layout === '3_landscape' || layout === '3') baseSize = 42;
+    else if (layout === '4') baseSize = 38;
+    else if (layout === '6') baseSize = 28;
+    else if (layout === '8') baseSize = 22;
+    else if (layout === '12') baseSize = 17;
+    else if (layout === '16') baseSize = 14;
+
+    let sizeFactor = 1.0;
+    if (len > 32) sizeFactor = 0.68;
+    else if (len > 22) sizeFactor = 0.80;
+    else if (len > 15) sizeFactor = 0.90;
+
+    const finalSize = Math.round(baseSize * sizeFactor);
+    return {
+        fontSize: `${finalSize}px`,
+        fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontWeight: 900,
+        lineHeight: '1.08',
+        color: '#000000',
+        textTransform: 'uppercase',
+        textAlign: 'center',
+        wordBreak: 'break-word',
+    };
+};
+
+const getNormalPosterPriceFontSize = (price, layout) => {
+    const text = `${Number(price || 0).toFixed(2)}`;
+    const len = text.length;
+    let baseSize = 60; // Default for 4-grid (2x2)
+    if (layout === '1') baseSize = 108;
+    else if (layout === '2_landscape' || layout === '2') baseSize = 80;
+    else if (layout === '3_landscape' || layout === '3') baseSize = 66;
+    else if (layout === '4') baseSize = 60;
+    else if (layout === '6') baseSize = 42;
+    else if (layout === '8') baseSize = 34;
+    else if (layout === '12') baseSize = 26;
+    else if (layout === '16') baseSize = 21;
+
+    let sizeFactor = 1.0;
+    if (len > 8) sizeFactor = 0.82;
+    else if (len > 6) sizeFactor = 0.92;
+
+    return `${Math.round(baseSize * sizeFactor)}px`;
+};
+
+const getNormalPosterUnitFontSize = (layout) => {
+    if (layout === '1') return '56px';
+    if (layout === '2_landscape' || layout === '2') return '44px';
+    if (layout === '3_landscape' || layout === '3') return '36px';
+    if (layout === '4') return '34px';
+    if (layout === '6') return '24px';
+    if (layout === '8') return '19px';
+    if (layout === '12') return '15px';
+    return '12px';
+};
+
 export default function PrintOffersPage() {
     const [products, setProducts] = useState([]);
     const [normalProducts, setNormalProducts] = useState([]);
@@ -639,8 +722,16 @@ export default function PrintOffersPage() {
     const handleModeChange = (newMode) => {
         setPrintMode(newMode);
         setSearchTerm('');
+        let targetLayout = posterLayout;
+        if (newMode === 'normal_poster') {
+            targetLayout = '4';
+            setPosterLayout('4');
+        } else if (newMode === 'poster' && (posterLayout === '12' || posterLayout === '16')) {
+            targetLayout = '6';
+            setPosterLayout('6');
+        }
         const pool = newMode === 'normal_poster' ? normalProducts : products;
-        const count = parseInt(posterLayout);
+        const count = parseInt(targetLayout) || 4;
         if (pool.length > 0) {
             setSelectedProductIds(new Set(pool.slice(0, count).map(p => p.id)));
         } else {
@@ -799,7 +890,7 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const isLandscapePoster = posterLayout === '2_landscape' || posterLayout === '3_landscape';
+    const isLandscapePoster = printMode === 'normal_poster' || posterLayout === '2_landscape' || posterLayout === '3_landscape';
     const posterCols = posterLayout === '12' || posterLayout === '3_landscape' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 1 : 2));
     const posterRows = totalRequired / posterCols;
     // Mathematically split remaining A4 height: A4 Portrait = 297mm (Grid = 210mm). A4 Landscape = 210mm (Grid = 132mm).
@@ -976,8 +1067,83 @@ export default function PrintOffersPage() {
                     </div>
                 ) : (
                     <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200">
-                        {/* Poster Config Options */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-4 border-b border-gray-150">
+                        {printMode === 'normal_poster' ? (
+                            /* Normal Price Poster Landscape Config Options */
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-4 border-b border-gray-150">
+                                {/* Layout Selection */}
+                                <div className="space-y-2 md:col-span-2">
+                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">
+                                        A4 Landscape Grid Layout (Poster Style)
+                                    </label>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {[
+                                            { id: '1', label: '1 Item' },
+                                            { id: '2_landscape', label: '2 Items (2×1)' },
+                                            { id: '3_landscape', label: '3 Items (3×1)' },
+                                            { id: '4', label: '4 Items (2×2)' },
+                                            { id: '6', label: '6 Items (3×2)' },
+                                            { id: '8', label: '8 Items (4×2)' },
+                                            { id: '12', label: '12 Items (4×3)' },
+                                            { id: '16', label: '16 Items (4×4)' }
+                                        ].map(item => (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => handlePosterLayoutChange(item.id)}
+                                                className={`flex-1 min-w-[70px] py-2 px-1.5 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === item.id ? 'bg-emerald-600 text-white border-transparent shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}`}
+                                            >
+                                                {item.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Product Images Toggle */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Product Images</label>
+                                    <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors h-[38px] shadow-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={showProductImages}
+                                            onChange={(e) => setShowProductImages(e.target.checked)}
+                                            className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-600 cursor-pointer accent-emerald-600"
+                                        />
+                                        <span>Print Product Images</span>
+                                    </label>
+                                </div>
+
+                                {/* Logo Customization */}
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Tag Logo</label>
+                                    <div className="flex items-center gap-2">
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={handleLogoUpload}
+                                            className="hidden" 
+                                            id="normal-poster-logo-input"
+                                        />
+                                        <label 
+                                            htmlFor="normal-poster-logo-input" 
+                                            className="flex-1 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 py-2 px-3 rounded-lg font-bold text-xs text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5 h-[38px]"
+                                        >
+                                            <FaImage /> {logoImage ? 'Custom Logo Active' : 'Default BIG SAVE'}
+                                        </label>
+                                        {logoImage && (
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveLogo}
+                                                className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-3 rounded-lg transition h-[38px] text-xs font-bold"
+                                                title="Reset to default BIG SAVE logo"
+                                            >
+                                                Reset
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            /* Promotional Poster Config Options */
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-4 border-b border-gray-150">
                             {/* Layout Selection */}
                             <div className="space-y-2">
                                 <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Poster Grid Layout</label>
@@ -1264,6 +1430,7 @@ export default function PrintOffersPage() {
                                 </div>
                             </div>
                         </div>
+                        )}
 
                         {/* Product Picker Horizontal List */}
                         <div className="space-y-3">
@@ -1429,7 +1596,171 @@ export default function PrintOffersPage() {
             {/* A4 Printable Container */}
             <div id="print-offers-container" className={`mx-auto print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
                 
-                {(printMode === 'poster' || printMode === 'normal_poster') ? (
+                {printMode === 'normal_poster' ? (
+                    /* NORMAL PRICE POSTER CONTAINER (A4 LANDSCAPE - EXACT COPY OF UPLOADED POSTER STYLE) */
+                    <div className="w-full max-w-[297mm] h-[210mm] mx-auto bg-white p-[3.5mm] box-border flex flex-col justify-between overflow-hidden select-none relative shadow-sm border border-gray-200 print:shadow-none print:border-none print:p-[3mm] normal-poster-a4-landscape">
+                        {/* Grid of Cards */}
+                        <div 
+                            className={`w-full flex-grow grid gap-[3mm] print:gap-[2.5mm] ${
+                                posterLayout === '1' ? 'grid-cols-1 grid-rows-1' :
+                                posterLayout === '2_landscape' || posterLayout === '2' ? 'grid-cols-2 grid-rows-1' :
+                                posterLayout === '3_landscape' || posterLayout === '3' ? 'grid-cols-3 grid-rows-1' :
+                                posterLayout === '4' ? 'grid-cols-2 grid-rows-2' :
+                                posterLayout === '6' ? 'grid-cols-3 grid-rows-2' :
+                                posterLayout === '8' ? 'grid-cols-4 grid-rows-2' :
+                                posterLayout === '12' ? 'grid-cols-4 grid-rows-3' :
+                                posterLayout === '16' ? 'grid-cols-4 grid-rows-4' : 'grid-cols-2 grid-rows-2'
+                            }`}
+                            style={{ height: 'calc(100% - 14px)' }}
+                        >
+                            {paddedProducts.map((product, index) => {
+                                const isPlaceholder = product.isPlaceholder;
+                                const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
+                                const sellingPrice = product.price ? parseFloat(product.price) : 0;
+                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - sellingPrice;
+                                const hasSavings = mrpVal > 0 && savingsVal > 0;
+
+                                return (
+                                    <div
+                                        key={product.id}
+                                        id={`offer-card-${product.id}`}
+                                        className="w-full h-full bg-white border-2 border-black flex flex-row overflow-hidden relative box-border group"
+                                        style={{ minHeight: 0 }}
+                                    >
+                                        {isPlaceholder ? (
+                                            <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 p-4">
+                                                <p className="text-gray-400 font-bold text-sm uppercase tracking-wider">Empty Product Slot {index + 1}</p>
+                                                <p className="text-[11px] text-gray-400 mt-1">Select a product to fill this position.</p>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {/* Left Column: Product Image (Made larger as requested) */}
+                                                <div 
+                                                    onClick={(e) => handleOpenEditModal(e, product)}
+                                                    className="w-[44%] h-full flex items-center justify-center p-3 relative overflow-hidden bg-white cursor-pointer group/img shrink-0"
+                                                    title="Click to edit Image, Price, MRP & Details"
+                                                >
+                                                    {showProductImages && (
+                                                        <img
+                                                            src={getProxiedImageUrl(product.image)}
+                                                            alt={product.name}
+                                                            className="max-w-[96%] max-h-[94%] object-contain transition-transform group-hover/img:scale-105"
+                                                            referrerPolicy="no-referrer"
+                                                        />
+                                                    )}
+                                                    <div className="absolute top-2 left-2 bg-black/75 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-10">
+                                                        <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit
+                                                    </div>
+                                                </div>
+
+                                                {/* Right Column: Logo, Badges, Title, Price */}
+                                                <div 
+                                                    onClick={(e) => handleOpenEditModal(e, product)}
+                                                    className="w-[56%] h-full flex flex-col justify-between items-center text-center p-3.5 sm:p-4 box-border bg-white cursor-pointer group/details min-w-0"
+                                                    title="Click to edit Image, Price, MRP & Details"
+                                                >
+                                                    {/* Top Logo */}
+                                                    <div className="w-full flex items-center justify-center shrink-0">
+                                                        <img 
+                                                            src={logoImage || "/BIGSAVE.PNG"} 
+                                                            alt="BIG SAVE Smile" 
+                                                            className="object-contain"
+                                                            style={{ maxHeight: getNormalPosterLogoHeight(posterLayout), maxWidth: '85%' }}
+                                                        />
+                                                    </div>
+
+                                                    {/* Badges Row: MRP with red strike & Save Badge */}
+                                                    {hasSavings ? (
+                                                        <div className="flex items-center justify-center gap-2.5 my-1 flex-nowrap max-w-full overflow-hidden shrink-0">
+                                                            <div 
+                                                                className="font-black text-black uppercase tracking-tight whitespace-nowrap flex items-center shrink-0"
+                                                                style={{ fontSize: getNormalPosterBadgeFontSize(posterLayout), fontFamily: "'Inter', sans-serif" }}
+                                                            >
+                                                                <span>MRP </span>
+                                                                <span className="relative inline-block ml-1 line-through decoration-red-600 decoration-2 text-black">
+                                                                    {mrpVal.toFixed(1)}
+                                                                </span>
+                                                            </div>
+                                                            <div 
+                                                                className="bg-[#d80000] text-white font-extrabold uppercase px-2 py-0.5 rounded-[2px] tracking-wide whitespace-nowrap shrink-0 leading-tight"
+                                                                style={{ fontSize: getNormalPosterBadgeFontSize(posterLayout), fontFamily: "'Inter', sans-serif" }}
+                                                            >
+                                                                SAVE ₹{savingsVal.toFixed(2)}
+                                                            </div>
+                                                        </div>
+                                                    ) : mrpVal > 0 ? (
+                                                        <div 
+                                                            className="font-black text-black uppercase tracking-tight whitespace-nowrap shrink-0 my-1"
+                                                            style={{ fontSize: getNormalPosterBadgeFontSize(posterLayout), fontFamily: "'Inter', sans-serif" }}
+                                                        >
+                                                            <span>MRP </span>
+                                                            <span className="relative inline-block ml-1 line-through decoration-red-600 decoration-2 text-black">
+                                                                {mrpVal.toFixed(1)}
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="h-2 shrink-0" />
+                                                    )}
+
+                                                    {/* Product Title (Large Bold Uppercase Sans-Serif) */}
+                                                    <div className="flex-1 flex items-center justify-center w-full px-1 my-auto min-h-0">
+                                                        <h2 
+                                                            className="font-black tracking-tight uppercase text-black text-center leading-[1.08] break-words line-clamp-3"
+                                                            style={getNormalPosterTitleStyle(product.name, posterLayout)}
+                                                        >
+                                                            {product.name}
+                                                        </h2>
+                                                    </div>
+
+                                                    {/* Price & Unit (Massive Bold Black Font) */}
+                                                    <div className="w-full flex items-baseline justify-center text-center shrink-0 whitespace-nowrap pt-1">
+                                                        <span 
+                                                            className="font-black text-black leading-none tracking-tight"
+                                                            style={{ 
+                                                                fontSize: getNormalPosterPriceFontSize(sellingPrice, posterLayout),
+                                                                fontFamily: "'Inter', 'Montserrat', sans-serif"
+                                                            }}
+                                                        >
+                                                            {sellingPrice.toFixed(2)}
+                                                        </span>
+                                                        <span 
+                                                            className="font-black text-black uppercase ml-1.5 leading-none"
+                                                            style={{ 
+                                                                fontSize: getNormalPosterUnitFontSize(posterLayout),
+                                                                fontFamily: "'Inter', 'Montserrat', sans-serif"
+                                                            }}
+                                                        >
+                                                            / {(product.unit || '1 KG').toUpperCase()}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Individual Card Save PNG button */}
+                                                    <button
+                                                        data-html2canvas-ignore
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSaveCardAsPng(product.id, product.name);
+                                                        }}
+                                                        disabled={saving}
+                                                        className="absolute bottom-2 right-2 z-20 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-1 px-2.5 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                    >
+                                                        Save PNG
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Page Footer Caption */}
+                        <div className="w-full text-right text-[8.5px] print:text-[7pt] text-gray-500 font-sans pr-1 pt-1 select-none flex items-center justify-between shrink-0">
+                            <span className="opacity-0 print:opacity-0">.</span>
+                            <span>SMILE Supermarket | A4 Landscape Sheet | {posterLayout === '4' ? '2×2 Grid (4 Tags)' : `${posterLayout} Tags`} | 300 DPI Print Quality</span>
+                        </div>
+                    </div>
+                ) : printMode === 'poster' ? (
                     /* POSTER LAYOUT CONTAINER */
                     <div className={`w-full ${isLandscapePoster ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative`}>
                         
@@ -2058,7 +2389,7 @@ export default function PrintOffersPage() {
             <style jsx global>{`
                 @media print {
                     @page {
-                        size: ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'A4 landscape' : 'A4 portrait') : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
+                        size: ${(printMode === 'normal_poster' || isLandscapePoster) ? 'A4 landscape' : (layout === 'landscape' ? 'A4 landscape' : 'A4 portrait')};
                         margin: 0 !important;
                     }
                     html, body {
@@ -2067,14 +2398,24 @@ export default function PrintOffersPage() {
                         width: 100% !important;
                         height: 100% !important;
                         background: white !important;
-                        -webkit-print-color-adjust: exact;
-                        print-color-adjust: exact;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
                     }
                     #print-offers-container {
                         width: 100% !important;
                         max-width: none !important;
                         padding: 0 !important;
                         margin: 0 !important;
+                    }
+                    .normal-poster-a4-landscape {
+                        width: 297mm !important;
+                        height: 210mm !important;
+                        max-width: 297mm !important;
+                        max-height: 210mm !important;
+                        padding: 3mm !important;
+                        box-sizing: border-box !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
                     }
                     .grid {
                         display: grid !important;
