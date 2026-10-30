@@ -14,48 +14,88 @@ const getProxiedImageUrl = (url) => {
     }
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     return `${origin}/api/proxy-image?url=${encodeURIComponent(directLink)}`;
-};const getDynamicTitleStyle = (name, isNarrow = false) => {
+};const getDynamicTitleStyle = (name, layout = 'landscape') => {
     const len = (name || '').length;
     let fontSize = '16px';
-    if (len <= 12) {
-        fontSize = isNarrow ? '28px' : '36px';
-    } else if (len <= 18) {
-        fontSize = isNarrow ? '24px' : '30px';
-    } else if (len <= 28) {
-        fontSize = isNarrow ? '18px' : '24px';
-    } else if (len <= 40) {
-        fontSize = isNarrow ? '14px' : '18px';
+    let stroke = '1px #ffffff';
+
+    if (layout === 'landscape_6') {
+        stroke = '2px #ffffff';
+        if (len <= 12) fontSize = '48px';
+        else if (len <= 18) fontSize = '40px';
+        else if (len <= 28) fontSize = '32px';
+        else if (len <= 40) fontSize = '26px';
+        else fontSize = '20px';
+    } else if (layout === 'landscape_12') {
+        stroke = '1.4px #ffffff';
+        if (len <= 12) fontSize = '36px';
+        else if (len <= 18) fontSize = '30px';
+        else if (len <= 28) fontSize = '24px';
+        else if (len <= 40) fontSize = '18px';
+        else fontSize = '15px';
+    } else if (layout === 'portrait') {
+        stroke = '1.2px #ffffff';
+        if (len <= 12) fontSize = '36px';
+        else if (len <= 18) fontSize = '30px';
+        else if (len <= 28) fontSize = '24px';
+        else if (len <= 40) fontSize = '18px';
+        else fontSize = '16px';
     } else {
-        fontSize = isNarrow ? '12px' : '16px';
+        // default 4x4 landscape (16 tags)
+        if (len <= 12) fontSize = '28px';
+        else if (len <= 18) fontSize = '24px';
+        else if (len <= 28) fontSize = '18px';
+        else if (len <= 40) fontSize = '14px';
+        else fontSize = '12px';
     }
+
     return {
         fontSize,
         fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
         fontWeight: 'normal',
-        lineHeight: '1.1',
+        lineHeight: '1.08',
         color: '#000000',
         textTransform: 'uppercase',
         textAlign: 'center',
         wordBreak: 'break-word',
-        WebkitTextStroke: '1px #ffffff',
+        WebkitTextStroke: stroke,
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
     };
 };
 
-const getDynamicPriceStyle = (price, isNarrow = false) => {
+const getDynamicPriceStyle = (price, layout = 'landscape') => {
     const text = `₹${Number(price || 0).toFixed(2)}`;
     const len = text.length;
     let fontSize = '24px';
-    if (len <= 6) {
-        fontSize = isNarrow ? '30px' : '40px';
-    } else if (len <= 8) {
-        fontSize = isNarrow ? '26px' : '34px';
-    } else if (len <= 10) {
-        fontSize = isNarrow ? '22px' : '28px';
+    let stroke = '1.2px #ffffff';
+
+    if (layout === 'landscape_6') {
+        stroke = '2.2px #ffffff';
+        if (len <= 6) fontSize = '64px';
+        else if (len <= 8) fontSize = '54px';
+        else if (len <= 10) fontSize = '44px';
+        else fontSize = '36px';
+    } else if (layout === 'landscape_12') {
+        stroke = '1.6px #ffffff';
+        if (len <= 6) fontSize = '46px';
+        else if (len <= 8) fontSize = '38px';
+        else if (len <= 10) fontSize = '32px';
+        else fontSize = '26px';
+    } else if (layout === 'portrait') {
+        stroke = '1.4px #ffffff';
+        if (len <= 6) fontSize = '40px';
+        else if (len <= 8) fontSize = '34px';
+        else if (len <= 10) fontSize = '28px';
+        else fontSize = '24px';
     } else {
-        fontSize = isNarrow ? '18px' : '24px';
+        // default 4x4 landscape (16 tags)
+        if (len <= 6) fontSize = '30px';
+        else if (len <= 8) fontSize = '26px';
+        else if (len <= 10) fontSize = '22px';
+        else fontSize = '18px';
     }
+
     return {
         fontSize,
         fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
@@ -64,10 +104,23 @@ const getDynamicPriceStyle = (price, isNarrow = false) => {
         color: '#000000',
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-        WebkitTextStroke: '1.2px #ffffff',
+        WebkitTextStroke: stroke,
         paintOrder: 'stroke fill',
         textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
     };
+};
+
+const getDynamicUnitFontSize = (layout = 'landscape') => {
+    if (layout === 'landscape_6') return '18px';
+    if (layout === 'landscape_12') return '14px';
+    if (layout === 'portrait') return '13px';
+    return '11px';
+};
+
+const getDynamicBadgeFontSize = (layout = 'landscape') => {
+    if (layout === 'landscape_6') return '14px';
+    if (layout === 'landscape_12') return '12px';
+    return '11px';
 };
 
 const getPosterDynamicTitleStyle = (name, layout) => {
@@ -869,7 +922,7 @@ export default function PrintOffersPage() {
             }
 
             // Calculate exact A4 dimensions at 96 CSS DPI (297mm = 1122.52px, 210mm = 793.70px)
-            const isLandscape = printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape';
+            const isLandscape = printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait';
             const targetWidthPx = isLandscape ? 1122.52 : 793.70;
             const targetHeightPx = isLandscape ? 793.70 : 1122.52;
 
@@ -1063,18 +1116,30 @@ export default function PrintOffersPage() {
                 {/* Configurations Panel depending on Mode */}
                 {printMode === 'sheet' ? (
                     <div className="flex flex-wrap gap-3 items-center justify-between bg-white p-4 rounded-xl border border-gray-200">
-                        <div className="flex gap-3">
+                        <div className="flex gap-2 flex-wrap">
                             <button
                                 onClick={() => setLayout('portrait')}
-                                className={`px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
                             >
                                 3x5 Portrait (15 Tags)
                             </button>
                             <button
                                 onClick={() => setLayout('landscape')}
-                                className={`px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
                             >
                                 4x4 Landscape (16 Tags)
+                            </button>
+                            <button
+                                onClick={() => setLayout('landscape_12')}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_12' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                            >
+                                4x3 Landscape (12 Tags)
+                            </button>
+                            <button
+                                onClick={() => setLayout('landscape_6')}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_6' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                            >
+                                3x2 Landscape (6 Tags)
                             </button>
                         </div>
                         <div className="flex gap-3 items-center">
@@ -1631,7 +1696,7 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
+            <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout !== 'portrait' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
                 
                 {printMode === 'normal_poster' ? (
                     /* NORMAL PRICE POSTER CONTAINER (EXACT A4 LANDSCAPE 297mm x 210mm) */
@@ -2291,8 +2356,24 @@ export default function PrintOffersPage() {
                     /* STANDARD TAG SHEETS CONTAINER */
                     <div className="w-full flex flex-col gap-6 print:gap-0">
                         {(() => {
-                            const itemsPerPage = layout === 'landscape' ? 16 : 15;
-                            const cardHeight = layout === 'landscape' ? '47.5mm' : '54mm';
+                            const isSheetLandscape = layout !== 'portrait';
+                            let itemsPerPage = 16;
+                            let cardHeight = '47.5mm';
+                            let gridColsClass = 'grid-cols-4';
+
+                            if (layout === 'portrait') {
+                                itemsPerPage = 15;
+                                cardHeight = '54mm';
+                                gridColsClass = 'grid-cols-3';
+                            } else if (layout === 'landscape_12') {
+                                itemsPerPage = 12;
+                                cardHeight = '63.3mm';
+                                gridColsClass = 'grid-cols-4';
+                            } else if (layout === 'landscape_6') {
+                                itemsPerPage = 6;
+                                cardHeight = '95mm';
+                                gridColsClass = 'grid-cols-3';
+                            }
                             
                             // Pad products to a multiple of itemsPerPage with empty placeholders
                             const sheetProducts = [...products];
@@ -2319,8 +2400,8 @@ export default function PrintOffersPage() {
                                     key={`sheet-page-${pageIdx}`}
                                     className="w-full flex flex-col bg-white overflow-hidden page-break-after-always print:break-after-page shadow-sm print:shadow-none border border-gray-150 print:border-none relative"
                                     style={{
-                                        height: layout === 'landscape' ? '210mm' : '297mm',
-                                        maxHeight: layout === 'landscape' ? '210mm' : '297mm',
+                                        height: isSheetLandscape ? '210mm' : '297mm',
+                                        maxHeight: isSheetLandscape ? '210mm' : '297mm',
                                         breakAfter: pageIdx < pages.length - 1 ? 'page' : 'auto',
                                         pageBreakAfter: pageIdx < pages.length - 1 ? 'always' : 'auto'
                                     }}
@@ -2332,7 +2413,7 @@ export default function PrintOffersPage() {
                                     </div>
 
                                     {/* Sheet Grid */}
-                                    <div className={`grid gap-0 print:gap-0 border-none flex-grow ${layout === 'landscape' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                                    <div className={`grid gap-0 print:gap-0 border-none flex-grow ${gridColsClass}`}>
                                         {pageProducts.map((product, index) => {
                                             const isPlaceholder = product.isPlaceholder;
                                             const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
@@ -2371,7 +2452,7 @@ export default function PrintOffersPage() {
                                                                     <div 
                                                                         className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                                         style={{ 
-                                                                            fontSize: '11px',
+                                                                            fontSize: getDynamicBadgeFontSize(layout),
                                                                             fontFamily: 'var(--font-sans), sans-serif',
                                                                             textDecorationColor: '#000000',
                                                                             lineHeight: '1.1'
@@ -2386,7 +2467,7 @@ export default function PrintOffersPage() {
                                                                     <div 
                                                                         className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
                                                                         style={{ 
-                                                                            fontSize: '11px',
+                                                                            fontSize: getDynamicBadgeFontSize(layout),
                                                                             fontFamily: 'var(--font-sans), sans-serif',
                                                                             lineHeight: '1.1'
                                                                         }}
@@ -2415,18 +2496,18 @@ export default function PrintOffersPage() {
                                                                 className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-3 box-border text-center"
                                                             >
                                                                 {product.brand && (
-                                                                    <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: '9px', color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
+                                                                    <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: layout === 'landscape_6' ? '12px' : (layout === 'landscape_12' ? '10px' : (layout === 'portrait' ? '10px' : '9px')), color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                                         {product.brand}
                                                                     </span>
                                                                 )}
-                                                                <h2 className="font-black leading-tight tracking-tight text-center" style={getDynamicTitleStyle(product.name, layout === 'landscape')}>
+                                                                <h2 className="font-black leading-tight tracking-tight text-center" style={getDynamicTitleStyle(product.name, layout)}>
                                                                     {product.name}
                                                                 </h2>
-                                                                <div className="font-bold mt-1" style={{ fontSize: layout === 'landscape' ? '11px' : '13px', color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
+                                                                <div className="font-bold mt-1" style={{ fontSize: getDynamicUnitFontSize(layout), color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                                     {product.unit || '1 KG'}
                                                                 </div>
                                                                 <div className="flex items-baseline justify-center w-full mt-1.5">
-                                                                    <span style={getDynamicPriceStyle(product.offerPrice, layout === 'landscape')}>
+                                                                    <span style={getDynamicPriceStyle(product.offerPrice, layout)}>
                                                                         ₹{Number(product.offerPrice || 0).toFixed(2)}
                                                                     </span>
                                                                 </div>
@@ -2463,9 +2544,9 @@ export default function PrintOffersPage() {
             <style jsx global>{`
                 @page {
                     size: ${
-                        (printMode === 'normal_poster' || isLandscapePoster) 
+                        (printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') 
                             ? '297mm 210mm' 
-                            : (layout === 'landscape' ? '297mm 210mm' : '210mm 297mm')
+                            : '210mm 297mm'
                     };
                     margin: 0mm !important;
                 }
@@ -2473,8 +2554,8 @@ export default function PrintOffersPage() {
                     html, body {
                         margin: 0 !important;
                         padding: 0 !important;
-                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
-                        height: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '210mm' : '297mm'} !important;
+                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
+                        height: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '210mm' : '297mm'} !important;
                         background: white !important;
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
@@ -2483,12 +2564,12 @@ export default function PrintOffersPage() {
                         margin: 0 !important;
                         padding: 0 !important;
                         max-width: none !important;
-                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
+                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
                         overflow: visible !important;
                     }
                     #print-offers-container {
-                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
-                        min-width: ${(printMode === 'normal_poster' || isLandscapePoster || layout === 'landscape') ? '297mm' : '210mm'} !important;
+                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
+                        min-width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
                         max-width: none !important;
                         padding: 0 !important;
                         margin: 0 !important;
