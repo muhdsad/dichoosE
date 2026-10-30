@@ -294,14 +294,14 @@ const getNormalPosterLogoHeight = (layout) => {
 };
 
 const getNormalPosterBadgeFontSize = (layout) => {
-    if (layout === '1') return '24px';
-    if (layout === '2_landscape' || layout === '2') return '19px';
-    if (layout === '3_landscape' || layout === '3') return '16px';
-    if (layout === '4') return '14.5px';
-    if (layout === '6') return '12px';
-    if (layout === '8') return '10px';
-    if (layout === '12') return '8.5px';
-    return '7.5px';
+    if (layout === '1') return '30px';
+    if (layout === '2_landscape' || layout === '2') return '24px';
+    if (layout === '3_landscape' || layout === '3') return '19px';
+    if (layout === '4') return '17px';
+    if (layout === '6') return '14px';
+    if (layout === '8') return '12px';
+    if (layout === '12') return '10.5px';
+    return '9px';
 };
 
 const getNormalPosterCardLayout = (layout) => {
@@ -1677,7 +1677,7 @@ export default function PrintOffersPage() {
                                     <div
                                         key={product.id}
                                         id={`offer-card-${product.id}`}
-                                        className="w-full h-full bg-white border-2 border-black flex flex-row overflow-hidden relative box-border group"
+                                        className="w-full h-full bg-white border-2 border-black flex flex-col justify-between overflow-hidden relative box-border group"
                                         style={{ minHeight: 0 }}
                                     >
                                         {isPlaceholder ? (
@@ -1687,44 +1687,25 @@ export default function PrintOffersPage() {
                                             </div>
                                         ) : (
                                             <>
-                                                {/* Left Column: Product Image (z-index 0 / bottom, transparent bg) */}
+                                                {/* Top Header: Big Save Logo + MRP & Save Badge (Grabbed to Middle, Overlays Top) */}
                                                 <div 
                                                     onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className={`${imgWidth} h-full flex items-center justify-center p-1.5 relative overflow-hidden bg-transparent cursor-pointer group/img shrink-0 z-0`}
+                                                    className="w-full flex flex-col items-center justify-center shrink-0 pt-1 pb-0.5 px-1 relative z-20 bg-white/95 cursor-pointer"
                                                     title="Click to edit Image, Price, MRP & Details"
                                                 >
-                                                    {showProductImages && (
-                                                        <img
-                                                            src={getProxiedImageUrl(product.image)}
-                                                            alt={product.name}
-                                                            className="max-w-[95%] max-h-[92%] object-contain transition-transform group-hover/img:scale-105 relative z-0"
-                                                            referrerPolicy="no-referrer"
-                                                        />
-                                                    )}
-                                                    <div className="absolute top-2 left-2 bg-black/75 text-white text-[9px] font-bold px-2 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-10">
-                                                        <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit
-                                                    </div>
-                                                </div>
-
-                                                {/* Right Column: Logo, Badges, Title, Price */}
-                                                <div 
-                                                    onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className={`${detailWidth} h-full flex flex-col justify-between items-center text-center ${padding} box-border bg-white cursor-pointer group/details min-w-0 relative z-10`}
-                                                    title="Click to edit Image, Price, MRP & Details"
-                                                >
-                                                    {/* Top Logo - centered in column */}
-                                                    <div className="w-full flex items-center justify-center shrink-0 pt-0.5">
+                                                    {/* Big Save Logo - centered in middle of card */}
+                                                    <div className="w-full flex items-center justify-center shrink-0">
                                                         <img 
                                                             src={logoImage || "/BIGSAVE.PNG"} 
                                                             alt="BIG SAVE Smile" 
                                                             className="mx-auto object-contain block"
-                                                            style={{ maxHeight: getNormalPosterLogoHeight(posterLayout), maxWidth: '88%' }}
+                                                            style={{ maxHeight: getNormalPosterLogoHeight(posterLayout), maxWidth: '65%' }}
                                                         />
                                                     </div>
 
-                                                    {/* Badges Row: MRP with red strike & Save Badge - centered in column */}
+                                                    {/* Badges Row: MRP with red strike & Save Badge - Large, Visible, Centered in middle */}
                                                     {hasSavings ? (
-                                                        <div className="w-full flex items-center justify-center gap-1.5 my-0.5 flex-nowrap shrink-0">
+                                                        <div className="w-full flex items-center justify-center gap-2 mt-0.5 flex-nowrap shrink-0">
                                                             <div 
                                                                 className="font-black text-black uppercase tracking-tight whitespace-nowrap flex items-center shrink-0"
                                                                 style={{ 
@@ -1738,7 +1719,7 @@ export default function PrintOffersPage() {
                                                                 </span>
                                                             </div>
                                                             <div 
-                                                                className="bg-[#d80000] text-white font-black uppercase px-1.5 py-0.5 rounded-[2px] tracking-wide whitespace-nowrap shrink-0 leading-tight flex items-center"
+                                                                className="bg-[#d80000] text-white font-black uppercase px-2 py-0.5 rounded-[3px] tracking-wide whitespace-nowrap shrink-0 leading-tight flex items-center shadow-xs"
                                                                 style={{ 
                                                                     fontSize: getNormalPosterBadgeFontSize(posterLayout), 
                                                                     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
@@ -1751,7 +1732,7 @@ export default function PrintOffersPage() {
                                                         </div>
                                                     ) : mrpVal > 0 ? (
                                                         <div 
-                                                            className="w-full flex items-center justify-center font-black text-black uppercase tracking-tight whitespace-nowrap shrink-0 my-0.5"
+                                                            className="w-full flex items-center justify-center font-black text-black uppercase tracking-tight whitespace-nowrap shrink-0 mt-0.5"
                                                             style={{ 
                                                                 fontSize: getNormalPosterBadgeFontSize(posterLayout), 
                                                                 fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
@@ -1763,53 +1744,82 @@ export default function PrintOffersPage() {
                                                             </span>
                                                         </div>
                                                     ) : (
-                                                        <div className="h-1 shrink-0" />
+                                                        <div className="h-0.5 shrink-0" />
                                                     )}
+                                                </div>
 
-                                                    {/* Product Title (Large Bold Uppercase Sans-Serif) */}
-                                                    <div className="flex-1 flex items-center justify-center w-full px-0.5 my-auto min-h-0">
-                                                        <h2 
-                                                            className="font-black tracking-tight uppercase text-black text-center leading-[1.08] break-words line-clamp-3"
-                                                            style={getNormalPosterTitleStyle(product.name, posterLayout)}
-                                                        >
-                                                            {product.name}
-                                                        </h2>
-                                                    </div>
-
-                                                    {/* Price & Unit (Massive Bold Black Font) */}
-                                                    <div className="w-full flex items-baseline justify-center text-center shrink-0 whitespace-nowrap pt-0.5 relative z-10">
-                                                        <span 
-                                                            className="font-black text-black leading-none tracking-tight"
-                                                            style={{ 
-                                                                fontSize: getNormalPosterPriceFontSize(sellingPrice, posterLayout),
-                                                                fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                            }}
-                                                        >
-                                                            {sellingPrice.toFixed(2)}
-                                                        </span>
-                                                        <span 
-                                                            className="font-black text-black uppercase ml-1 leading-none"
-                                                            style={{ 
-                                                                fontSize: getNormalPosterUnitFontSize(posterLayout, product.unit),
-                                                                fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                            }}
-                                                        >
-                                                            / {(product.unit || '1 KG').toUpperCase()}
-                                                        </span>
-                                                    </div>
-
-                                                    {/* Individual Card Save PNG button */}
-                                                    <button
-                                                        data-html2canvas-ignore
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleSaveCardAsPng(product.id, product.name);
-                                                        }}
-                                                        disabled={saving}
-                                                        className="absolute bottom-2 right-2 z-20 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-1 px-2.5 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                {/* Main Content Area: Left = Product Image, Right = Title & Price */}
+                                                <div className="w-full flex-1 min-h-0 flex flex-row items-center relative z-10 px-1 pb-1">
+                                                    {/* Left Column: Product Image */}
+                                                    <div 
+                                                        onClick={(e) => handleOpenEditModal(e, product)}
+                                                        className="w-[38%] h-full flex items-center justify-center p-1 relative overflow-hidden bg-transparent cursor-pointer group/img shrink-0 z-0"
+                                                        title="Click to edit Image, Price, MRP & Details"
                                                     >
-                                                        Save PNG
-                                                    </button>
+                                                        {showProductImages && (
+                                                            <img
+                                                                src={getProxiedImageUrl(product.image)}
+                                                                alt={product.name}
+                                                                className="max-w-[95%] max-h-[92%] object-contain transition-transform group-hover/img:scale-105 relative z-0"
+                                                                referrerPolicy="no-referrer"
+                                                            />
+                                                        )}
+                                                        <div className="absolute top-1 left-1 bg-black/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-10">
+                                                            <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Right Column: Title & Massive Price */}
+                                                    <div 
+                                                        onClick={(e) => handleOpenEditModal(e, product)}
+                                                        className="w-[62%] h-full flex flex-col justify-between items-center text-center p-0.5 box-border bg-transparent cursor-pointer group/details min-w-0 relative z-10"
+                                                        title="Click to edit Image, Price, MRP & Details"
+                                                    >
+                                                        {/* Product Title (Large Bold Uppercase Sans-Serif) */}
+                                                        <div className="flex-1 flex items-center justify-center w-full px-0.5 my-auto min-h-0">
+                                                            <h2 
+                                                                className="font-black tracking-tight uppercase text-black text-center leading-[1.08] break-words line-clamp-3"
+                                                                style={getNormalPosterTitleStyle(product.name, posterLayout)}
+                                                            >
+                                                                {product.name}
+                                                            </h2>
+                                                        </div>
+
+                                                        {/* Price & Unit (Massive Bold Black Font) */}
+                                                        <div className="w-full flex items-baseline justify-center text-center shrink-0 whitespace-nowrap pt-0.5 relative z-10">
+                                                            <span 
+                                                                className="font-black text-black leading-none tracking-tight"
+                                                                style={{ 
+                                                                    fontSize: getNormalPosterPriceFontSize(sellingPrice, posterLayout),
+                                                                    fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                                                                }}
+                                                            >
+                                                                {sellingPrice.toFixed(2)}
+                                                            </span>
+                                                            <span 
+                                                                className="font-black text-black uppercase ml-1 leading-none"
+                                                                style={{ 
+                                                                    fontSize: getNormalPosterUnitFontSize(posterLayout, product.unit),
+                                                                    fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                                                                }}
+                                                            >
+                                                                / {(product.unit || '1 KG').toUpperCase()}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Individual Card Save PNG button */}
+                                                        <button
+                                                            data-html2canvas-ignore
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleSaveCardAsPng(product.id, product.name);
+                                                            }}
+                                                            disabled={saving}
+                                                            className="absolute bottom-1 right-1 z-20 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-1 px-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                        >
+                                                            Save PNG
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </>
                                         )}
