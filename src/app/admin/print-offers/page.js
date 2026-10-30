@@ -1631,7 +1631,7 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className="w-full flex justify-center items-center overflow-x-auto print:overflow-visible print:w-full print:p-0 p-2 sm:p-4 bg-gray-100 print:bg-white">
+            <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout === 'landscape' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
                 
                 {printMode === 'normal_poster' ? (
                     /* NORMAL PRICE POSTER CONTAINER (EXACT A4 LANDSCAPE 297mm x 210mm) */
@@ -2289,7 +2289,7 @@ export default function PrintOffersPage() {
                     </div>
                 ) : (
                     /* STANDARD TAG SHEETS CONTAINER */
-                    <div className="flex flex-col gap-6 print:gap-0">
+                    <div className="w-full flex flex-col gap-6 print:gap-0">
                         {(() => {
                             const itemsPerPage = layout === 'landscape' ? 16 : 15;
                             const cardHeight = layout === 'landscape' ? '47.5mm' : '54mm';
