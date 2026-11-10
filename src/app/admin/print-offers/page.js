@@ -909,22 +909,31 @@ export default function PrintOffersPage() {
         }
     };
 
+    // Poster orientation and page orientation details
+    const isLandscapePoster = posterLayout === '2_landscape' || posterLayout === '3_landscape';
+    const isPageLandscape = printMode === 'normal_poster' 
+        ? true 
+        : (printMode === 'poster' 
+            ? isLandscapePoster 
+            : layout !== 'portrait');
+
     const handleSaveAllAsPng = async () => {
         setSaving(true);
         try {
             const html2canvas = (await import('html2canvas-pro')).default;
             const element = printMode === 'normal_poster' 
                 ? (document.getElementById('normal-poster-a4-target') || document.getElementById('print-offers-container'))
-                : document.getElementById('print-offers-container');
+                : printMode === 'poster'
+                    ? (document.getElementById('promotional-poster-a4-target') || document.getElementById('print-offers-container'))
+                    : document.getElementById('print-offers-container');
             if (!element) {
                 alert("Error: Print container not found.");
                 return;
             }
 
             // Calculate exact A4 dimensions at 96 CSS DPI (297mm = 1122.52px, 210mm = 793.70px)
-            const isLandscape = printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait';
-            const targetWidthPx = isLandscape ? 1122.52 : 793.70;
-            const targetHeightPx = isLandscape ? 793.70 : 1122.52;
+            const targetWidthPx = isPageLandscape ? 1122.52 : 793.70;
+            const targetHeightPx = isPageLandscape ? 793.70 : 1122.52;
 
             // Scale 3.125 produces exact 3508px x 2480px (300 DPI A4 print standard)
             const canvas = await html2canvas(element, {
@@ -941,7 +950,7 @@ export default function PrintOffersPage() {
             const dataUrl = canvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.download = printMode === 'poster' 
-                ? `offers-poster-${posterLayout}.png` 
+                ? `offers-poster-${posterLayout}-${isLandscapePoster ? 'landscape' : 'portrait'}.png` 
                 : (printMode === 'normal_poster' 
                     ? `normal-price-poster-${posterLayout}-a4-landscape.png` 
                     : `offers-sheet-${layout}.png`);
@@ -980,7 +989,6 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const isLandscapePoster = printMode === 'normal_poster' || posterLayout === '2_landscape' || posterLayout === '3_landscape';
     const posterCols = posterLayout === '12' || posterLayout === '3_landscape' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 1 : 2));
     const posterRows = totalRequired / posterCols;
     // Mathematically split remaining A4 height: A4 Portrait = 297mm (Grid = 210mm). A4 Landscape = 210mm (Grid = 132mm).
@@ -1696,7 +1704,7 @@ export default function PrintOffersPage() {
             </div>
 
             {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${(printMode === 'poster' || printMode === 'normal_poster') ? (isLandscapePoster ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white') : (layout !== 'portrait' ? 'max-w-[297mm] p-2' : 'max-w-[210mm] p-2')}`}>
+            <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${isPageLandscape ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white'}`}>
                 
                 {printMode === 'normal_poster' ? (
                     /* NORMAL PRICE POSTER CONTAINER (EXACT A4 LANDSCAPE 297mm x 210mm) */
@@ -1901,7 +1909,19 @@ export default function PrintOffersPage() {
                     </div>
                 ) : printMode === 'poster' ? (
                     /* POSTER LAYOUT CONTAINER */
-                    <div className={`w-full ${isLandscapePoster ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col bg-white overflow-hidden select-none border border-gray-150 shadow-sm relative`}>
+                    <div 
+                        id="promotional-poster-a4-target"
+                        className={`promotional-poster-target w-full mx-auto ${isLandscapePoster ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col justify-between bg-white overflow-hidden select-none border border-gray-150 shadow-sm print:border-none print:shadow-none relative box-border`}
+                        style={{
+                            width: isLandscapePoster ? '297mm' : '210mm',
+                            minWidth: isLandscapePoster ? '297mm' : '210mm',
+                            maxWidth: isLandscapePoster ? '297mm' : '210mm',
+                            height: isLandscapePoster ? '210mm' : '297mm',
+                            minHeight: isLandscapePoster ? '210mm' : '297mm',
+                            maxHeight: isLandscapePoster ? '210mm' : '297mm',
+                            boxSizing: 'border-box'
+                        }}
+                    >
                         
                         {/* Top HR Bars (Green 10px & Red 5px with narrow space) */}
                         <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
@@ -2543,19 +2563,15 @@ export default function PrintOffersPage() {
 
             <style jsx global>{`
                 @page {
-                    size: ${
-                        (printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') 
-                            ? '297mm 210mm' 
-                            : '210mm 297mm'
-                    };
+                    size: ${isPageLandscape ? '297mm 210mm' : '210mm 297mm'};
                     margin: 0mm !important;
                 }
                 @media print {
                     html, body {
                         margin: 0 !important;
                         padding: 0 !important;
-                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
-                        height: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '210mm' : '297mm'} !important;
+                        width: ${isPageLandscape ? '297mm' : '210mm'} !important;
+                        height: ${isPageLandscape ? '210mm' : '297mm'} !important;
                         background: white !important;
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
@@ -2564,13 +2580,13 @@ export default function PrintOffersPage() {
                         margin: 0 !important;
                         padding: 0 !important;
                         max-width: none !important;
-                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
+                        width: ${isPageLandscape ? '297mm' : '210mm'} !important;
                         overflow: visible !important;
                     }
                     #print-offers-container {
-                        width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
-                        min-width: ${(printMode === 'normal_poster' || isLandscapePoster || layout !== 'portrait') ? '297mm' : '210mm'} !important;
-                        max-width: none !important;
+                        width: ${isPageLandscape ? '297mm' : '210mm'} !important;
+                        min-width: ${isPageLandscape ? '297mm' : '210mm'} !important;
+                        max-width: ${isPageLandscape ? '297mm' : '210mm'} !important;
                         padding: 0 !important;
                         margin: 0 !important;
                         background: white !important;
@@ -2587,6 +2603,21 @@ export default function PrintOffersPage() {
                         box-sizing: border-box !important;
                         page-break-inside: avoid !important;
                         break-inside: avoid !important;
+                    }
+                    .promotional-poster-target {
+                        width: ${isLandscapePoster ? '297mm' : '210mm'} !important;
+                        min-width: ${isLandscapePoster ? '297mm' : '210mm'} !important;
+                        max-width: ${isLandscapePoster ? '297mm' : '210mm'} !important;
+                        height: ${isLandscapePoster ? '210mm' : '297mm'} !important;
+                        min-height: ${isLandscapePoster ? '210mm' : '297mm'} !important;
+                        max-height: ${isLandscapePoster ? '210mm' : '297mm'} !important;
+                        padding: 0 !important;
+                        margin: 0 auto !important;
+                        box-sizing: border-box !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                        border: none !important;
+                        box-shadow: none !important;
                     }
                     .grid {
                         display: grid !important;
