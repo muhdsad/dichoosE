@@ -19,7 +19,14 @@ const getProxiedImageUrl = (url) => {
     let fontSize = '16px';
     let stroke = '1px #ffffff';
 
-    if (layout === 'landscape_6') {
+    if (layout === 'landscape_4') {
+        stroke = '2.4px #ffffff';
+        if (len <= 12) fontSize = '56px';
+        else if (len <= 18) fontSize = '48px';
+        else if (len <= 28) fontSize = '38px';
+        else if (len <= 40) fontSize = '30px';
+        else fontSize = '24px';
+    } else if (layout === 'landscape_6') {
         stroke = '2px #ffffff';
         if (len <= 12) fontSize = '48px';
         else if (len <= 18) fontSize = '40px';
@@ -70,7 +77,13 @@ const getDynamicPriceStyle = (price, layout = 'landscape') => {
     let fontSize = '24px';
     let stroke = '1.2px #ffffff';
 
-    if (layout === 'landscape_6') {
+    if (layout === 'landscape_4') {
+        stroke = '2.6px #ffffff';
+        if (len <= 6) fontSize = '76px';
+        else if (len <= 8) fontSize = '64px';
+        else if (len <= 10) fontSize = '52px';
+        else fontSize = '42px';
+    } else if (layout === 'landscape_6') {
         stroke = '2.2px #ffffff';
         if (len <= 6) fontSize = '64px';
         else if (len <= 8) fontSize = '54px';
@@ -111,6 +124,7 @@ const getDynamicPriceStyle = (price, layout = 'landscape') => {
 };
 
 const getDynamicUnitFontSize = (layout = 'landscape') => {
+    if (layout === 'landscape_4') return '22px';
     if (layout === 'landscape_6') return '18px';
     if (layout === 'landscape_12') return '14px';
     if (layout === 'portrait') return '13px';
@@ -118,30 +132,31 @@ const getDynamicUnitFontSize = (layout = 'landscape') => {
 };
 
 const getDynamicBadgeFontSize = (layout = 'landscape') => {
+    if (layout === 'landscape_4') return '16px';
     if (layout === 'landscape_6') return '14px';
     if (layout === 'landscape_12') return '12px';
     return '11px';
 };
 
-const getPosterDynamicTitleStyle = (name, layout) => {
+const getPosterDynamicTitleStyle = (name, layout, isLandscape = false) => {
     const len = (name || '').length;
-    let baseSize = 24; // Default for '8'
+    let baseSize = isLandscape ? 22 : 24; // Default for '8'
     if (layout === '1') {
-        baseSize = 60;
-    } else if (layout === '2_landscape') {
-        baseSize = 46;
-    } else if (layout === '3_landscape') {
-        baseSize = 34;
+        baseSize = isLandscape ? 48 : 60;
+    } else if (layout === '2_landscape' || (layout === '2' && isLandscape)) {
+        baseSize = 44;
+    } else if (layout === '3_landscape' || (layout === '3' && isLandscape)) {
+        baseSize = 32;
     } else if (layout === '2_portrait' || layout === '2') {
         baseSize = 38;
     } else if (layout === '4') {
-        baseSize = 48;
+        baseSize = isLandscape ? 36 : 48;
     } else if (layout === '6') {
-        baseSize = 34;
+        baseSize = isLandscape ? 28 : 34;
     } else if (layout === '12') {
-        baseSize = 18;
+        baseSize = isLandscape ? 16 : 18;
     } else if (layout === '16') {
-        baseSize = 14;
+        baseSize = isLandscape ? 12 : 14;
     }
 
     let sizeFactor = 1.0;
@@ -211,6 +226,101 @@ const getPosterDynamicPriceStyle = (price, layout) => {
     };
 };
 
+const getPosterHeaderFontSize = (text, idx, totalLines, style, isLandscape, sizeLevel = 'extra_large') => {
+    const len = (text || '').length;
+    const isCondensed = style === 'modern_bebas' || style === 'anton' || style === 'modern_oswald';
+    const isScript = style === 'headline' || (style === 'vintage_headline' && idx === 1);
+
+    let baseSize;
+    if (totalLines === 1) {
+        if (isCondensed) {
+            baseSize = len <= 8 ? 76 : (len <= 14 ? 64 : (len <= 20 ? 52 : 40));
+        } else if (isScript) {
+            baseSize = len <= 8 ? 72 : (len <= 14 ? 60 : (len <= 20 ? 48 : 38));
+        } else {
+            baseSize = len <= 8 ? 68 : (len <= 14 ? 56 : (len <= 20 ? 44 : 34));
+        }
+    } else if (totalLines === 2) {
+        if (isCondensed) {
+            baseSize = len <= 8 ? 62 : (len <= 14 ? 52 : (len <= 20 ? 42 : 32));
+        } else if (isScript) {
+            baseSize = len <= 8 ? 64 : (len <= 14 ? 54 : (len <= 20 ? 44 : 34));
+        } else {
+            baseSize = len <= 8 ? 56 : (len <= 14 ? 46 : (len <= 20 ? 38 : 30));
+        }
+    } else {
+        const lineFactor = Math.max(0.6, 2 / totalLines);
+        if (isCondensed) {
+            baseSize = Math.round((len <= 8 ? 52 : (len <= 14 ? 42 : (len <= 20 ? 34 : 26))) * lineFactor);
+        } else {
+            baseSize = Math.round((len <= 8 ? 46 : (len <= 14 ? 38 : (len <= 20 ? 30 : 24))) * lineFactor);
+        }
+    }
+
+    let multiplier = 1.0;
+    if (sizeLevel === 'huge') multiplier = 1.18;
+    else if (sizeLevel === 'large') multiplier = 0.88;
+    else if (sizeLevel === 'normal') multiplier = 0.75;
+
+    let finalSize = Math.round(baseSize * multiplier);
+
+    if (isLandscape) {
+        finalSize = Math.round(finalSize * 0.88);
+    }
+
+    return `${finalSize}px`;
+};
+
+const getOrdinalSuffix = (n) => {
+    const s = ["TH", "ST", "ND", "RD"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+const formatOfferValidity = (startDate, endDate) => {
+    if (!startDate) return '';
+    const start = new Date(startDate);
+    const end = endDate ? new Date(endDate) : new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
+    
+    const monthNames = [
+        "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+        "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+    ];
+    
+    const startDay = getOrdinalSuffix(start.getDate());
+    const endDay = getOrdinalSuffix(end.getDate());
+    const startMonth = monthNames[start.getMonth()];
+    const endMonth = monthNames[end.getMonth()];
+    const startYear = start.getFullYear();
+    const endYear = end.getFullYear();
+
+    if (start.toDateString() === end.toDateString()) {
+        return `OFFER VALIDITY: ${startDay} ${startMonth}`;
+    } else if (startMonth === endMonth && startYear === endYear) {
+        return `OFFER VALIDITY: ${startDay} TO ${endDay} ${endMonth}`;
+    } else if (startYear === endYear) {
+        return `OFFER VALIDITY: ${startDay} ${startMonth} TO ${endDay} ${endMonth}`;
+    } else {
+        return `OFFER VALIDITY: ${startDay} ${startMonth} ${startYear} TO ${endDay} ${endMonth} ${endYear}`;
+    }
+};
+
+const toDateInputString = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
+};
+
+const getDefaultOfferValidity = () => {
+    const today = new Date();
+    const nextWeek = new Date();
+    nextWeek.setDate(today.getDate() + 6);
+    return formatOfferValidity(today, nextWeek);
+};
+
 const getUnitFontSize = (layout) => {
     if (layout === '1') return '24px';
     if (layout === '2_landscape') return '20px';
@@ -247,45 +357,45 @@ const getMrpFontSize = (layout) => {
     return '8px';
 };
 
-const getDiscountFontSize = (layout) => {
-    if (layout === '1') return '20px';
+const getDiscountFontSize = (layout, isLandscape = false) => {
+    if (layout === '1') return isLandscape ? '18px' : '20px';
     if (layout === '2_landscape') return '18px';
     if (layout === '3_landscape') return '13px';
-    if (layout === '2_portrait' || layout === '2') return '15px';
-    if (layout === '4') return '16px';
-    if (layout === '6') return '13px';
-    if (layout === '8') return '11px';
-    if (layout === '12') return '9px';
+    if (layout === '2_portrait' || layout === '2') return isLandscape ? '16px' : '15px';
+    if (layout === '4') return isLandscape ? '13px' : '16px';
+    if (layout === '6') return isLandscape ? '11px' : '13px';
+    if (layout === '8') return isLandscape ? '10px' : '11px';
+    if (layout === '12') return isLandscape ? '8.5px' : '9px';
     return '8px';
 };
 
-const getPosterBadgeStyle = (layout) => {
-    let size = 90;
-    let rupeeSize = 15;
-    let integerSize = 44;
-    let decimalSize = 18;
+const getPosterBadgeStyle = (layout, isLandscape = false) => {
+    let size = isLandscape ? 78 : 90;
+    let rupeeSize = isLandscape ? 13 : 15;
+    let integerSize = isLandscape ? 38 : 44;
+    let decimalSize = isLandscape ? 16 : 18;
     let rightOffset = '8%';
     let topOffset = '35%';
 
     if (layout === '1') {
-        size = 190;
-        rupeeSize = 32;
-        integerSize = 94;
-        decimalSize = 38;
+        size = isLandscape ? 150 : 190;
+        rupeeSize = isLandscape ? 26 : 32;
+        integerSize = isLandscape ? 76 : 94;
+        decimalSize = isLandscape ? 30 : 38;
         rightOffset = '10%';
         topOffset = '30%';
-    } else if (layout === '2_landscape') {
-        size = 145;
-        rupeeSize = 24;
-        integerSize = 72;
-        decimalSize = 28;
+    } else if (layout === '2_landscape' || (layout === '2' && isLandscape)) {
+        size = 140;
+        rupeeSize = 22;
+        integerSize = 68;
+        decimalSize = 26;
         rightOffset = '8%';
         topOffset = '28%';
-    } else if (layout === '3_landscape') {
-        size = 110;
-        rupeeSize = 18;
-        integerSize = 52;
-        decimalSize = 22;
+    } else if (layout === '3_landscape' || (layout === '3' && isLandscape)) {
+        size = 105;
+        rupeeSize = 17;
+        integerSize = 50;
+        decimalSize = 20;
         rightOffset = '6%';
         topOffset = '28%';
     } else if (layout === '2_portrait' || layout === '2') {
@@ -296,43 +406,81 @@ const getPosterBadgeStyle = (layout) => {
         rightOffset = '8%';
         topOffset = '35%';
     } else if (layout === '4') {
-        size = 135;
-        rupeeSize = 22;
-        integerSize = 64;
-        decimalSize = 26;
-        rightOffset = '12%';
+        size = isLandscape ? 105 : 135;
+        rupeeSize = isLandscape ? 17 : 22;
+        integerSize = isLandscape ? 50 : 64;
+        decimalSize = isLandscape ? 20 : 26;
+        rightOffset = isLandscape ? '8%' : '12%';
         topOffset = '35%';
     } else if (layout === '6') {
-        size = 110;
-        rupeeSize = 18;
-        integerSize = 52;
-        decimalSize = 22;
-        rightOffset = '10%';
+        size = isLandscape ? 92 : 110;
+        rupeeSize = isLandscape ? 15 : 18;
+        integerSize = isLandscape ? 44 : 52;
+        decimalSize = isLandscape ? 18 : 22;
+        rightOffset = isLandscape ? '7%' : '10%';
         topOffset = '35%';
     } else if (layout === '8') {
-        size = 90;
-        rupeeSize = 15;
-        integerSize = 44;
-        decimalSize = 18;
-        rightOffset = '8%';
+        size = isLandscape ? 78 : 90;
+        rupeeSize = isLandscape ? 13 : 15;
+        integerSize = isLandscape ? 38 : 44;
+        decimalSize = isLandscape ? 16 : 18;
+        rightOffset = isLandscape ? '6%' : '8%';
         topOffset = '35%';
     } else if (layout === '12') {
-        size = 72;
-        rupeeSize = 12;
-        integerSize = 34;
-        decimalSize = 14;
-        rightOffset = '6%';
+        size = isLandscape ? 60 : 72;
+        rupeeSize = isLandscape ? 10 : 12;
+        integerSize = isLandscape ? 28 : 34;
+        decimalSize = isLandscape ? 12 : 14;
+        rightOffset = isLandscape ? '5%' : '6%';
         topOffset = '35%';
     } else if (layout === '16') {
-        size = 60;
-        rupeeSize = 10;
-        integerSize = 28;
-        decimalSize = 12;
+        size = 52;
+        rupeeSize = 9;
+        integerSize = 24;
+        decimalSize = 10;
         rightOffset = '5%';
         topOffset = '35%';
     }
 
     return { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset };
+};
+
+const getPosterCols = (layout, isLandscape) => {
+    if (isLandscape) {
+        if (layout === '1') return 1;
+        if (layout === '2' || layout === '2_landscape') return 2;
+        if (layout === '3' || layout === '3_landscape') return 3;
+        if (layout === '4') return 2;
+        if (layout === '6') return 3;
+        if (layout === '8') return 4;
+        if (layout === '12') return 4;
+        if (layout === '16') return 4;
+        return 3;
+    } else {
+        if (layout === '1' || layout === '2_portrait' || layout === '2') return 1;
+        if (layout === '12') return 3;
+        if (layout === '16') return 4;
+        return 2; // 4, 6, 8
+    }
+};
+
+const getPosterGridColsClass = (layout, isLandscape) => {
+    if (isLandscape) {
+        if (layout === '1') return 'grid-cols-1';
+        if (layout === '2' || layout === '2_landscape') return 'grid-cols-2';
+        if (layout === '3' || layout === '3_landscape') return 'grid-cols-3';
+        if (layout === '4') return 'grid-cols-2';
+        if (layout === '6') return 'grid-cols-3';
+        if (layout === '8') return 'grid-cols-4';
+        if (layout === '12') return 'grid-cols-4';
+        if (layout === '16') return 'grid-cols-4';
+        return 'grid-cols-3';
+    } else {
+        if (layout === '1' || layout === '2_portrait' || layout === '2') return 'grid-cols-1';
+        if (layout === '12') return 'grid-cols-3';
+        if (layout === '16') return 'grid-cols-4';
+        return 'grid-cols-2'; // 4, 6, 8
+    }
 };
 
 const getNormalPosterLogoHeight = (layout) => {
@@ -453,6 +601,7 @@ export default function PrintOffersPage() {
 
     // Poster Mode States
     const [printMode, setPrintMode] = useState('sheet'); // 'sheet' | 'poster' | 'normal_poster'
+    const [posterOrientation, setPosterOrientation] = useState('portrait'); // 'portrait' | 'landscape'
     const [posterLayout, setPosterLayout] = useState('6'); // '4' | '6' | '8'
     const [selectedProductIds, setSelectedProductIds] = useState(new Set());
     const [bannerImage, setBannerImage] = useState(null);
@@ -460,8 +609,15 @@ export default function PrintOffersPage() {
     const [bannerType, setBannerType] = useState('text'); // 'text' | 'image'
     const [posterTitle, setPosterTitle] = useState('SMILE\nHYPERMARKET');
     const [headerStyle, setHeaderStyle] = useState('vintage_headline');
+    const [headerFontSize, setHeaderFontSize] = useState('extra_large'); // 'extra_large' | 'huge' | 'large' | 'normal'
     const [headerColorTheme, setHeaderColorTheme] = useState('brand'); // 'brand' | 'black_white' | 'solid_black' | 'solid_white' | 'black_gold' | 'red_yellow' | 'blue_indigo' | 'solid_red'
-    const [posterSubtitle, setPosterSubtitle] = useState('OFFER VALIDITY: 14TH TO 20TH JULY');
+    const [posterSubtitle, setPosterSubtitle] = useState(() => getDefaultOfferValidity());
+    const [validityStartDate, setValidityStartDate] = useState(() => toDateInputString(new Date()));
+    const [validityEndDate, setValidityEndDate] = useState(() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 6);
+        return toDateInputString(d);
+    });
     const [logoImage, setLogoImage] = useState(null);
     const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
     const [decorImage, setDecorImage] = useState(null);
@@ -624,6 +780,25 @@ export default function PrintOffersPage() {
             }
         }
     }, []);
+
+    const handleValidityDatesChange = (newStart, newEnd) => {
+        setValidityStartDate(newStart);
+        setValidityEndDate(newEnd);
+        if (newStart && newEnd) {
+            setPosterSubtitle(formatOfferValidity(newStart, newEnd));
+        }
+    };
+
+    const applyDatePreset = (days) => {
+        const start = new Date();
+        const end = new Date();
+        end.setDate(start.getDate() + days);
+        const sStr = toDateInputString(start);
+        const eStr = toDateInputString(end);
+        setValidityStartDate(sStr);
+        setValidityEndDate(eStr);
+        setPosterSubtitle(formatOfferValidity(start, end));
+    };
 
     const handleLogoUpload = (e) => {
         const file = e.target.files[0];
@@ -802,14 +977,14 @@ export default function PrintOffersPage() {
         setSearchTerm('');
         let targetLayout = posterLayout;
         if (newMode === 'normal_poster') {
-            targetLayout = '4';
-            setPosterLayout('4');
-        } else if (newMode === 'poster' && (posterLayout === '12' || posterLayout === '16')) {
-            targetLayout = '6';
-            setPosterLayout('6');
+            targetLayout = (posterLayout === '4' || posterLayout === '6' || posterLayout === '8' || posterLayout === '12') ? posterLayout : '6';
+            setPosterLayout(targetLayout);
+        } else if (newMode === 'poster') {
+            targetLayout = (posterLayout === '4' || posterLayout === '6' || posterLayout === '8' || posterLayout === '12' || posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2_landscape' || posterLayout === '3_landscape') ? posterLayout : '6';
+            setPosterLayout(targetLayout);
         }
         const pool = newMode === 'normal_poster' ? normalProducts : products;
-        const count = parseInt(targetLayout) || 4;
+        const count = parseInt(targetLayout) || 6;
         if (pool.length > 0) {
             setSelectedProductIds(new Set(pool.slice(0, count).map(p => p.id)));
         } else {
@@ -910,22 +1085,27 @@ export default function PrintOffersPage() {
     };
 
     // Poster orientation and page orientation details
-    const isLandscapePoster = posterLayout === '2_landscape' || posterLayout === '3_landscape';
-    const isPageLandscape = printMode === 'normal_poster' 
-        ? true 
-        : (printMode === 'poster' 
-            ? isLandscapePoster 
-            : layout !== 'portrait');
+    const isLandscapePoster = posterOrientation === 'landscape' || posterLayout === '2_landscape' || posterLayout === '3_landscape';
+    const isPageLandscape = (printMode === 'poster' || printMode === 'normal_poster')
+        ? isLandscapePoster 
+        : layout !== 'portrait';
+
+    const handleOrientationChange = (newOrientation) => {
+        setPosterOrientation(newOrientation);
+        if (newOrientation === 'portrait' && (posterLayout === '2_landscape' || posterLayout === '3_landscape')) {
+            setPosterLayout('4');
+        } else if (newOrientation === 'landscape' && posterLayout === '2_portrait') {
+            setPosterLayout('2_landscape');
+        }
+    };
 
     const handleSaveAllAsPng = async () => {
         setSaving(true);
         try {
             const html2canvas = (await import('html2canvas-pro')).default;
-            const element = printMode === 'normal_poster' 
-                ? (document.getElementById('normal-poster-a4-target') || document.getElementById('print-offers-container'))
-                : printMode === 'poster'
-                    ? (document.getElementById('promotional-poster-a4-target') || document.getElementById('print-offers-container'))
-                    : document.getElementById('print-offers-container');
+            const element = (printMode === 'poster' || printMode === 'normal_poster')
+                ? (document.getElementById('normal-poster-a4-target') || document.getElementById('promotional-poster-a4-target') || document.getElementById('print-offers-container'))
+                : document.getElementById('print-offers-container');
             if (!element) {
                 alert("Error: Print container not found.");
                 return;
@@ -949,11 +1129,11 @@ export default function PrintOffersPage() {
 
             const dataUrl = canvas.toDataURL('image/png');
             const link = document.createElement('a');
-            link.download = printMode === 'poster' 
-                ? `offers-poster-${posterLayout}-${isLandscapePoster ? 'landscape' : 'portrait'}.png` 
-                : (printMode === 'normal_poster' 
-                    ? `normal-price-poster-${posterLayout}-a4-landscape.png` 
-                    : `offers-sheet-${layout}.png`);
+            link.download = printMode === 'normal_poster'
+                ? `normal-price-poster-${posterLayout}-${isLandscapePoster ? 'landscape' : 'portrait'}.png` 
+                : printMode === 'poster'
+                    ? `promotional-poster-${posterLayout}-${isLandscapePoster ? 'landscape' : 'portrait'}.png` 
+                    : `offers-sheet-${layout}.png`;
             link.href = dataUrl;
             link.click();
         } catch (error) {
@@ -989,10 +1169,10 @@ export default function PrintOffersPage() {
     }
 
     // Grid details for Poster
-    const posterCols = posterLayout === '12' || posterLayout === '3_landscape' ? 3 : (posterLayout === '16' ? 4 : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 1 : 2));
-    const posterRows = totalRequired / posterCols;
-    // Mathematically split remaining A4 height: A4 Portrait = 297mm (Grid = 210mm). A4 Landscape = 210mm (Grid = 132mm).
-    const gridAvailableHeight = isLandscapePoster ? 132 : 210;
+    const posterCols = getPosterCols(posterLayout, isLandscapePoster);
+    const posterRows = Math.ceil(totalRequired / posterCols);
+    // Mathematically split remaining A4 height: A4 Portrait = 297mm (Grid = 210mm). A4 Landscape = 210mm (Grid = 134mm).
+    const gridAvailableHeight = isLandscapePoster ? 134 : 210;
     const posterCardHeight = `${gridAvailableHeight / posterRows}mm`;
 
     const posterLayoutConfigs = {
@@ -1126,16 +1306,16 @@ export default function PrintOffersPage() {
                     <div className="flex flex-wrap gap-3 items-center justify-between bg-white p-4 rounded-xl border border-gray-200">
                         <div className="flex gap-2 flex-wrap">
                             <button
-                                onClick={() => setLayout('portrait')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                                onClick={() => setLayout('landscape_4')}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_4' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
                             >
-                                3x5 Portrait (15 Tags)
+                                2x2 Landscape (4 Tags)
                             </button>
                             <button
-                                onClick={() => setLayout('landscape')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                                onClick={() => setLayout('landscape_6')}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_6' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
                             >
-                                4x4 Landscape (16 Tags)
+                                3x2 Landscape (6 Tags)
                             </button>
                             <button
                                 onClick={() => setLayout('landscape_12')}
@@ -1144,10 +1324,16 @@ export default function PrintOffersPage() {
                                 4x3 Landscape (12 Tags)
                             </button>
                             <button
-                                onClick={() => setLayout('landscape_6')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_6' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                                onClick={() => setLayout('landscape')}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
                             >
-                                3x2 Landscape (6 Tags)
+                                4x4 Landscape (16 Tags)
+                            </button>
+                            <button
+                                onClick={() => setLayout('portrait')}
+                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
+                            >
+                                3x5 Portrait (15 Tags)
                             </button>
                         </div>
                         <div className="flex gap-3 items-center">
@@ -1177,102 +1363,71 @@ export default function PrintOffersPage() {
                     </div>
                 ) : (
                     <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200">
-                        {printMode === 'normal_poster' ? (
-                            /* Normal Price Poster Landscape Config Options */
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-4 border-b border-gray-150">
-                                {/* Layout Selection */}
-                                <div className="space-y-2 md:col-span-2">
-                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">
-                                        A4 Landscape Grid Layout (Poster Style)
-                                    </label>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {[
-                                            { id: '1', label: '1 Item' },
-                                            { id: '2_landscape', label: '2 Items (2×1)' },
-                                            { id: '3_landscape', label: '3 Items (3×1)' },
-                                            { id: '4', label: '4 Items (2×2)' },
-                                            { id: '6', label: '6 Items (3×2)' },
-                                            { id: '8', label: '8 Items (4×2)' },
-                                            { id: '12', label: '12 Items (4×3)' },
-                                            { id: '16', label: '16 Items (4×4)' }
-                                        ].map(item => (
-                                            <button
-                                                key={item.id}
-                                                onClick={() => handlePosterLayoutChange(item.id)}
-                                                className={`flex-1 min-w-[70px] py-2 px-1.5 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === item.id ? 'bg-emerald-600 text-white border-transparent shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}`}
-                                            >
-                                                {item.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Product Images Toggle */}
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Product Images</label>
-                                    <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors h-[38px] shadow-sm">
-                                        <input
-                                            type="checkbox"
-                                            checked={showProductImages}
-                                            onChange={(e) => setShowProductImages(e.target.checked)}
-                                            className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-600 cursor-pointer accent-emerald-600"
-                                        />
-                                        <span>Print Product Images</span>
-                                    </label>
-                                </div>
-
-                                {/* Logo Customization */}
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Tag Logo</label>
-                                    <div className="flex items-center gap-2">
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            onChange={handleLogoUpload}
-                                            className="hidden" 
-                                            id="normal-poster-logo-input"
-                                        />
-                                        <label 
-                                            htmlFor="normal-poster-logo-input" 
-                                            className="flex-1 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 py-2 px-3 rounded-lg font-bold text-xs text-center cursor-pointer shadow-sm transition flex items-center justify-center gap-1.5 h-[38px]"
-                                        >
-                                            <FaImage /> {logoImage ? 'Custom Logo Active' : 'Default BIG SAVE'}
-                                        </label>
-                                        {logoImage && (
-                                            <button
-                                                type="button"
-                                                onClick={handleRemoveLogo}
-                                                className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-3 rounded-lg transition h-[38px] text-xs font-bold"
-                                                title="Reset to default BIG SAVE logo"
-                                            >
-                                                Reset
-                                            </button>
-                                        )}
-                                    </div>
+                        {/* Poster Config Options (Shared for Promotional Offer & Normal Price Posters) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5 pb-4 border-b border-gray-150">
+                            {/* Orientation Selector */}
+                            <div className="space-y-1.5">
+                                <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">
+                                    Poster Orientation
+                                </label>
+                                <div className="grid grid-cols-2 gap-1.5 bg-gray-100 p-1 rounded-lg">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOrientationChange('portrait')}
+                                        className={`py-1.5 px-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center justify-center gap-1 ${
+                                            !isLandscapePoster 
+                                                ? (printMode === 'normal_poster' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-indigo-650 text-white shadow-sm') 
+                                                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        <span>📄</span> Portrait
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOrientationChange('landscape')}
+                                        className={`py-1.5 px-1.5 text-xs font-bold rounded-md transition cursor-pointer flex items-center justify-center gap-1 ${
+                                            isLandscapePoster 
+                                                ? (printMode === 'normal_poster' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-indigo-650 text-white shadow-sm') 
+                                                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        <span>🖼️</span> Landscape
+                                    </button>
                                 </div>
                             </div>
-                        ) : (
-                            /* Promotional Poster Config Options */
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 pb-4 border-b border-gray-150">
+
                             {/* Layout Selection */}
-                            <div className="space-y-2">
-                                <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">Poster Grid Layout</label>
+                            <div className="space-y-2 lg:col-span-2">
+                                <label className="block text-xs font-extrabold uppercase text-gray-500 tracking-wider">
+                                    {isLandscapePoster ? 'Grid Layout (A4 Landscape)' : 'Grid Layout (A4 Portrait)'}
+                                </label>
                                 <div className="flex flex-wrap gap-1.5">
-                                    {[
+                                    {(isLandscapePoster ? [
+                                        { id: '4', label: '4 Items (2×2)' },
+                                        { id: '6', label: '6 Items (3×2)' },
+                                        { id: '8', label: '8 Items (4×2)' },
+                                        { id: '12', label: '12 Items (4×3)' },
+                                        { id: '2', label: '2 Items (2×1)' },
+                                        { id: '3', label: '3 Items (3×1)' },
+                                        { id: '1', label: '1 Item' },
+                                        { id: '16', label: '16 Items' }
+                                    ] : [
+                                        { id: '4', label: '4 Items (2×2)' },
+                                        { id: '6', label: '6 Items (2×3)' },
+                                        { id: '8', label: '8 Items (2×4)' },
+                                        { id: '12', label: '12 Items (3×4)' },
                                         { id: '1', label: '1 Item' },
                                         { id: '2_portrait', label: '2 Portrait' },
-                                        { id: '2_landscape', label: '2 Landscape' },
-                                        { id: '3_landscape', label: '3 Landscape' },
-                                        { id: '4', label: '4 Items' },
-                                        { id: '6', label: '6 Items' },
-                                        { id: '8', label: '8 Items' },
-                                        { id: '12', label: '12 Items' },
                                         { id: '16', label: '16 Items' }
-                                    ].map(item => (
+                                    ]).map(item => (
                                         <button
                                             key={item.id}
                                             onClick={() => handlePosterLayoutChange(item.id)}
-                                            className={`flex-1 min-w-[55px] py-2 px-1 rounded-lg font-bold text-xs transition-all border cursor-pointer ${posterLayout === item.id ? 'bg-indigo-650 text-white border-transparent shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'}`}
+                                            className={`flex-1 min-w-[55px] py-2 px-1 rounded-lg font-bold text-xs transition-all border cursor-pointer ${
+                                                posterLayout === item.id 
+                                                    ? (printMode === 'normal_poster' ? 'bg-emerald-600 text-white border-transparent shadow-sm' : 'bg-indigo-650 text-white border-transparent shadow-sm') 
+                                                    : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
+                                            }`}
                                         >
                                             {item.label}
                                         </button>
@@ -1288,7 +1443,7 @@ export default function PrintOffersPage() {
                                         type="checkbox"
                                         checked={showProductImages}
                                         onChange={(e) => setShowProductImages(e.target.checked)}
-                                        className="w-4 h-4 text-indigo-650 rounded focus:ring-indigo-650 cursor-pointer accent-indigo-650"
+                                        className={`w-4 h-4 rounded cursor-pointer ${printMode === 'normal_poster' ? 'text-emerald-600 focus:ring-emerald-600 accent-emerald-600' : 'text-indigo-650 focus:ring-indigo-650 accent-indigo-650'}`}
                                     />
                                     <span>Print Product Images</span>
                                 </label>
@@ -1350,7 +1505,7 @@ export default function PrintOffersPage() {
                             {/* Custom Text Banner Settings */}
                             {bannerType === 'text' && (
                                 <div className="space-y-3">
-                                    <div className="grid grid-cols-4 gap-2">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                                         <div>
                                             <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Thick Main Header</label>
                                             <textarea
@@ -1382,6 +1537,20 @@ export default function PrintOffersPage() {
                                             <p className="text-[9px] text-gray-400 mt-0.5">Font style family.</p>
                                         </div>
                                         <div>
+                                            <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Header Font Size</label>
+                                            <select
+                                                value={headerFontSize}
+                                                onChange={(e) => setHeaderFontSize(e.target.value)}
+                                                className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black cursor-pointer"
+                                            >
+                                                <option value="extra_large">Heavy & Big (Default)</option>
+                                                <option value="huge">Massive / Extra Big</option>
+                                                <option value="large">Large</option>
+                                                <option value="normal">Standard</option>
+                                            </select>
+                                            <p className="text-[9px] text-gray-400 mt-0.5">Title font scale.</p>
+                                        </div>
+                                        <div>
                                             <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Header Font Colors</label>
                                             <select
                                                 value={headerColorTheme}
@@ -1399,13 +1568,23 @@ export default function PrintOffersPage() {
                                             </select>
                                             <p className="text-[9px] text-gray-400 mt-0.5">Color palette options.</p>
                                         </div>
-                                        <div>
-                                            <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Offer Duration / Validity</label>
+                                        <div className="col-span-2 md:col-span-1">
+                                            <div className="flex justify-between items-center mb-0.5">
+                                                <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">Offer Duration / Validity</label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setEditingHeaderModal(true)}
+                                                    className="text-[9px] text-indigo-600 font-bold hover:underline cursor-pointer"
+                                                    title="Pick dates, presets or edit header"
+                                                >
+                                                    Pick Dates
+                                                </button>
+                                            </div>
                                             <input
                                                 type="text"
                                                 value={posterSubtitle}
                                                 onChange={(e) => setPosterSubtitle(e.target.value)}
-                                                placeholder="e.g. VALIDITY: 14TH TO 20TH JULY"
+                                                placeholder="e.g. OFFER VALIDITY: 16TH TO 22ND NOVEMBER"
                                                 className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-xs font-bold text-black"
                                             />
                                         </div>
@@ -1540,7 +1719,6 @@ export default function PrintOffersPage() {
                                 </div>
                             </div>
                         </div>
-                        )}
 
                         {/* Product Picker Horizontal List */}
                         <div className="space-y-3">
@@ -1706,211 +1884,10 @@ export default function PrintOffersPage() {
             {/* A4 Printable Container */}
             <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${isPageLandscape ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white'}`}>
                 
-                {printMode === 'normal_poster' ? (
-                    /* NORMAL PRICE POSTER CONTAINER (EXACT A4 LANDSCAPE 297mm x 210mm) */
+                {(printMode === 'poster' || printMode === 'normal_poster') ? (
+                    /* POSTER LAYOUT CONTAINER (PROMOTIONAL OFFERS & NORMAL PRICE POSTERS) */
                     <div 
-                        id="normal-poster-a4-target"
-                        className="normal-poster-a4-landscape bg-white mx-auto box-border flex flex-col justify-between overflow-hidden select-none relative shadow-sm border border-gray-200 print:shadow-none print:border-none"
-                        style={{
-                            width: '297mm',
-                            minWidth: '297mm',
-                            maxWidth: '297mm',
-                            height: '210mm',
-                            minHeight: '210mm',
-                            maxHeight: '210mm',
-                            padding: '3mm',
-                            boxSizing: 'border-box'
-                        }}
-                    >
-                        {/* Grid of Cards */}
-                        <div 
-                            className={`w-full flex-grow grid gap-[3mm] print:gap-[2.5mm] ${
-                                posterLayout === '1' ? 'grid-cols-1 grid-rows-1' :
-                                posterLayout === '2_landscape' || posterLayout === '2' ? 'grid-cols-2 grid-rows-1' :
-                                posterLayout === '3_landscape' || posterLayout === '3' ? 'grid-cols-3 grid-rows-1' :
-                                posterLayout === '4' ? 'grid-cols-2 grid-rows-2' :
-                                posterLayout === '6' ? 'grid-cols-3 grid-rows-2' :
-                                posterLayout === '8' ? 'grid-cols-4 grid-rows-2' :
-                                posterLayout === '12' ? 'grid-cols-4 grid-rows-3' :
-                                posterLayout === '16' ? 'grid-cols-4 grid-rows-4' : 'grid-cols-2 grid-rows-2'
-                            }`}
-                            style={{ height: 'calc(100% - 14px)' }}
-                        >
-                            {paddedProducts.map((product, index) => {
-                                const isPlaceholder = product.isPlaceholder;
-                                const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
-                                const sellingPrice = product.price ? parseFloat(product.price) : 0;
-                                const savingsVal = (mrpVal > 0 ? mrpVal : 0) - sellingPrice;
-                                const hasSavings = mrpVal > 0 && savingsVal > 0;
-                                const formattedMrp = mrpVal > 0 ? (mrpVal % 1 === 0 ? mrpVal.toFixed(0) : mrpVal.toFixed(2)) : '0';
-                                const formattedSavings = savingsVal > 0 ? (savingsVal % 1 === 0 ? savingsVal.toFixed(0) : savingsVal.toFixed(2)) : '0';
-                                const { imgWidth, detailWidth, padding } = getNormalPosterCardLayout(posterLayout);
-
-                                return (
-                                    <div
-                                        key={product.id}
-                                        id={`offer-card-${product.id}`}
-                                        className="w-full h-full bg-white border-2 border-black flex flex-col justify-between overflow-hidden relative box-border group"
-                                        style={{ minHeight: 0 }}
-                                    >
-                                        {isPlaceholder ? (
-                                            <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 p-4">
-                                                <p className="text-gray-400 font-bold text-sm uppercase tracking-wider">Empty Product Slot {index + 1}</p>
-                                                <p className="text-[11px] text-gray-400 mt-1">Select a product to fill this position.</p>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {/* Top Header: Big Save Logo + MRP & Save Badge (Grabbed to Middle, Overlays Top) */}
-                                                <div 
-                                                    onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className="w-full flex flex-col items-center justify-center shrink-0 pt-1 pb-0.5 px-1 relative z-20 bg-white/95 cursor-pointer"
-                                                    title="Click to edit Image, Price, MRP & Details"
-                                                >
-                                                    {/* Big Save Logo - centered in middle of card */}
-                                                    <div className="w-full flex items-center justify-center shrink-0">
-                                                        <img 
-                                                            src={logoImage || "/BIGSAVE.PNG"} 
-                                                            alt="BIG SAVE Smile" 
-                                                            className="mx-auto object-contain block"
-                                                            style={{ maxHeight: getNormalPosterLogoHeight(posterLayout), maxWidth: '65%' }}
-                                                        />
-                                                    </div>
-
-                                                    {/* Badges Row: MRP with red strike & Save Badge - Large, Visible, Centered in middle */}
-                                                    {hasSavings ? (
-                                                        <div className="w-full flex items-center justify-center gap-2 mt-0.5 flex-nowrap shrink-0">
-                                                            <div 
-                                                                className="font-black text-black uppercase tracking-tight whitespace-nowrap flex items-center shrink-0"
-                                                                style={{ 
-                                                                    fontSize: getNormalPosterBadgeFontSize(posterLayout), 
-                                                                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                                }}
-                                                            >
-                                                                <span>MRP </span>
-                                                                <span className="relative inline-block ml-0.5 line-through decoration-red-600 decoration-2 text-black">
-                                                                    {formattedMrp}
-                                                                </span>
-                                                            </div>
-                                                            <div 
-                                                                className="bg-[#d80000] text-white font-black uppercase px-2 py-0.5 rounded-[3px] tracking-wide whitespace-nowrap shrink-0 leading-tight flex items-center shadow-xs"
-                                                                style={{ 
-                                                                    fontSize: getNormalPosterBadgeFontSize(posterLayout), 
-                                                                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                                }}
-                                                            >
-                                                                <span>SAVE </span>
-                                                                <span className="font-sans font-bold ml-0.5">₹</span>
-                                                                <span>{formattedSavings}</span>
-                                                            </div>
-                                                        </div>
-                                                    ) : mrpVal > 0 ? (
-                                                        <div 
-                                                            className="w-full flex items-center justify-center font-black text-black uppercase tracking-tight whitespace-nowrap shrink-0 mt-0.5"
-                                                            style={{ 
-                                                                fontSize: getNormalPosterBadgeFontSize(posterLayout), 
-                                                                fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                            }}
-                                                        >
-                                                            <span>MRP </span>
-                                                            <span className="relative inline-block ml-0.5 line-through decoration-red-600 decoration-2 text-black">
-                                                                {formattedMrp}
-                                                            </span>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="h-0.5 shrink-0" />
-                                                    )}
-                                                </div>
-
-                                                {/* Main Content Area: Left = Product Image, Right = Title & Price */}
-                                                <div className="w-full flex-1 min-h-0 flex flex-row items-center relative z-10 px-1 pb-1">
-                                                    {/* Left Column: Product Image */}
-                                                    <div 
-                                                        onClick={(e) => handleOpenEditModal(e, product)}
-                                                        className="w-[38%] h-full flex items-center justify-center p-1 relative overflow-hidden bg-transparent cursor-pointer group/img shrink-0 z-0"
-                                                        title="Click to edit Image, Price, MRP & Details"
-                                                    >
-                                                        {showProductImages && (
-                                                            <img
-                                                                src={getProxiedImageUrl(product.image)}
-                                                                alt={product.name}
-                                                                className="max-w-[95%] max-h-[92%] object-contain transition-transform group-hover/img:scale-105 relative z-0"
-                                                                referrerPolicy="no-referrer"
-                                                            />
-                                                        )}
-                                                        <div className="absolute top-1 left-1 bg-black/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow-md z-10">
-                                                            <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Right Column: Title & Massive Price */}
-                                                    <div 
-                                                        onClick={(e) => handleOpenEditModal(e, product)}
-                                                        className="w-[62%] h-full flex flex-col justify-between items-center text-center p-0.5 box-border bg-transparent cursor-pointer group/details min-w-0 relative z-10"
-                                                        title="Click to edit Image, Price, MRP & Details"
-                                                    >
-                                                        {/* Product Title (Large Bold Uppercase Sans-Serif) */}
-                                                        <div className="flex-1 flex items-center justify-center w-full px-0.5 my-auto min-h-0">
-                                                            <h2 
-                                                                className="font-black tracking-tight uppercase text-black text-center leading-[1.08] break-words line-clamp-3"
-                                                                style={getNormalPosterTitleStyle(product.name, posterLayout)}
-                                                            >
-                                                                {product.name}
-                                                            </h2>
-                                                        </div>
-
-                                                        {/* Price & Unit (Massive Bold Black Font) */}
-                                                        <div className="w-full flex items-baseline justify-center text-center shrink-0 whitespace-nowrap pt-0.5 relative z-10">
-                                                            <span 
-                                                                className="font-black text-black leading-none tracking-tight"
-                                                                style={{ 
-                                                                    fontSize: getNormalPosterPriceFontSize(sellingPrice, posterLayout),
-                                                                    fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                                }}
-                                                            >
-                                                                {sellingPrice.toFixed(2)}
-                                                            </span>
-                                                            <span 
-                                                                className="font-black text-black uppercase ml-1 leading-none"
-                                                                style={{ 
-                                                                    fontSize: getNormalPosterUnitFontSize(posterLayout, product.unit),
-                                                                    fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
-                                                                }}
-                                                            >
-                                                                / {(product.unit || '1 KG').toUpperCase()}
-                                                            </span>
-                                                        </div>
-
-                                                        {/* Individual Card Save PNG button */}
-                                                        <button
-                                                            data-html2canvas-ignore
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleSaveCardAsPng(product.id, product.name);
-                                                            }}
-                                                            disabled={saving}
-                                                            className="absolute bottom-1 right-1 z-20 bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-1 px-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
-                                                        >
-                                                            Save PNG
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Page Footer Caption */}
-                        <div className="w-full text-right text-[8.5px] print:text-[7pt] text-gray-500 font-sans pr-1 pt-1 select-none flex items-center justify-between shrink-0">
-                            <span className="opacity-0 print:opacity-0">.</span>
-                            <span>SMILE Supermarket | A4 Landscape Sheet | {posterLayout === '4' ? '2×2 Grid (4 Tags)' : `${posterLayout} Tags`} | 300 DPI Print Quality</span>
-                        </div>
-                    </div>
-                ) : printMode === 'poster' ? (
-                    /* POSTER LAYOUT CONTAINER */
-                    <div 
-                        id="promotional-poster-a4-target"
+                        id={printMode === 'normal_poster' ? "normal-poster-a4-target" : "promotional-poster-a4-target"}
                         className={`promotional-poster-target w-full mx-auto ${isLandscapePoster ? 'h-[210mm]' : 'h-[297mm]'} flex flex-col justify-between bg-white overflow-hidden select-none border border-gray-150 shadow-sm print:border-none print:shadow-none relative box-border`}
                         style={{
                             width: isLandscapePoster ? '297mm' : '210mm',
@@ -1950,7 +1927,7 @@ export default function PrintOffersPage() {
                                     )}
                                     
                                     {/* Left Side: Fruit Basket or Custom Decoration */}
-                                    <div className="w-[28%] h-[90%] relative flex-shrink-0 flex items-center justify-start select-none z-10">
+                                    <div className={`${decorImage === 'none' ? 'w-[4%]' : 'w-[23%]'} h-[90%] relative flex-shrink-0 flex items-center justify-start select-none z-10`}>
                                         {decorImage !== 'none' && (
                                             <img 
                                                 src={decorImage || "/images/fruit_basket.png"} 
@@ -1963,7 +1940,7 @@ export default function PrintOffersPage() {
                                     {/* Center: Title & Validity (Click to edit header text & validity) */}
                                     <div 
                                         onClick={() => setEditingHeaderModal(true)}
-                                        className="flex flex-col items-center justify-center text-center flex-1 max-w-[45%] z-10 leading-none group/headerEdit cursor-pointer hover:bg-black/5 p-1 rounded-xl transition relative"
+                                        className={`flex flex-col items-center justify-center text-center flex-1 ${decorImage === 'none' ? 'max-w-[72%]' : 'max-w-[55%]'} z-10 leading-none group/headerEdit cursor-pointer hover:bg-black/5 p-1 rounded-xl transition relative`}
                                         title="Click to edit Header Text, Fonts & Validity"
                                     >
                                         <div className="absolute -top-2.5 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-md opacity-0 group-hover/headerEdit:opacity-100 transition-opacity print:hidden flex items-center gap-1 pointer-events-none z-30 whitespace-nowrap">
@@ -1971,7 +1948,7 @@ export default function PrintOffersPage() {
                                         </div>
                                         
                                         {/* Date/Validity on top */}
-                                        <div className="text-black font-extrabold text-xs sm:text-sm tracking-widest mb-1.5 font-sans">
+                                        <div className="text-black font-black text-sm sm:text-base tracking-widest mb-1 font-sans uppercase">
                                             {posterSubtitle}
                                         </div>
 
@@ -1990,113 +1967,118 @@ export default function PrintOffersPage() {
                                                         const isSecondLine = idx === 1;
                                                         const isOdd = idx % 2 === 1;
 
-                                                        let fontStyleClass = 'font-vintage';
+                                                        let fontStyleClass = 'font-vintage font-bold';
                                                         let fontFamilyStyle = "'Pacifico', cursive";
-                                                        let textStroke = '1.2px #ffffff';
-                                                        let fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                        let fontWeight = '900';
+                                                        let textStroke = '2px #ffffff';
+                                                        const fontSize = getPosterHeaderFontSize(lineText, idx, titleLines.length, headerStyle, isLandscapePoster, headerFontSize);
 
-                                                        // 1. Font Family & Size selection
+                                                        // 1. Font Family & Weight selection
                                                         if (headerStyle === 'vintage_headline') {
                                                             if (isSecondLine) {
-                                                                fontStyleClass = 'font-headline';
+                                                                fontStyleClass = 'font-headline font-bold';
                                                                 fontFamilyStyle = "'Dancing Script', cursive";
-                                                                textStroke = '0.8px #ffffff';
-                                                                fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '52px');
+                                                                fontWeight = '700';
+                                                                textStroke = '1.8px #ffffff';
                                                             } else {
-                                                                fontStyleClass = 'font-vintage';
+                                                                fontStyleClass = 'font-vintage font-bold';
                                                                 fontFamilyStyle = "'Pacifico', cursive";
-                                                                textStroke = '1.2px #ffffff';
-                                                                fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                                fontWeight = '900';
+                                                                textStroke = '2px #ffffff';
                                                             }
                                                         } else if (headerStyle === 'modern_montserrat') {
                                                             fontStyleClass = 'font-montserrat font-black';
                                                             fontFamilyStyle = "'Montserrat', sans-serif";
-                                                            textStroke = '1.5px #ffffff';
-                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                            fontWeight = '900';
+                                                            textStroke = '2px #ffffff';
                                                         } else if (headerStyle === 'modern_bebas') {
-                                                            fontStyleClass = 'font-bebas tracking-wider';
+                                                            fontStyleClass = 'font-bebas tracking-wide font-black';
                                                             fontFamilyStyle = "'Bebas Neue', sans-serif";
-                                                            textStroke = '1px #ffffff';
-                                                            fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '54px');
+                                                            fontWeight = '900';
+                                                            textStroke = '2px #ffffff';
                                                         } else if (headerStyle === 'modern_righteous') {
-                                                            fontStyleClass = 'font-righteous';
+                                                            fontStyleClass = 'font-righteous font-black';
                                                             fontFamilyStyle = "'Righteous', cursive";
-                                                            textStroke = '1.2px #ffffff';
-                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                            fontWeight = '900';
+                                                            textStroke = '2px #ffffff';
                                                         } else if (headerStyle === 'modern_poppins') {
                                                             fontStyleClass = 'font-poppins font-black';
                                                             fontFamilyStyle = "'Poppins', sans-serif";
-                                                            textStroke = '1.2px #ffffff';
-                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                            fontWeight = '800';
+                                                            textStroke = '2px #ffffff';
                                                         } else if (headerStyle === 'modern_oswald') {
-                                                            fontStyleClass = 'font-oswald font-bold tracking-wide';
+                                                            fontStyleClass = 'font-oswald font-extrabold tracking-wide';
                                                             fontFamilyStyle = "'Oswald', sans-serif";
-                                                            textStroke = '1px #ffffff';
-                                                            fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
+                                                            fontWeight = '800';
+                                                            textStroke = '2px #ffffff';
                                                         } else if (headerStyle === 'vintage') {
-                                                            fontStyleClass = 'font-vintage';
+                                                            fontStyleClass = 'font-vintage font-bold';
                                                             fontFamilyStyle = "'Pacifico', cursive";
-                                                            fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+                                                            fontWeight = '900';
+                                                            textStroke = '2px #ffffff';
                                                         } else if (headerStyle === 'headline') {
-                                                            fontStyleClass = 'font-headline';
+                                                            fontStyleClass = 'font-headline font-bold';
                                                             fontFamilyStyle = "'Dancing Script', cursive";
-                                                            textStroke = '0.8px #ffffff';
-                                                            fontSize = lineText.length > 15 ? '32px' : (lineText.length > 10 ? '42px' : '52px');
+                                                            fontWeight = '700';
+                                                            textStroke = '1.8px #ffffff';
                                                         } else {
-                                                            fontStyleClass = 'font-anton';
+                                                            fontStyleClass = 'font-anton tracking-wide';
                                                             fontFamilyStyle = "'Anton', sans-serif";
-                                                            fontSize = lineText.length > 15 ? '28px' : (lineText.length > 10 ? '36px' : '48px');
+                                                            fontWeight = '900';
+                                                            textStroke = '2.2px #ffffff';
                                                         }
 
-                                                        // 2. Color Theme Selection
+                                                        // 2. Color Theme Selection & Enhanced 3D Punch
                                                         let textColorClass = 'text-[#16a34a]';
-                                                        let shadowClass = 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
+                                                        let shadowClass = 'drop-shadow-[0_4px_0_#15803d] drop-shadow-[0_6px_0_#14532d]';
 
                                                         if (headerColorTheme === 'black_white') {
                                                             textColorClass = isOdd ? 'text-white' : 'text-black';
-                                                            textStroke = isOdd ? '1.5px #000000' : '1.5px #ffffff';
+                                                            textStroke = isOdd ? '2px #000000' : '2px #ffffff';
                                                             shadowClass = isOdd 
-                                                                ? 'drop-shadow-[0_2px_0_#000000] drop-shadow-[0_3px_0_#000000]' 
-                                                                : 'drop-shadow-[0_2px_0_#444444] drop-shadow-[0_3px_0_#666666]';
+                                                                ? 'drop-shadow-[0_3px_0_#000000] drop-shadow-[0_4px_0_#000000]' 
+                                                                : 'drop-shadow-[0_3px_0_#333333] drop-shadow-[0_5px_0_#555555]';
                                                         } else if (headerColorTheme === 'solid_black') {
                                                             textColorClass = 'text-black';
-                                                            textStroke = '1.5px #ffffff';
-                                                            shadowClass = 'drop-shadow-[0_2px_0_#333333] drop-shadow-[0_3px_0_#555555]';
+                                                            textStroke = '2px #ffffff';
+                                                            shadowClass = 'drop-shadow-[0_3px_0_#222222] drop-shadow-[0_5px_0_#444444]';
                                                         } else if (headerColorTheme === 'solid_white') {
                                                             textColorClass = 'text-white';
-                                                            textStroke = '1.5px #000000';
-                                                            shadowClass = 'drop-shadow-[0_2px_0_#000000] drop-shadow-[0_3px_0_#000000]';
+                                                            textStroke = '2px #000000';
+                                                            shadowClass = 'drop-shadow-[0_3px_0_#000000] drop-shadow-[0_5px_0_#000000]';
                                                         } else if (headerColorTheme === 'black_gold') {
                                                             textColorClass = isOdd ? 'text-[#d97706]' : 'text-black';
-                                                            textStroke = '1.5px #ffffff';
-                                                            shadowClass = isOdd ? 'drop-shadow-[0_2px_0_#92400e]' : 'drop-shadow-[0_2px_0_#333333]';
+                                                            textStroke = '2px #ffffff';
+                                                            shadowClass = isOdd ? 'drop-shadow-[0_3px_0_#92400e] drop-shadow-[0_4px_0_#78350f]' : 'drop-shadow-[0_3px_0_#222222] drop-shadow-[0_4px_0_#444444]';
                                                         } else if (headerColorTheme === 'red_yellow') {
                                                             textColorClass = isOdd ? 'text-[#eab308]' : 'text-[#e11b22]';
-                                                            textStroke = '1.5px #ffffff';
-                                                            shadowClass = isOdd ? 'drop-shadow-[0_2px_0_#854d0e]' : 'drop-shadow-[0_2px_0_#991b1b]';
+                                                            textStroke = '2px #ffffff';
+                                                            shadowClass = isOdd ? 'drop-shadow-[0_3px_0_#854d0e] drop-shadow-[0_4px_0_#713f12]' : 'drop-shadow-[0_3px_0_#991b1b] drop-shadow-[0_4px_0_#7f1d1d]';
                                                         } else if (headerColorTheme === 'blue_indigo') {
                                                             textColorClass = isOdd ? 'text-[#4338ca]' : 'text-[#1d4ed8]';
-                                                            textStroke = '1.5px #ffffff';
-                                                            shadowClass = isOdd ? 'drop-shadow-[0_2px_0_#312e81]' : 'drop-shadow-[0_2px_0_#1e40af]';
+                                                            textStroke = '2px #ffffff';
+                                                            shadowClass = isOdd ? 'drop-shadow-[0_3px_0_#312e81] drop-shadow-[0_4px_0_#1e1b4b]' : 'drop-shadow-[0_3px_0_#1e40af] drop-shadow-[0_4px_0_#172554]';
                                                         } else if (headerColorTheme === 'solid_red') {
                                                             textColorClass = 'text-[#e11b22]';
-                                                            textStroke = '1.5px #ffffff';
-                                                            shadowClass = 'drop-shadow-[0_2px_0_#991b1b]';
+                                                            textStroke = '2px #ffffff';
+                                                            shadowClass = 'drop-shadow-[0_3px_0_#991b1b] drop-shadow-[0_4px_0_#7f1d1d]';
                                                         } else {
                                                             // Default Brand Colors
                                                             textColorClass = isOdd ? 'text-[#ea580c]' : 'text-[#16a34a]';
+                                                            textStroke = '2px #ffffff';
                                                             shadowClass = isOdd 
-                                                                ? 'drop-shadow-[0_2px_0_#b45309] drop-shadow-[0_3px_0_#7c2d12]' 
-                                                                : 'drop-shadow-[0_3px_0_#15803d] drop-shadow-[0_4px_0_#14532d]';
+                                                                ? 'drop-shadow-[0_3px_0_#b45309] drop-shadow-[0_5px_0_#7c2d12]' 
+                                                                : 'drop-shadow-[0_4px_0_#15803d] drop-shadow-[0_6px_0_#14532d]';
                                                         }
 
                                                         return (
                                                             <span 
                                                                 key={idx}
-                                                                className={`${fontStyleClass} tracking-tight text-center ${textColorClass} filter ${shadowClass} ${idx > 0 ? '-mt-1' : ''}`}
+                                                                className={`${fontStyleClass} tracking-tight text-center ${textColorClass} filter ${shadowClass} ${idx > 0 ? '-mt-1.5' : ''}`}
                                                                 style={{ 
                                                                     fontFamily: fontFamilyStyle,
                                                                     fontSize,
+                                                                    fontWeight,
                                                                     WebkitTextStroke: textStroke, 
                                                                     paintOrder: 'stroke fill',
                                                                 }}
@@ -2111,7 +2093,7 @@ export default function PrintOffersPage() {
                                     </div>
 
                                     {/* Right Side: Logo Box */}
-                                    <div className="w-[24%] h-[90%] relative flex-shrink-0 flex items-center justify-end z-10 select-none">
+                                    <div className="w-[22%] h-[90%] relative flex-shrink-0 flex items-center justify-end z-10 select-none">
                                         <div className="w-[110px] h-[48mm] bg-white border border-gray-250 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.06)] flex flex-col items-center justify-between p-2 pb-3 text-center">
                                             {logoImage ? (
                                                 <div className="flex-1 flex items-center justify-center w-full min-h-0">
@@ -2148,7 +2130,7 @@ export default function PrintOffersPage() {
 
                         {/* Poster Grid of Cards */}
                         <div 
-                            className={`grid ${posterLayout === '12' || posterLayout === '3_landscape' ? 'grid-cols-3' : (posterLayout === '16' ? 'grid-cols-4' : (posterLayout === '1' || posterLayout === '2_portrait' || posterLayout === '2' ? 'grid-cols-1' : 'grid-cols-2'))} flex-grow animate-fadeIn bg-white`}
+                            className={`grid ${getPosterGridColsClass(posterLayout, isLandscapePoster)} flex-grow animate-fadeIn bg-white`}
                         >
                             {paddedProducts.map((product, index) => {
                                 const isPlaceholder = product.isPlaceholder;
@@ -2195,7 +2177,7 @@ export default function PrintOffersPage() {
                                                         <div 
                                                             className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-2 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
-                                                                fontSize: getDiscountFontSize(posterLayout),
+                                                                fontSize: getDiscountFontSize(posterLayout, isLandscapePoster),
                                                                 fontFamily: 'var(--font-sans), sans-serif',
                                                                 textDecorationColor: '#000000',
                                                                 lineHeight: '1.1'
@@ -2210,7 +2192,7 @@ export default function PrintOffersPage() {
                                                         <div 
                                                             className="bg-[#e11b22] text-white font-extrabold uppercase px-2 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
                                                             style={{ 
-                                                                fontSize: getDiscountFontSize(posterLayout),
+                                                                fontSize: getDiscountFontSize(posterLayout, isLandscapePoster),
                                                                 fontFamily: 'var(--font-sans), sans-serif',
                                                                 lineHeight: '1.1'
                                                             }}
@@ -2241,7 +2223,7 @@ export default function PrintOffersPage() {
 
                                                 {/* Red circular price badge overlapping the image (Click to edit price) */}
                                                 {(() => {
-                                                    const { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset } = getPosterBadgeStyle(posterLayout);
+                                                    const { size, rupeeSize, integerSize, decimalSize, rightOffset, topOffset } = getPosterBadgeStyle(posterLayout, isLandscapePoster);
                                                     const priceVal = sellingPrice;
                                                     const isInteger = priceVal % 1 === 0;
                                                     const integerPart = Math.floor(priceVal).toString();
@@ -2312,7 +2294,7 @@ export default function PrintOffersPage() {
                                                     <h2 
                                                         className="font-extrabold tracking-tight text-black leading-none text-center group-hover/title:text-indigo-700 transition-colors" 
                                                         style={{ 
-                                                            ...getPosterDynamicTitleStyle(product.name, posterLayout),
+                                                            ...getPosterDynamicTitleStyle(product.name, posterLayout, isLandscapePoster),
                                                             fontFamily: 'var(--font-sans), sans-serif'
                                                         }}
                                                     >
@@ -2385,14 +2367,18 @@ export default function PrintOffersPage() {
                                 itemsPerPage = 15;
                                 cardHeight = '54mm';
                                 gridColsClass = 'grid-cols-3';
+                            } else if (layout === 'landscape_4') {
+                                itemsPerPage = 4;
+                                cardHeight = '98mm';
+                                gridColsClass = 'grid-cols-2';
+                            } else if (layout === 'landscape_6') {
+                                itemsPerPage = 6;
+                                cardHeight = '98mm';
+                                gridColsClass = 'grid-cols-3';
                             } else if (layout === 'landscape_12') {
                                 itemsPerPage = 12;
                                 cardHeight = '63.3mm';
                                 gridColsClass = 'grid-cols-4';
-                            } else if (layout === 'landscape_6') {
-                                itemsPerPage = 6;
-                                cardHeight = '95mm';
-                                gridColsClass = 'grid-cols-3';
                             }
                             
                             // Pad products to a multiple of itemsPerPage with empty placeholders
@@ -2516,7 +2502,7 @@ export default function PrintOffersPage() {
                                                                 className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-3 box-border text-center"
                                                             >
                                                                 {product.brand && (
-                                                                    <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: layout === 'landscape_6' ? '12px' : (layout === 'landscape_12' ? '10px' : (layout === 'portrait' ? '10px' : '9px')), color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
+                                                                    <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: layout === 'landscape_4' ? '14px' : (layout === 'landscape_6' ? '12px' : (layout === 'landscape_12' ? '10px' : (layout === 'portrait' ? '10px' : '9px'))), color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
                                                                         {product.brand}
                                                                     </span>
                                                                 )}
@@ -2691,6 +2677,22 @@ export default function PrintOffersPage() {
 
                             <div>
                                 <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
+                                    Header Font Size
+                                </label>
+                                <select
+                                    value={headerFontSize}
+                                    onChange={(e) => setHeaderFontSize(e.target.value)}
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black cursor-pointer"
+                                >
+                                    <option value="extra_large">Heavy & Big (Default)</option>
+                                    <option value="huge">Massive / Extra Big</option>
+                                    <option value="large">Large</option>
+                                    <option value="normal">Standard</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
                                     Header Font Colors
                                 </label>
                                 <select
@@ -2709,17 +2711,84 @@ export default function PrintOffersPage() {
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="block text-[11px] font-extrabold uppercase text-gray-600 tracking-wider mb-1">
-                                    Offer Duration / Validity Text
+                            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-3.5 space-y-3">
+                                <label className="block text-[11px] font-extrabold uppercase text-gray-700 tracking-wider">
+                                    Offer Duration / Validity (Auto-Dates & Editable)
                                 </label>
-                                <input
-                                    type="text"
-                                    value={posterSubtitle}
-                                    onChange={(e) => setPosterSubtitle(e.target.value)}
-                                    placeholder="e.g. OFFER VALIDITY: 14TH TO 20TH JULY"
-                                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-xs font-bold text-black focus:bg-white focus:ring-2 focus:ring-indigo-500"
-                                />
+
+                                {/* Date Pickers for Start & End */}
+                                <div className="grid grid-cols-2 gap-2.5">
+                                    <div>
+                                        <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-wider mb-1">
+                                            Start Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={validityStartDate}
+                                            onChange={(e) => handleValidityDatesChange(e.target.value, validityEndDate)}
+                                            className="w-full bg-white border border-gray-300 rounded-xl p-2 text-xs font-bold text-black focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-wider mb-1">
+                                            End Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={validityEndDate}
+                                            onChange={(e) => handleValidityDatesChange(validityStartDate, e.target.value)}
+                                            className="w-full bg-white border border-gray-300 rounded-xl p-2 text-xs font-bold text-black focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Quick Presets */}
+                                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mr-1">Quick:</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyDatePreset(6)}
+                                        className="text-[10px] bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded-lg transition cursor-pointer shadow-2xs"
+                                    >
+                                        7 Days (Week)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyDatePreset(2)}
+                                        className="text-[10px] bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded-lg transition cursor-pointer shadow-2xs"
+                                    >
+                                        Weekend (3 Days)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyDatePreset(0)}
+                                        className="text-[10px] bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded-lg transition cursor-pointer shadow-2xs"
+                                    >
+                                        Today Only
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyDatePreset(13)}
+                                        className="text-[10px] bg-white border border-indigo-200 hover:bg-indigo-50 text-indigo-700 font-bold px-2 py-1 rounded-lg transition cursor-pointer shadow-2xs"
+                                    >
+                                        14 Days
+                                    </button>
+                                </div>
+
+                                {/* Printed Poster Subtitle Text (Fully Editable) */}
+                                <div>
+                                    <label className="block text-[10px] font-extrabold text-gray-500 uppercase tracking-wider mb-1">
+                                        Printed Header Text (Directly Editable)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={posterSubtitle}
+                                        onChange={(e) => setPosterSubtitle(e.target.value)}
+                                        placeholder="e.g. OFFER VALIDITY: 16TH TO 22ND NOVEMBER"
+                                        className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-xs font-black text-black tracking-wider focus:ring-2 focus:ring-indigo-500 uppercase"
+                                    />
+                                    <p className="text-[9px] text-gray-400 mt-1">Selecting dates auto-fills this text, or you can manually type any custom text.</p>
+                                </div>
                             </div>
                         </div>
 

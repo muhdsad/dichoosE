@@ -42,6 +42,7 @@ const ProductCard = ({ product }) => {
     const { addToCart } = useCart();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const [added, setAdded] = useState(false);
+    const [imgError, setImgError] = useState(false);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -88,13 +89,14 @@ const ProductCard = ({ product }) => {
             {/* Image Box */}
             <div className="relative aspect-square w-full bg-slate-50 overflow-hidden">
                 <Link href={`/products/${product.id}`} className="block w-full h-full">
-                    {imageUrl ? (
+                    {imageUrl && !imgError ? (
                         <Image
                             src={imageUrl}
                             alt={product.name}
                             fill
                             className="object-cover object-center group-hover:scale-108 transition-transform duration-500 ease-out"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                            onError={() => setImgError(true)}
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-semibold">
