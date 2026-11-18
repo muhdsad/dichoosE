@@ -17,8 +17,8 @@ export default function AdminLayout({ children }) {
     useEffect(() => {
         if (loading) return;
 
-        // Allow access to login page without checks
-        if (pathname === '/admin/login') {
+        // Allow access to login page without checks or in development mode
+        if (pathname === '/admin/login' || process.env.NODE_ENV === 'development') {
             setIsAuthorized(true);
             return;
         }

@@ -40,13 +40,21 @@ const getProxiedImageUrl = (url) => {
         else if (len <= 28) fontSize = '24px';
         else if (len <= 40) fontSize = '18px';
         else fontSize = '15px';
+    } else if (layout === 'portrait_12') {
+        // 3x4 Portrait (12 Tags - Standard Matching Uploaded Tags)
+        stroke = '1.4px #ffffff';
+        if (len <= 10) fontSize = '30px';
+        else if (len <= 16) fontSize = '25px';
+        else if (len <= 24) fontSize = '20px';
+        else if (len <= 34) fontSize = '16px';
+        else fontSize = '13.5px';
     } else if (layout === 'portrait') {
         stroke = '1.2px #ffffff';
-        if (len <= 12) fontSize = '36px';
-        else if (len <= 18) fontSize = '30px';
-        else if (len <= 28) fontSize = '24px';
-        else if (len <= 40) fontSize = '18px';
-        else fontSize = '16px';
+        if (len <= 12) fontSize = '30px';
+        else if (len <= 18) fontSize = '24px';
+        else if (len <= 28) fontSize = '20px';
+        else if (len <= 40) fontSize = '16px';
+        else fontSize = '13px';
     } else {
         // default 4x4 landscape (16 tags)
         if (len <= 12) fontSize = '28px';
@@ -60,22 +68,22 @@ const getProxiedImageUrl = (url) => {
         fontSize,
         fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
         fontWeight: 'normal',
-        lineHeight: '1.08',
+        lineHeight: '1.05',
         color: '#000000',
         textTransform: 'uppercase',
         textAlign: 'center',
         wordBreak: 'break-word',
         WebkitTextStroke: stroke,
         paintOrder: 'stroke fill',
-        textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
+        textShadow: '0px 0px 3px #ffffff, 0px 0px 3px #ffffff, 0px 0px 3px #ffffff'
     };
 };
 
 const getDynamicPriceStyle = (price, layout = 'landscape') => {
-    const text = `₹${Number(price || 0).toFixed(2)}`;
+    const text = `${Number(price || 0).toFixed(2)}`;
     const len = text.length;
     let fontSize = '24px';
-    let stroke = '1.2px #ffffff';
+    let stroke = '1.4px #ffffff';
 
     if (layout === 'landscape_4') {
         stroke = '2.6px #ffffff';
@@ -95,12 +103,19 @@ const getDynamicPriceStyle = (price, layout = 'landscape') => {
         else if (len <= 8) fontSize = '38px';
         else if (len <= 10) fontSize = '32px';
         else fontSize = '26px';
+    } else if (layout === 'portrait_12') {
+        // 3x4 Portrait (12 Tags - Standard Matching Uploaded Tags)
+        stroke = '1.6px #ffffff';
+        if (len <= 5) fontSize = '44px';
+        else if (len <= 7) fontSize = '38px';
+        else if (len <= 9) fontSize = '32px';
+        else fontSize = '26px';
     } else if (layout === 'portrait') {
-        stroke = '1.4px #ffffff';
-        if (len <= 6) fontSize = '40px';
-        else if (len <= 8) fontSize = '34px';
-        else if (len <= 10) fontSize = '28px';
-        else fontSize = '24px';
+        stroke = '1.3px #ffffff';
+        if (len <= 6) fontSize = '36px';
+        else if (len <= 8) fontSize = '30px';
+        else if (len <= 10) fontSize = '25px';
+        else fontSize = '21px';
     } else {
         // default 4x4 landscape (16 tags)
         if (len <= 6) fontSize = '30px';
@@ -123,6 +138,42 @@ const getDynamicPriceStyle = (price, layout = 'landscape') => {
     };
 };
 
+const getDynamicUnitStyle = (layout = 'landscape') => {
+    let fontSize = '14px';
+    let stroke = '1px #ffffff';
+    if (layout === 'landscape_4') {
+        fontSize = '32px';
+        stroke = '1.8px #ffffff';
+    } else if (layout === 'landscape_6') {
+        fontSize = '26px';
+        stroke = '1.5px #ffffff';
+    } else if (layout === 'landscape_12') {
+        fontSize = '20px';
+        stroke = '1.2px #ffffff';
+    } else if (layout === 'portrait_12') {
+        fontSize = '24px';
+        stroke = '1.3px #ffffff';
+    } else if (layout === 'portrait') {
+        fontSize = '18px';
+        stroke = '1.1px #ffffff';
+    } else {
+        fontSize = '15px';
+        stroke = '1px #ffffff';
+    }
+    return {
+        fontSize,
+        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+        fontWeight: 'normal',
+        lineHeight: '1',
+        color: '#000000',
+        textTransform: 'uppercase',
+        whiteSpace: 'nowrap',
+        WebkitTextStroke: stroke,
+        paintOrder: 'stroke fill',
+        textShadow: '0px 0px 3px #ffffff, 0px 0px 3px #ffffff'
+    };
+};
+
 const getDynamicUnitFontSize = (layout = 'landscape') => {
     if (layout === 'landscape_4') return '22px';
     if (layout === 'landscape_6') return '18px';
@@ -132,10 +183,12 @@ const getDynamicUnitFontSize = (layout = 'landscape') => {
 };
 
 const getDynamicBadgeFontSize = (layout = 'landscape') => {
-    if (layout === 'landscape_4') return '16px';
-    if (layout === 'landscape_6') return '14px';
-    if (layout === 'landscape_12') return '12px';
-    return '11px';
+    if (layout === 'landscape_4') return '15px';
+    if (layout === 'landscape_6') return '13px';
+    if (layout === 'landscape_12') return '11px';
+    if (layout === 'portrait_12') return '11px';
+    if (layout === 'portrait') return '9.5px';
+    return '10px';
 };
 
 const getPosterDynamicTitleStyle = (name, layout, isLandscape = false) => {
@@ -596,7 +649,7 @@ export default function PrintOffersPage() {
     const [normalProducts, setNormalProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
-    const [layout, setLayout] = useState('landscape'); // 'portrait' | 'landscape' (used for sheet mode)
+    const [layout, setLayout] = useState('portrait_12'); // 'portrait_12' (default 3x4 A4) | 'portrait' | 'landscape_12' | 'landscape' | 'landscape_6' | 'landscape_4'
     const [saving, setSaving] = useState(false);
 
     // Poster Mode States
@@ -622,6 +675,9 @@ export default function PrintOffersPage() {
     const [logoLocationText, setLogoLocationText] = useState('KAKKAD');
     const [decorImage, setDecorImage] = useState(null);
     const [showProductImages, setShowProductImages] = useState(true);
+    const [showBadges, setShowBadges] = useState(true);
+    const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+    const [isSheetPickerOpen, setIsSheetPickerOpen] = useState(false);
 
     // Saved Selections States
     const [savedSelections, setSavedSelections] = useState([]);
@@ -1009,12 +1065,16 @@ export default function PrintOffersPage() {
             if (next.has(id)) {
                 next.delete(id);
             } else {
-                // Check if we exceed limit
-                const limit = parseInt(posterLayout);
-                if (next.size < limit) {
+                // Unlimited selection for standard tag sheet mode; limit only for poster mode layouts
+                if (printMode === 'sheet') {
                     next.add(id);
                 } else {
-                    alert(`You can only select up to ${limit} products for this poster layout. Deselect another product first.`);
+                    const limit = parseInt(posterLayout);
+                    if (next.size < limit) {
+                        next.add(id);
+                    } else {
+                        alert(`You can only select up to ${limit} products for this poster layout. Deselect another product first.`);
+                    }
                 }
             }
             return next;
@@ -1086,9 +1146,10 @@ export default function PrintOffersPage() {
 
     // Poster orientation and page orientation details
     const isLandscapePoster = posterOrientation === 'landscape' || posterLayout === '2_landscape' || posterLayout === '3_landscape';
+    const isSheetLandscape = layout !== 'portrait' && layout !== 'portrait_12';
     const isPageLandscape = (printMode === 'poster' || printMode === 'normal_poster')
         ? isLandscapePoster 
-        : layout !== 'portrait';
+        : isSheetLandscape;
 
     const handleOrientationChange = (newOrientation) => {
         setPosterOrientation(newOrientation);
@@ -1133,7 +1194,7 @@ export default function PrintOffersPage() {
                 ? `normal-price-poster-${posterLayout}-${isLandscapePoster ? 'landscape' : 'portrait'}.png` 
                 : printMode === 'poster'
                     ? `promotional-poster-${posterLayout}-${isLandscapePoster ? 'landscape' : 'portrait'}.png` 
-                    : `offers-sheet-${layout}.png`;
+                    : `standard-tags-sheet-${layout}.png`;
             link.href = dataUrl;
             link.click();
         } catch (error) {
@@ -1148,8 +1209,10 @@ export default function PrintOffersPage() {
 
     if (products.length === 0 && normalProducts.length === 0) return <div className="text-center p-10">No products found to print.</div>;
 
-    // Filter and pad products for Poster Mode
-    const currentPool = printMode === 'normal_poster' ? normalProducts : products;
+    // Filter and pad products for Poster Mode & Sheet Selection
+    const currentPool = (printMode === 'normal_poster' || printMode === 'sheet') 
+        ? (normalProducts.length > 0 ? normalProducts : products) 
+        : products;
     const selectableProducts = currentPool.filter(p => 
         (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         (p.brand || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -1303,63 +1366,267 @@ export default function PrintOffersPage() {
 
                 {/* Configurations Panel depending on Mode */}
                 {printMode === 'sheet' ? (
-                    <div className="flex flex-wrap gap-3 items-center justify-between bg-white p-4 rounded-xl border border-gray-200">
-                        <div className="flex gap-2 flex-wrap">
-                            <button
-                                onClick={() => setLayout('landscape_4')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_4' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
-                            >
-                                2x2 Landscape (4 Tags)
-                            </button>
-                            <button
-                                onClick={() => setLayout('landscape_6')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_6' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
-                            >
-                                3x2 Landscape (6 Tags)
-                            </button>
-                            <button
-                                onClick={() => setLayout('landscape_12')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_12' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
-                            >
-                                4x3 Landscape (12 Tags)
-                            </button>
-                            <button
-                                onClick={() => setLayout('landscape')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
-                            >
-                                4x4 Landscape (16 Tags)
-                            </button>
-                            <button
-                                onClick={() => setLayout('portrait')}
-                                className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300'}`}
-                            >
-                                3x5 Portrait (15 Tags)
-                            </button>
-                        </div>
-                        <div className="flex gap-3 items-center">
-                            <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm">
+                    <div className="space-y-3 bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
+                        <div className="flex flex-wrap gap-3 items-center justify-between">
+                            {/* Layout Selection */}
+                            <div className="flex gap-2 flex-wrap items-center">
+                                <span className="text-[11px] font-extrabold uppercase text-gray-500 tracking-wider mr-1">Layout:</span>
+                                <button
+                                    onClick={() => setLayout('portrait_12')}
+                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait_12' ? 'bg-primary text-white shadow-green-200' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+                                >
+                                    3x4 Portrait (12 Tags - Standard)
+                                </button>
+                                <button
+                                    onClick={() => setLayout('portrait')}
+                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+                                >
+                                    3x5 Portrait (15 Tags)
+                                </button>
+                                <button
+                                    onClick={() => setLayout('landscape_12')}
+                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_12' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+                                >
+                                    4x3 Landscape (12 Tags)
+                                </button>
+                                <button
+                                    onClick={() => setLayout('landscape')}
+                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+                                >
+                                    4x4 Landscape (16 Tags)
+                                </button>
+                                <button
+                                    onClick={() => setLayout('landscape_6')}
+                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_6' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+                                >
+                                    3x2 Landscape (6 Tags)
+                                </button>
+                                <button
+                                    onClick={() => setLayout('landscape_4')}
+                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_4' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
+                                >
+                                    2x2 Landscape (4 Tags)
+                                </button>
+                            </div>
+
+                            {/* Search Filter for Sheet Products */}
+                            <div className="relative w-full sm:w-64">
                                 <input
-                                    type="checkbox"
-                                    checked={showProductImages}
-                                    onChange={(e) => setShowProductImages(e.target.checked)}
-                                    className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer accent-primary"
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Search products by name..."
+                                    className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-8 pr-7 py-1.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-indigo-500"
                                 />
-                                <span>Show Product Images</span>
-                            </label>
-                            <button
-                                onClick={handleSaveAllAsPng}
-                                disabled={saving}
-                                className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
-                            >
-                                {saving ? 'Saving...' : 'Save Sheet as PNG'}
-                            </button>
-                            <button
-                                onClick={() => window.print()}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer"
-                            >
-                                Print / Save as PDF
-                            </button>
+                                <FaSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none" />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm('')}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                                    >
+                                        <FaTimes />
+                                    </button>
+                                )}
+                            </div>
                         </div>
+
+                        {/* Secondary Tool Bar */}
+                        <div className="flex flex-wrap gap-3 items-center justify-between pt-2 border-t border-gray-150 text-xs">
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                                {/* Option: Only Show Selected Tags */}
+                                <label className={`flex items-center gap-2 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer border shadow-sm transition-all select-none ${
+                                    showSelectedOnly 
+                                        ? 'bg-emerald-600 text-white border-emerald-700 ring-2 ring-emerald-300 shadow-md' 
+                                        : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
+                                }`}>
+                                    <input
+                                        type="checkbox"
+                                        checked={showSelectedOnly}
+                                        onChange={(e) => setShowSelectedOnly(e.target.checked)}
+                                        className="w-4 h-4 rounded cursor-pointer accent-emerald-500"
+                                    />
+                                    <span>Only Show Selected Tags</span>
+                                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                                        showSelectedOnly ? 'bg-white text-emerald-800' : 'bg-gray-200 text-gray-700'
+                                    }`}>
+                                        {selectedProductIds.size}
+                                    </span>
+                                </label>
+
+                                {/* Option: Clear Selection */}
+                                <button
+                                    type="button"
+                                    onClick={clearProductSelection}
+                                    disabled={selectedProductIds.size === 0}
+                                    className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-2 px-3 rounded-lg font-bold text-xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
+                                    title="Clear selection of tags"
+                                >
+                                    <FaTimes className="text-[10px]" /> Clear Selection
+                                </button>
+
+                                {/* Quick Tag Picker Button */}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsSheetPickerOpen(prev => !prev)}
+                                    className={`py-2 px-3 rounded-lg font-bold text-xs transition border shadow-sm cursor-pointer flex items-center gap-1.5 select-none ${
+                                        isSheetPickerOpen 
+                                            ? 'bg-indigo-650 text-white border-indigo-700 shadow-md' 
+                                            : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
+                                    }`}
+                                    title="Toggle quick tag picker tray to select/deselect tags quickly"
+                                >
+                                    <span>🏷️</span> {isSheetPickerOpen ? 'Hide Tag Picker' : 'Quick Tag Picker'}
+                                </button>
+
+                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={showProductImages}
+                                        onChange={(e) => setShowProductImages(e.target.checked)}
+                                        className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer accent-primary"
+                                    />
+                                    <span>Show Images</span>
+                                </label>
+
+                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={showBadges}
+                                        onChange={(e) => setShowBadges(e.target.checked)}
+                                        className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer accent-primary"
+                                    />
+                                    <span>Show Badges</span>
+                                </label>
+
+                                {/* Tag Logo Customizer */}
+                                <div className="flex items-center gap-1.5">
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={handleLogoUpload}
+                                        className="hidden" 
+                                        id="sheet-logo-file-input"
+                                    />
+                                    <label 
+                                        htmlFor="sheet-logo-file-input" 
+                                        className="bg-gray-50 border border-gray-300 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-bold text-xs cursor-pointer shadow-sm transition flex items-center gap-1.5 select-none"
+                                        title="Upload custom logo for tag headers"
+                                    >
+                                        <FaImage /> {logoImage ? 'Change Logo' : 'Upload Logo'}
+                                    </label>
+                                    {logoImage && (
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveLogo}
+                                            className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 py-2 px-2.5 rounded-lg font-bold text-xs transition cursor-pointer select-none"
+                                            title="Reset to default Smile logo"
+                                        >
+                                            Reset Logo
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 items-center">
+                                <span className="text-[11px] text-gray-500 hidden md:inline-block">
+                                    💡 Click any card to edit price, name, unit, or image
+                                </span>
+                                <button
+                                    onClick={handleSaveAllAsPng}
+                                    disabled={saving}
+                                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                                >
+                                    {saving ? 'Saving...' : 'Save Sheet as PNG'}
+                                </button>
+                                <button
+                                    onClick={() => window.print()}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer"
+                                >
+                                    Print / Save as PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Quick Tag Picker Drawer */}
+                        {isSheetPickerOpen && (
+                            <div className="pt-3 pb-1 border-t border-gray-150 space-y-2">
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-extrabold uppercase text-gray-500 tracking-wider">
+                                            Quick Tag Picker
+                                        </span>
+                                        <span className="text-[11px] font-bold text-gray-500">
+                                            ({selectedProductIds.size} selected)
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const idsToAdd = selectableProducts.map(p => p.id);
+                                                setSelectedProductIds(prev => {
+                                                    const next = new Set(prev);
+                                                    idsToAdd.forEach(id => next.add(id));
+                                                    return next;
+                                                });
+                                            }}
+                                            className="text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-2 py-1 rounded border border-gray-300 cursor-pointer"
+                                        >
+                                            Select Visible ({selectableProducts.length})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={clearProductSelection}
+                                            disabled={selectedProductIds.size === 0}
+                                            className="text-[10px] bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded border border-red-200 cursor-pointer disabled:opacity-40"
+                                        >
+                                            Clear Selection
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
+                                    {selectableProducts.length === 0 ? (
+                                        <div className="text-xs text-gray-500 py-3 px-2 italic">
+                                            No products found matching &quot;{searchTerm}&quot;
+                                        </div>
+                                    ) : (
+                                        selectableProducts.map(p => {
+                                            const isSelected = selectedProductIds.has(p.id);
+                                            const sellingPrice = (p.price !== undefined && p.price !== null && parseFloat(p.price) > 0)
+                                                ? parseFloat(p.price)
+                                                : ((p.offerPrice !== undefined && p.offerPrice !== null && parseFloat(p.offerPrice) > 0)
+                                                    ? parseFloat(p.offerPrice)
+                                                    : (parseFloat(p.mrp) || 0));
+                                            return (
+                                                <button
+                                                    key={p.id}
+                                                    type="button"
+                                                    onClick={() => toggleProductSelection(p.id)}
+                                                    className={`flex-shrink-0 flex items-center gap-2 p-2 rounded-lg border-2 transition relative text-left w-44 cursor-pointer select-none ${
+                                                        isSelected 
+                                                            ? 'border-emerald-600 bg-emerald-50/70 shadow-xs' 
+                                                            : 'border-gray-200 bg-white hover:border-gray-300'
+                                                    }`}
+                                                >
+                                                    <div className="relative w-8 h-8 bg-gray-50 rounded overflow-hidden border border-gray-150 flex-shrink-0">
+                                                        <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-contain" alt="" />
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-[11px] font-bold text-gray-800 truncate leading-tight">{p.name}</p>
+                                                        <span className="text-[10px] text-emerald-700 font-extrabold">₹{Number(sellingPrice).toFixed(2)}</span>
+                                                    </div>
+                                                    {isSelected && (
+                                                        <span className="absolute top-1 right-1 bg-emerald-600 text-white rounded-full p-0.5 text-[7px] w-3.5 h-3.5 flex items-center justify-center font-bold">
+                                                            <FaCheck />
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200">
@@ -2355,34 +2622,44 @@ export default function PrintOffersPage() {
                         </div>
                     </div>
                 ) : (
-                    /* STANDARD TAG SHEETS CONTAINER */
+                    /* STANDARD TAG SHEETS CONTAINER (Like Uploaded Tags with Border & Normal Editable Price) */
                     <div className="w-full flex flex-col gap-6 print:gap-0">
                         {(() => {
-                            const isSheetLandscape = layout !== 'portrait';
-                            let itemsPerPage = 16;
-                            let cardHeight = '47.5mm';
-                            let gridColsClass = 'grid-cols-4';
+                            const isSheetLandscape = layout !== 'portrait' && layout !== 'portrait_12';
+                            let itemsPerPage = 12;
+                            let gridColsClass = 'grid-cols-3';
 
-                            if (layout === 'portrait') {
+                            if (layout === 'portrait_12') {
+                                itemsPerPage = 12;
+                                gridColsClass = 'grid-cols-3';
+                            } else if (layout === 'portrait') {
                                 itemsPerPage = 15;
-                                cardHeight = '54mm';
                                 gridColsClass = 'grid-cols-3';
                             } else if (layout === 'landscape_4') {
                                 itemsPerPage = 4;
-                                cardHeight = '98mm';
                                 gridColsClass = 'grid-cols-2';
                             } else if (layout === 'landscape_6') {
                                 itemsPerPage = 6;
-                                cardHeight = '98mm';
                                 gridColsClass = 'grid-cols-3';
                             } else if (layout === 'landscape_12') {
                                 itemsPerPage = 12;
-                                cardHeight = '63.3mm';
+                                gridColsClass = 'grid-cols-4';
+                            } else if (layout === 'landscape') {
+                                itemsPerPage = 16;
                                 gridColsClass = 'grid-cols-4';
                             }
                             
-                            // Pad products to a multiple of itemsPerPage with empty placeholders
-                            const sheetProducts = [...products];
+                            // Pool: prioritize normalProducts with normal prices, fallback to products
+                            const pool = normalProducts.length > 0 ? normalProducts : products;
+                            const sourcePool = showSelectedOnly
+                                ? pool.filter(p => selectedProductIds.has(p.id))
+                                : pool;
+                            const filteredPool = sourcePool.filter(p => 
+                                (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                (p.brand || '').toLowerCase().includes(searchTerm.toLowerCase())
+                            );
+
+                            const sheetProducts = [...filteredPool];
                             const remainder = sheetProducts.length % itemsPerPage;
                             if (remainder !== 0) {
                                 const padCount = itemsPerPage - remainder;
@@ -2401,130 +2678,256 @@ export default function PrintOffersPage() {
                                 pages.push(sheetProducts.slice(i, i + itemsPerPage));
                             }
 
+                            if (pages.length === 0) {
+                                return (
+                                    <div className="bg-white p-12 rounded-xl border border-gray-200 text-center space-y-4 my-6 shadow-sm">
+                                        <div className="text-4xl">🏷️</div>
+                                        <h3 className="text-base font-bold text-gray-800">
+                                            {showSelectedOnly ? "No Tags Selected" : "No Products Found"}
+                                        </h3>
+                                        <p className="text-xs text-gray-500 max-w-md mx-auto">
+                                            {showSelectedOnly 
+                                                ? "You haven't selected any tags yet. Turn off 'Only Show Selected Tags' to browse and select tags, or select products using the Quick Tag Picker."
+                                                : `No products match "${searchTerm}". Try another search term.`
+                                            }
+                                        </p>
+                                        {showSelectedOnly ? (
+                                            <div className="flex justify-center gap-3">
+                                                <button
+                                                    onClick={() => setShowSelectedOnly(false)}
+                                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm cursor-pointer"
+                                                >
+                                                    Show All Tags
+                                                </button>
+                                                {pool.length > 0 && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedProductIds(new Set(pool.slice(0, itemsPerPage).map(p => p.id)));
+                                                        }}
+                                                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition border border-gray-300 cursor-pointer"
+                                                    >
+                                                        Select First {itemsPerPage} Tags
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            searchTerm && (
+                                                <button
+                                                    onClick={() => setSearchTerm('')}
+                                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition border border-gray-300 cursor-pointer"
+                                                >
+                                                    Clear Search
+                                                </button>
+                                            )
+                                        )}
+                                    </div>
+                                );
+                            }
+
                             return pages.map((pageProducts, pageIdx) => (
                                 <div 
                                     key={`sheet-page-${pageIdx}`}
-                                    className="w-full flex flex-col bg-white overflow-hidden page-break-after-always print:break-after-page shadow-sm print:shadow-none border border-gray-150 print:border-none relative"
+                                    className="sheet-page w-full flex flex-col justify-between bg-white overflow-hidden page-break-after-always print:break-after-page shadow-sm print:shadow-none border border-gray-200 print:border-none relative box-border mx-auto"
                                     style={{
+                                        width: isSheetLandscape ? '297mm' : '210mm',
+                                        minWidth: isSheetLandscape ? '297mm' : '210mm',
+                                        maxWidth: isSheetLandscape ? '297mm' : '210mm',
                                         height: isSheetLandscape ? '210mm' : '297mm',
+                                        minHeight: isSheetLandscape ? '210mm' : '297mm',
                                         maxHeight: isSheetLandscape ? '210mm' : '297mm',
+                                        padding: '3mm 4mm 2mm 4mm',
                                         breakAfter: pageIdx < pages.length - 1 ? 'page' : 'auto',
-                                        pageBreakAfter: pageIdx < pages.length - 1 ? 'always' : 'auto'
+                                        pageBreakAfter: pageIdx < pages.length - 1 ? 'always' : 'auto',
+                                        boxSizing: 'border-box'
                                     }}
                                 >
-                                    {/* Top HR Bars (Green 10px & Red 5px with narrow space) */}
-                                    <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
-                                        <div className="w-full h-[10px] bg-[#16a34a]" />
-                                        <div className="w-full h-[5px] bg-[#e11b22]" />
-                                    </div>
-
-                                    {/* Sheet Grid */}
-                                    <div className={`grid gap-0 print:gap-0 border-none flex-grow ${gridColsClass}`}>
-                                        {pageProducts.map((product, index) => {
+                                    {/* Sheet Grid with Dotted/Dashed Cutting Guidelines */}
+                                    <div 
+                                        className={`grid gap-0 print:gap-0 flex-grow ${gridColsClass}`}
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: layout === 'portrait_12' || layout === 'portrait' ? 'repeat(3, 1fr)' : (layout === 'landscape_4' ? 'repeat(2, 1fr)' : (layout === 'landscape_6' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)')),
+                                            gridTemplateRows: layout === 'portrait_12' ? 'repeat(4, 1fr)' : (layout === 'portrait' ? 'repeat(5, 1fr)' : (layout === 'landscape_4' || layout === 'landscape_6' ? 'repeat(2, 1fr)' : (layout === 'landscape_12' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)'))),
+                                            height: 'calc(100% - 6mm)',
+                                            width: '100%',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    >
+                                        {pageProducts.map((product) => {
                                             const isPlaceholder = product.isPlaceholder;
-                                            const mrpVal = product.mrp ? parseFloat(product.mrp) : 0;
-                                            const savingsVal = (mrpVal > 0 ? mrpVal : 0) - parseFloat(product.offerPrice || 0);
-                                            const savings = isNaN(savingsVal) ? "0" : savingsVal.toFixed(0);
-                                            const hasSavings = mrpVal > 0 && savings > 0;
+                                            const isSelected = !isPlaceholder && selectedProductIds.has(product.id);
+                                            const mrpVal = (product.mrp !== undefined && product.mrp !== null && parseFloat(product.mrp) > 0)
+                                                ? parseFloat(product.mrp)
+                                                : 0;
+                                            const sellingPrice = (product.price !== undefined && product.price !== null && parseFloat(product.price) > 0)
+                                                ? parseFloat(product.price)
+                                                : ((product.offerPrice !== undefined && product.offerPrice !== null && parseFloat(product.offerPrice) > 0)
+                                                    ? parseFloat(product.offerPrice)
+                                                    : (parseFloat(product.mrp) || 0));
+                                            const discountAmount = mrpVal > sellingPrice ? (mrpVal - sellingPrice) : 0;
+                                            const discountPercent = (mrpVal > 0 && mrpVal > sellingPrice) 
+                                                ? Math.round(((mrpVal - sellingPrice) / mrpVal) * 100) 
+                                                : 0;
 
                                             return (
                                                 <div
                                                     key={product.id}
                                                     id={`offer-card-${product.id}`}
-                                                    className="border-none p-1 flex flex-col items-center justify-between text-center page-break-inside-avoid relative overflow-hidden bg-white group"
+                                                    onClick={(e) => handleOpenEditModal(e, product)}
+                                                    className="sheet-tag-card relative overflow-hidden bg-white flex flex-col justify-between items-center text-center p-2 box-border cursor-pointer group select-none transition-all hover:bg-gray-50/50"
                                                     style={{
-                                                        height: cardHeight
+                                                        border: '1px dashed #d1d5db',
+                                                        minHeight: 0,
+                                                        minWidth: 0,
+                                                        height: '100%',
+                                                        width: '100%',
+                                                        boxSizing: 'border-box'
                                                     }}
+                                                    title={isPlaceholder ? '' : 'Click to edit Product Price, Name, Unit & Image'}
                                                 >
                                                     {isPlaceholder ? (
-                                                        /* Empty placeholder cell to maintain print shape for trimming */
-                                                        <div className="w-full h-full bg-white" />
+                                                        /* Empty placeholder cell with border to maintain print shape for trimming */
+                                                        <div className="w-full h-full bg-white flex items-center justify-center text-gray-200 text-xs font-bold">
+                                                            +
+                                                        </div>
                                                     ) : (
-                                                        /* Active tag card */
+                                                        /* Active standard tag card like uploaded tags */
                                                         <>
-                                                            {/* Top Badges Bar (MRP & Save % OFF) */}
-                                                            <div 
-                                                                className="absolute z-[10] flex items-center justify-center gap-1.5 pointer-events-none"
-                                                                style={{
-                                                                    top: '8px',
-                                                                    left: '50%',
-                                                                    transform: 'translateX(-50%)',
-                                                                    width: 'max-content',
-                                                                    maxWidth: '95%'
-                                                                }}
-                                                            >
-                                                                {/* MRP Badge */}
-                                                                {mrpVal > 0 ? (
-                                                                    <div 
-                                                                        className="bg-[#ffff00] text-black border-none font-extrabold uppercase px-1.5 py-0.5 tracking-wide line-through whitespace-nowrap pointer-events-auto shrink-0"
-                                                                        style={{ 
-                                                                            fontSize: getDynamicBadgeFontSize(layout),
-                                                                            fontFamily: 'var(--font-sans), sans-serif',
-                                                                            textDecorationColor: '#000000',
-                                                                            lineHeight: '1.1'
-                                                                        }}
-                                                                    >
-                                                                        MRP {mrpVal.toFixed(2)}
-                                                                    </div>
-                                                                ) : null}
+                                                            {/* Screen-only Selection Outline & Tint */}
+                                                            {isSelected && (
+                                                                <div 
+                                                                    data-html2canvas-ignore
+                                                                    className="absolute inset-0 border-2 border-emerald-500 bg-emerald-500/[0.04] pointer-events-none z-[12] print:hidden"
+                                                                />
+                                                            )}
 
-                                                                {/* Save Badge */}
-                                                                {hasSavings ? (
-                                                                    <div 
-                                                                        className="bg-red-600 text-white font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-sm whitespace-nowrap pointer-events-auto shrink-0"
-                                                                        style={{ 
-                                                                            fontSize: getDynamicBadgeFontSize(layout),
-                                                                            fontFamily: 'var(--font-sans), sans-serif',
-                                                                            lineHeight: '1.1'
-                                                                        }}
-                                                                    >
-                                                                        {Math.round(((mrpVal - parseFloat(product.offerPrice || 0)) / mrpVal) * 100)}% OFF
-                                                                    </div>
-                                                                ) : null}
+                                                            {/* Top-Left: MRP Badge */}
+                                                            {showBadges && mrpVal > 0 && (
+                                                                <div 
+                                                                    className="absolute top-1.5 left-1.5 z-20 bg-[#ffff00] text-black font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-xs flex items-center whitespace-nowrap pointer-events-none"
+                                                                    style={{
+                                                                        fontSize: getDynamicBadgeFontSize(layout),
+                                                                        fontFamily: 'var(--font-sans), sans-serif',
+                                                                        lineHeight: '1.1'
+                                                                    }}
+                                                                >
+                                                                    <span className="text-[0.85em] font-black mr-0.5">MRP</span>
+                                                                    <span className="line-through font-black" style={{ textDecorationColor: '#e11b22', textDecorationThickness: '1.5px' }}>
+                                                                        ₹{mrpVal.toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Top-Right: Discount Percentage in Red Font with Underline (No Fill Color) */}
+                                                            {showBadges && discountPercent > 0 && (
+                                                                <div 
+                                                                    className="absolute top-1.5 right-1.5 z-20 bg-transparent flex items-center whitespace-nowrap pointer-events-none select-none"
+                                                                    style={{
+                                                                        fontSize: layout === 'portrait_12' ? '13px' : (layout === 'portrait' ? '12px' : '15px'),
+                                                                        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
+                                                                        color: '#e11b22',
+                                                                        textDecoration: 'underline',
+                                                                        textDecorationColor: '#e11b22',
+                                                                        textDecorationThickness: '2px',
+                                                                        textUnderlineOffset: '2px',
+                                                                        letterSpacing: '0.4px',
+                                                                        lineHeight: '1',
+                                                                        WebkitTextStroke: '0.3px #ffffff',
+                                                                        textShadow: '0 0 2px #ffffff, 0 0 2px #ffffff'
+                                                                    }}
+                                                                >
+                                                                    <span>{discountPercent}% OFF</span>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Top Center Logo (BIG SAVE Smile) */}
+                                                            <div className="w-full flex justify-center items-center shrink-0 z-10 pt-0.5 pointer-events-none">
+                                                                <img
+                                                                    src={logoImage || "/images/big_save_smile_logo.png"}
+                                                                    alt="BIG SAVE Smile Logo"
+                                                                    className="h-6 sm:h-7 md:h-8 max-w-[65%] object-contain"
+                                                                />
                                                             </div>
 
-                                                            {/* Image Wrapper */}
+                                                            {/* Product Image Layer */}
                                                             {showProductImages && (
-                                                                <div 
-                                                                    className="absolute inset-0 z-[1] flex items-center justify-center bg-transparent p-1 box-border"
-                                                                >
+                                                                <div className="absolute inset-0 z-[1] flex items-center justify-center p-2 pointer-events-none">
                                                                     <img
                                                                         src={getProxiedImageUrl(product.image)}
                                                                         alt={product.name}
-                                                                        className="max-w-[95%] max-h-[95%] object-contain animate-fadeIn"
+                                                                        className="max-w-[90%] max-h-[78%] object-contain mt-1"
                                                                         referrerPolicy="no-referrer"
                                                                     />
                                                                 </div>
                                                             )}
 
-                                                            {/* Card Details Block */}
-                                                            <div 
-                                                                className="absolute inset-0 z-[2] flex flex-col justify-center items-center bg-transparent p-3 box-border text-center"
-                                                            >
-                                                                {product.brand && (
-                                                                    <span className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: layout === 'landscape_4' ? '14px' : (layout === 'landscape_6' ? '12px' : (layout === 'landscape_12' ? '10px' : (layout === 'portrait' ? '10px' : '9px'))), color: '#9ca3af', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
-                                                                        {product.brand}
-                                                                    </span>
-                                                                )}
-                                                                <h2 className="font-black leading-tight tracking-tight text-center" style={getDynamicTitleStyle(product.name, layout)}>
+                                                            {/* Bottom/Middle Overlay: Product Title & Normal Price */}
+                                                            <div className="w-full flex flex-col items-center justify-end z-[5] pointer-events-none pb-1 mt-auto">
+                                                                {/* Product Title */}
+                                                                <h2 
+                                                                    className="font-black leading-tight tracking-tight text-center px-1"
+                                                                    style={getDynamicTitleStyle(product.name, layout)}
+                                                                >
                                                                     {product.name}
                                                                 </h2>
-                                                                <div className="font-bold mt-1" style={{ fontSize: getDynamicUnitFontSize(layout), color: '#374151', textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff' }}>
-                                                                    {product.unit || '1 KG'}
-                                                                </div>
-                                                                <div className="flex items-baseline justify-center w-full mt-1.5">
-                                                                    <span style={getDynamicPriceStyle(product.offerPrice, layout)}>
-                                                                        ₹{Number(product.offerPrice || 0).toFixed(2)}
+
+                                                                {/* Normal Price & Unit (e.g. 46.00 / KG) */}
+                                                                <div className="flex items-baseline justify-center w-full whitespace-nowrap mt-1">
+                                                                    <span style={getDynamicPriceStyle(sellingPrice, layout)}>
+                                                                        {Number(sellingPrice || 0).toFixed(2)}
+                                                                    </span>
+                                                                    <span className="ml-1" style={getDynamicUnitStyle(layout)}>
+                                                                        / {(product.unit || 'KG').toUpperCase()}
                                                                     </span>
                                                                 </div>
+                                                            </div>
+
+                                                            {/* Select Tag Button / Badge */}
+                                                            <button
+                                                                type="button"
+                                                                data-html2canvas-ignore
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    toggleProductSelection(product.id);
+                                                                }}
+                                                                className={`absolute bottom-1 left-1 z-30 print:hidden transition-all flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer shadow-sm text-[10px] font-bold select-none ${
+                                                                    isSelected 
+                                                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs' 
+                                                                        : 'bg-white hover:bg-emerald-50 text-gray-700 border border-gray-300 hover:border-emerald-500'
+                                                                }`}
+                                                                title={isSelected ? "Click to deselect tag" : "Click to select tag"}
+                                                            >
+                                                                {isSelected ? (
+                                                                    <>
+                                                                        <FaCheck className="text-[8px]" />
+                                                                        <span>Selected</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <span className="text-[11px] font-bold text-gray-400 leading-none">+</span>
+                                                                        <span>Select</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+
+                                                            {/* Hover indicator for click-to-edit (bottom-6 left-1 to avoid select button) */}
+                                                            <div 
+                                                                data-html2canvas-ignore
+                                                                className="absolute bottom-6 left-1 z-20 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow"
+                                                            >
+                                                                <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price
                                                             </div>
 
                                                             {/* Individual Save as PNG Button */}
                                                             <button
                                                                 data-html2canvas-ignore
-                                                                onClick={() => handleSaveCardAsPng(product.id, product.name)}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleSaveCardAsPng(product.id, product.name);
+                                                                }}
                                                                 disabled={saving}
-                                                                className="absolute bottom-2 right-2 z-[20] bg-primary hover:bg-green-700 text-white text-[10px] font-bold py-1 px-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                                className="absolute bottom-1 right-1 z-[20] bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-0.5 px-1.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                                title="Save this single tag as PNG"
                                                             >
                                                                 Save PNG
                                                             </button>
@@ -2535,11 +2938,13 @@ export default function PrintOffersPage() {
                                         })}
                                     </div>
 
-                                    {/* Bottom HR Bars (Green 10px & Red 5px with narrow space) */}
-                                    <div className="w-full flex-shrink-0 flex flex-col gap-[2px] z-20">
-                                        <div className="w-full h-[10px] bg-[#16a34a]" />
-                                        <div className="w-full h-[5px] bg-[#e11b22]" />
-                                    </div>
+                                    {/* Sheet Footer matching uploaded tag sheet */}
+                                    <footer className="w-full h-[5mm] shrink-0 flex justify-between items-center text-[9px] text-gray-500 font-medium select-none z-10 px-1 pt-1 border-t border-gray-150 print:border-none">
+                                        <span>SMILE Supermarket</span>
+                                        <span>
+                                            {isSheetLandscape ? 'A4 Landscape Sheet' : 'A4 Portrait Sheet'} ({pageIdx + 1} of {pages.length}) | {layout === 'portrait_12' ? '3×4 Grid (12 Tags)' : (layout === 'landscape_12' ? '4×3 Grid (12 Tags)' : `${itemsPerPage} Tags`)} | 300 DPI Print Quality
+                                        </span>
+                                    </footer>
                                 </div>
                             ));
                         })()}
@@ -2604,6 +3009,27 @@ export default function PrintOffersPage() {
                         break-inside: avoid !important;
                         border: none !important;
                         box-shadow: none !important;
+                    }
+                    .sheet-page {
+                        width: ${isSheetLandscape ? '297mm' : '210mm'} !important;
+                        min-width: ${isSheetLandscape ? '297mm' : '210mm'} !important;
+                        max-width: ${isSheetLandscape ? '297mm' : '210mm'} !important;
+                        height: ${isSheetLandscape ? '210mm' : '297mm'} !important;
+                        min-height: ${isSheetLandscape ? '210mm' : '297mm'} !important;
+                        max-height: ${isSheetLandscape ? '210mm' : '297mm'} !important;
+                        padding: 3mm 4mm 2mm 4mm !important;
+                        margin: 0 auto !important;
+                        box-sizing: border-box !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                    }
+                    .sheet-tag-card {
+                        border: 1px dashed #9ca3af !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                        box-sizing: border-box !important;
                     }
                     .grid {
                         display: grid !important;
@@ -2815,7 +3241,9 @@ export default function PrintOffersPage() {
                                 </div>
                                 <div>
                                     <h3 className="text-base font-extrabold text-gray-900 leading-tight line-clamp-1">{editingProduct.name}</h3>
-                                    <p className="text-xs text-indigo-600 font-bold mt-0.5">Edit Poster Image, Price & MRP</p>
+                                    <p className="text-xs text-indigo-600 font-bold mt-0.5">
+                                        {printMode === 'sheet' ? 'Edit Tag Price, Name, Unit & Image' : 'Edit Poster Image, Price & MRP'}
+                                    </p>
                                 </div>
                             </div>
                             <button 
@@ -2953,9 +3381,15 @@ export default function PrintOffersPage() {
 
                                 return (
                                     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex justify-between items-center text-xs">
-                                        <span className="font-bold text-emerald-800">Poster Card Preview:</span>
+                                        <span className="font-bold text-emerald-800">
+                                            {printMode === 'sheet' ? 'Tag Display Price:' : 'Poster Card Preview:'}
+                                        </span>
                                         <span className="font-extrabold text-emerald-900">
-                                            {mrpNum > 0 && diff > 0 ? `Save ₹${diff.toFixed(2)} (${offPercent}% OFF)` : `Selling Price: ₹${priceNum.toFixed(2)}`}
+                                            {printMode === 'sheet' ? (
+                                                `${Number(editPrice || 0).toFixed(2)} / ${(editUnit || 'KG').toUpperCase()}`
+                                            ) : (
+                                                mrpNum > 0 && diff > 0 ? `Save ₹${diff.toFixed(2)} (${offPercent}% OFF)` : `Selling Price: ₹${priceNum.toFixed(2)}`
+                                            )}
                                         </span>
                                     </div>
                                 );
