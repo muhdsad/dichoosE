@@ -909,20 +909,26 @@ export default function PrintOffersPage() {
             alert('Please select at least one product before saving a selection.');
             return;
         }
-        const defaultName = `selection_${savedSelections.length + 1}`;
+        const defaultName = printMode === 'sheet'
+            ? `tags_${savedSelections.length + 1}`
+            : `selection_${savedSelections.length + 1}`;
         setPresetNameInput(defaultName);
         setSavingPresetModal(true);
     };
 
     const handleSaveCurrentSelection = (e) => {
         e.preventDefault();
-        const finalName = presetNameInput.trim() || `selection_${savedSelections.length + 1}`;
+        const defaultName = printMode === 'sheet'
+            ? `tags_${savedSelections.length + 1}`
+            : `selection_${savedSelections.length + 1}`;
+        const finalName = presetNameInput.trim() || defaultName;
         
         const newPreset = {
             id: `sel_${Date.now()}`,
             name: finalName,
             mode: printMode,
-            posterLayout,
+            layout: printMode === 'sheet' ? layout : undefined,
+            posterLayout: printMode !== 'sheet' ? posterLayout : undefined,
             productIds: Array.from(selectedProductIds),
             createdAt: new Date().toISOString()
         };
@@ -942,13 +948,18 @@ export default function PrintOffersPage() {
 
         const preset = savedSelections.find(s => s.id === presetId);
         if (preset) {
-            if (preset.mode && (preset.mode === 'poster' || preset.mode === 'normal_poster')) {
+            if (preset.mode) {
                 setPrintMode(preset.mode);
             }
-            if (preset.posterLayout) {
+            if (preset.mode === 'sheet' && preset.layout) {
+                setLayout(preset.layout);
+            } else if (preset.posterLayout) {
                 setPosterLayout(preset.posterLayout);
             }
             setSelectedProductIds(new Set(preset.productIds || []));
+            if (preset.mode === 'sheet') {
+                setShowSelectedOnly(true);
+            }
         }
     };
 
@@ -1577,6 +1588,50 @@ export default function PrintOffersPage() {
 
                         {/* PRODUCT / TAG PICKER TRAY (ALWAYS VISIBLE & MOBILE FIRST - JUST LIKE NORMAL PRICE POSTER) */}
                         <div className="space-y-3 pt-3 border-t border-gray-150 bg-emerald-50/40 -mx-3.5 sm:-mx-5 -mb-3.5 sm:-mb-5 p-3.5 sm:p-4 rounded-b-2xl border-t border-emerald-100">
+                            {/* Saved Selections Preset Row for Sheet Mode */}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 bg-emerald-100/70 p-2.5 rounded-xl border border-emerald-300">
+                                <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                                    <span className="text-xs font-black uppercase text-emerald-900 flex items-center gap-1.5">
+                                        <FaBookmark className="text-emerald-700 text-xs" /> Saved Selections:
+                                    </span>
+                                    <select
+                                        value={activePresetId}
+                                        onChange={(e) => handleSelectPreset(e.target.value)}
+                                        className="bg-white border border-emerald-400 text-gray-900 text-xs font-bold rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-xs flex-1 sm:flex-initial"
+                                    >
+                                        <option value="">-- Load Saved Selection --</option>
+                                        {savedSelections.map((sel) => (
+                                            <option key={sel.id} value={sel.id}>
+                                                {sel.name} ({sel.productIds.length} items{sel.layout ? `, ${sel.layout}` : (sel.posterLayout ? `, ${sel.posterLayout}-Grid` : '')})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    
+                                    {activePresetId && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleDeletePreset(e, activePresetId)}
+                                            className="text-xs text-red-600 hover:text-red-800 font-bold flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 rounded-lg border border-red-200 transition cursor-pointer"
+                                            title="Delete this saved preset"
+                                        >
+                                            <FaTrash className="text-[10px]" /> Delete
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={handleOpenSaveModal}
+                                        disabled={selectedProductIds.size === 0}
+                                        className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold px-3.5 py-1.5 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 w-full sm:w-auto justify-center"
+                                        title="Save current tag selection preset"
+                                    >
+                                        <FaSave className="text-xs" /> Save Current Selection ({selectedProductIds.size})
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="text-xs font-black uppercase text-emerald-900 tracking-wider flex items-center gap-1">
@@ -1645,9 +1700,18 @@ export default function PrintOffersPage() {
                             {/* SELECTED TAGS CHIPS TRAY: Shows all currently selected items so they never disappear */}
                             {selectedProductIds.size > 0 && (
                                 <div className="space-y-1 bg-white/80 p-2.5 rounded-xl border border-emerald-200/80">
-                                    <div className="flex items-center justify-between text-[11px] font-bold text-emerald-900 pb-1">
+                                    <div className="flex items-center justify-between text-[11px] font-bold text-emerald-900 pb-1 flex-wrap gap-2">
                                         <span>Currently Selected Tags ({selectedProductIds.size}):</span>
-                                        <span className="text-[10px] text-gray-500">Tap ✕ to remove any tag</span>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={handleOpenSaveModal}
+                                                className="text-emerald-700 hover:text-emerald-900 underline font-extrabold flex items-center gap-1 cursor-pointer"
+                                            >
+                                                <FaSave className="text-[10px]" /> Save this selection
+                                            </button>
+                                            <span className="text-[10px] text-gray-500">Tap ✕ to remove any tag</span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
                                         {(normalProducts.length > 0 ? normalProducts : products)
@@ -3628,7 +3692,7 @@ export default function PrintOffersPage() {
                                     autoFocus
                                 />
                                 <p className="text-[11px] text-gray-500 mt-1.5">
-                                    Saves {selectedProductIds.size} selected items in {printMode === 'normal_poster' ? 'Normal Price Poster' : 'Promotional Offer Poster'} mode ({posterLayout}-Grid layout).
+                                    Saves {selectedProductIds.size} selected items in {printMode === 'sheet' ? `Standard Tag Sheet (${layout})` : (printMode === 'normal_poster' ? `Normal Price Poster (${posterLayout}-Grid)` : `Promotional Offer Poster (${posterLayout}-Grid)`)}.
                                 </p>
                             </div>
 
