@@ -55,23 +55,31 @@ export default function AdminLayout({ children }) {
             {/* Dropdown navigation is used for all screen sizes (desktop, tablet, mobile) */}
             <div className="flex-1 flex flex-col overflow-hidden print:overflow-visible">
                 {/* Header for All Screen Sizes */}
-                <header className="bg-white shadow-sm z-30 p-4 flex justify-between items-center print:hidden relative border-b border-gray-200">
-                    <span className="font-bold text-gray-800 text-base">Admin Panel</span>
+                <header className="bg-white shadow-sm z-30 p-3 sm:p-4 flex justify-between items-center print:hidden relative border-b border-gray-200">
+                    <span className="font-extrabold text-gray-800 text-sm sm:text-base tracking-tight">Admin Panel</span>
                     
                     {/* Mobile Menu Dropdown Button */}
                     <div className="relative">
                         <button 
                              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="flex items-center gap-2 px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-100 transition-all cursor-pointer shadow-sm"
+                            className="flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-100 transition-all cursor-pointer shadow-sm active:scale-95"
                         >
                             {currentNavItem && <currentNavItem.icon className="text-primary text-sm" />}
                             <span>{currentNavItem ? currentNavItem.name : 'Menu'}</span>
                             {isMobileMenuOpen ? <FaChevronUp className="text-gray-400 text-[10px]" /> : <FaChevronDown className="text-gray-400 text-[10px]" />}
                         </button>
 
+                        {/* Mobile Menu Backdrop */}
+                        {isMobileMenuOpen && (
+                            <div 
+                                className="fixed inset-0 z-40 bg-black/20 sm:bg-transparent" 
+                                onClick={() => setIsMobileMenuOpen(false)} 
+                            />
+                        )}
+
                         {/* Mobile Menu Items Overlay */}
                         {isMobileMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 py-2 divide-y divide-gray-150">
+                            <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 py-2 divide-y divide-gray-150 animate-in fade-in zoom-in-95 duration-100">
                                 <div className="py-1">
                                     {navItems.map((item) => {
                                         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/admin');
@@ -109,7 +117,7 @@ export default function AdminLayout({ children }) {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 xl:p-6 print:p-0 print:bg-white print:overflow-visible">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-2 sm:p-4 xl:p-6 print:p-0 print:bg-white print:overflow-visible">
                     {children}
                 </main>
             </div>

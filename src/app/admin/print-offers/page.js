@@ -676,8 +676,8 @@ export default function PrintOffersPage() {
     const [decorImage, setDecorImage] = useState(null);
     const [showProductImages, setShowProductImages] = useState(true);
     const [showBadges, setShowBadges] = useState(true);
-    const [showSelectedOnly, setShowSelectedOnly] = useState(false);
-    const [isSheetPickerOpen, setIsSheetPickerOpen] = useState(false);
+    const [showSelectedOnly, setShowSelectedOnly] = useState(true);
+    const [isSheetPickerOpen, setIsSheetPickerOpen] = useState(true);
 
     // Saved Selections States
     const [savedSelections, setSavedSelections] = useState([]);
@@ -1027,10 +1027,43 @@ export default function PrintOffersPage() {
         fetchOfferProducts();
     }, []);
 
+    const getSheetItemsPerPage = (layoutName) => {
+        if (layoutName === 'portrait') return 15;
+        if (layoutName === 'landscape_4') return 4;
+        if (layoutName === 'landscape_6') return 6;
+        if (layoutName === 'landscape_12') return 12;
+        if (layoutName === 'landscape') return 16;
+        return 12;
+    };
+
+    const sheetItemsPerPage = getSheetItemsPerPage(layout);
+
+    const autoSelectSheetProducts = () => {
+        const count = getSheetItemsPerPage(layout);
+        const pool = normalProducts.length > 0 ? normalProducts : products;
+        const nextIds = new Set(pool.slice(0, count).map(p => p.id));
+        setSelectedProductIds(nextIds);
+        setShowSelectedOnly(true);
+    };
+
+    const selectVisibleSheetProducts = () => {
+        const idsToAdd = selectableProducts.map(p => p.id);
+        setSelectedProductIds(prev => {
+            const next = new Set(prev);
+            idsToAdd.forEach(id => next.add(id));
+            return next;
+        });
+        setShowSelectedOnly(true);
+    };
+
     // Handle switching print mode
     const handleModeChange = (newMode) => {
         setPrintMode(newMode);
         setSearchTerm('');
+        if (newMode === 'sheet') {
+            setShowSelectedOnly(true);
+            return;
+        }
         let targetLayout = posterLayout;
         if (newMode === 'normal_poster') {
             targetLayout = (posterLayout === '4' || posterLayout === '6' || posterLayout === '8' || posterLayout === '12') ? posterLayout : '6';
@@ -1079,6 +1112,9 @@ export default function PrintOffersPage() {
             }
             return next;
         });
+        if (printMode === 'sheet') {
+            setShowSelectedOnly(true);
+        }
     };
 
     const autoSelectProducts = () => {
@@ -1342,158 +1378,167 @@ export default function PrintOffersPage() {
                         <h1 className="text-2xl font-extrabold text-blue-900 tracking-tight">Price & Offer Poster Manager</h1>
                         <p className="text-sm text-blue-600">Select standard price tag sheets, offer posters, or normal price posters with MRP vs Price savings.</p>
                     </div>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
                         <button
                             onClick={() => handleModeChange('sheet')}
-                            className={`px-4 py-2.5 rounded-xl font-bold transition-all shadow-md text-xs sm:text-sm cursor-pointer ${printMode === 'sheet' ? 'bg-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+                            className={`w-full px-3.5 py-2.5 rounded-xl font-extrabold transition-all shadow-sm text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 ${printMode === 'sheet' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'}`}
                         >
-                            Standard Tag Sheet
+                            <span>🏷️</span> Standard Tag Sheet (A4)
                         </button>
                         <button
                             onClick={() => handleModeChange('poster')}
-                            className={`px-4 py-2.5 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer ${printMode === 'poster' ? 'bg-indigo-600 text-white shadow-indigo-200' : 'bg-white text-gray-700 border border-gray-300'}`}
+                            className={`w-full px-3.5 py-2.5 rounded-xl font-extrabold transition-all shadow-sm text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 ${printMode === 'poster' ? 'bg-indigo-600 text-white shadow-indigo-200 ring-2 ring-indigo-400' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'}`}
                         >
-                            Promotional Offer Poster (A4)
+                            <span>📢</span> Promotional Poster (A4)
                         </button>
                         <button
                             onClick={() => handleModeChange('normal_poster')}
-                            className={`px-4 py-2.5 rounded-xl font-bold transition-all shadow-md text-sm cursor-pointer ${printMode === 'normal_poster' ? 'bg-emerald-600 text-white shadow-emerald-200' : 'bg-white text-gray-700 border border-gray-300'}`}
+                            className={`w-full px-3.5 py-2.5 rounded-xl font-extrabold transition-all shadow-sm text-xs sm:text-sm cursor-pointer flex items-center justify-center gap-2 ${printMode === 'normal_poster' ? 'bg-emerald-600 text-white shadow-emerald-200 ring-2 ring-emerald-400' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'}`}
                         >
-                            Normal Price Poster (A4)
+                            <span>✨</span> Normal Price Poster (A4)
                         </button>
                     </div>
                 </div>
 
                 {/* Configurations Panel depending on Mode */}
                 {printMode === 'sheet' ? (
-                    <div className="space-y-3 bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
-                        <div className="flex flex-wrap gap-3 items-center justify-between">
+                    <div className="space-y-4 bg-white p-3.5 sm:p-5 rounded-2xl border border-gray-200 shadow-xs">
+                        {/* Top Config Row: Layout & Quick Settings */}
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-gray-150">
                             {/* Layout Selection */}
-                            <div className="flex gap-2 flex-wrap items-center">
-                                <span className="text-[11px] font-extrabold uppercase text-gray-500 tracking-wider mr-1">Layout:</span>
-                                <button
-                                    onClick={() => setLayout('portrait_12')}
-                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait_12' ? 'bg-primary text-white shadow-green-200' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-                                >
-                                    3x4 Portrait (12 Tags - Standard)
-                                </button>
-                                <button
-                                    onClick={() => setLayout('portrait')}
-                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'portrait' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-                                >
-                                    3x5 Portrait (15 Tags)
-                                </button>
-                                <button
-                                    onClick={() => setLayout('landscape_12')}
-                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_12' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-                                >
-                                    4x3 Landscape (12 Tags)
-                                </button>
-                                <button
-                                    onClick={() => setLayout('landscape')}
-                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-                                >
-                                    4x4 Landscape (16 Tags)
-                                </button>
-                                <button
-                                    onClick={() => setLayout('landscape_6')}
-                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_6' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-                                >
-                                    3x2 Landscape (6 Tags)
-                                </button>
-                                <button
-                                    onClick={() => setLayout('landscape_4')}
-                                    className={`px-3.5 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer ${layout === 'landscape_4' ? 'bg-primary text-white' : 'bg-gray-50 text-gray-700 border border-gray-300 hover:bg-gray-100'}`}
-                                >
-                                    2x2 Landscape (4 Tags)
-                                </button>
+                            <div className="space-y-1.5">
+                                <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">
+                                    Sheet Layout & Tag Grid
+                                </label>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('portrait_12')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'portrait_12' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">3x4 Portrait</span>
+                                        <span className="text-[10px] opacity-80">12 Tags (Standard)</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('portrait')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'portrait' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">3x5 Portrait</span>
+                                        <span className="text-[10px] opacity-80">15 Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('landscape_12')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_12' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">4x3 Landscape</span>
+                                        <span className="text-[10px] opacity-80">12 Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('landscape')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">4x4 Landscape</span>
+                                        <span className="text-[10px] opacity-80">16 Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('landscape_6')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_6' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">3x2 Landscape</span>
+                                        <span className="text-[10px] opacity-80">6 Large Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('landscape_4')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_4' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">2x2 Landscape</span>
+                                        <span className="text-[10px] opacity-80">4 Heavy Tags</span>
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Search Filter for Sheet Products */}
-                            <div className="relative w-full sm:w-64">
-                                <input
-                                    type="text"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="Search products by name..."
-                                    className="w-full bg-gray-50 border border-gray-300 rounded-lg pl-8 pr-7 py-1.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-indigo-500"
-                                />
-                                <FaSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none" />
-                                {searchTerm && (
+                            {/* View Filter Mode Pill & Action Buttons */}
+                            <div className="flex flex-wrap items-center gap-2 pt-1 lg:pt-0">
+                                {/* Print Mode: Selected vs All */}
+                                <div className="flex items-center bg-gray-100 p-1 rounded-xl">
                                     <button
-                                        onClick={() => setSearchTerm('')}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold"
+                                        type="button"
+                                        onClick={() => setShowSelectedOnly(true)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                                            showSelectedOnly 
+                                                ? 'bg-emerald-600 text-white shadow-sm' 
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
                                     >
-                                        <FaTimes />
+                                        <span>🏷️ Selected Tags</span>
+                                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                                            showSelectedOnly ? 'bg-white text-emerald-800' : 'bg-gray-200 text-gray-700'
+                                        }`}>
+                                            {selectedProductIds.size}
+                                        </span>
                                     </button>
-                                )}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSelectedOnly(false)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                                            !showSelectedOnly 
+                                                ? 'bg-emerald-600 text-white shadow-sm' 
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        <span>📄 All Catalog Tags</span>
+                                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                                            !showSelectedOnly ? 'bg-white text-emerald-800' : 'bg-gray-200 text-gray-700'
+                                        }`}>
+                                            {(normalProducts.length > 0 ? normalProducts : products).length}
+                                        </span>
+                                    </button>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveAllAsPng}
+                                        disabled={saving}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer disabled:opacity-50"
+                                    >
+                                        {saving ? 'Saving...' : 'Save PNG'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => window.print()}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer"
+                                    >
+                                        Print PDF
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Secondary Tool Bar */}
-                        <div className="flex flex-wrap gap-3 items-center justify-between pt-2 border-t border-gray-150 text-xs">
-                            <div className="flex items-center gap-2.5 flex-wrap">
-                                {/* Option: Only Show Selected Tags */}
-                                <label className={`flex items-center gap-2 font-bold text-xs px-3 py-2 rounded-lg cursor-pointer border shadow-sm transition-all select-none ${
-                                    showSelectedOnly 
-                                        ? 'bg-emerald-600 text-white border-emerald-700 ring-2 ring-emerald-300 shadow-md' 
-                                        : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
-                                }`}>
-                                    <input
-                                        type="checkbox"
-                                        checked={showSelectedOnly}
-                                        onChange={(e) => setShowSelectedOnly(e.target.checked)}
-                                        className="w-4 h-4 rounded cursor-pointer accent-emerald-500"
-                                    />
-                                    <span>Only Show Selected Tags</span>
-                                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                                        showSelectedOnly ? 'bg-white text-emerald-800' : 'bg-gray-200 text-gray-700'
-                                    }`}>
-                                        {selectedProductIds.size}
-                                    </span>
-                                </label>
-
-                                {/* Option: Clear Selection */}
-                                <button
-                                    type="button"
-                                    onClick={clearProductSelection}
-                                    disabled={selectedProductIds.size === 0}
-                                    className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-2 px-3 rounded-lg font-bold text-xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm select-none"
-                                    title="Clear selection of tags"
-                                >
-                                    <FaTimes className="text-[10px]" /> Clear Selection
-                                </button>
-
-                                {/* Quick Tag Picker Button */}
-                                <button
-                                    type="button"
-                                    onClick={() => setIsSheetPickerOpen(prev => !prev)}
-                                    className={`py-2 px-3 rounded-lg font-bold text-xs transition border shadow-sm cursor-pointer flex items-center gap-1.5 select-none ${
-                                        isSheetPickerOpen 
-                                            ? 'bg-indigo-650 text-white border-indigo-700 shadow-md' 
-                                            : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
-                                    }`}
-                                    title="Toggle quick tag picker tray to select/deselect tags quickly"
-                                >
-                                    <span>🏷️</span> {isSheetPickerOpen ? 'Hide Tag Picker' : 'Quick Tag Picker'}
-                                </button>
-
-                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm select-none">
+                        {/* Middle Controls: Display options & Logo */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-250 px-3 py-1.5 rounded-xl cursor-pointer hover:bg-gray-100 transition select-none">
                                     <input
                                         type="checkbox"
                                         checked={showProductImages}
                                         onChange={(e) => setShowProductImages(e.target.checked)}
-                                        className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer accent-primary"
+                                        className="w-4 h-4 text-primary rounded accent-primary cursor-pointer"
                                     />
                                     <span>Show Images</span>
                                 </label>
 
-                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-300 px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors shadow-sm select-none">
+                                <label className="flex items-center gap-2 font-bold text-xs text-gray-700 bg-gray-50 border border-gray-250 px-3 py-1.5 rounded-xl cursor-pointer hover:bg-gray-100 transition select-none">
                                     <input
                                         type="checkbox"
                                         checked={showBadges}
                                         onChange={(e) => setShowBadges(e.target.checked)}
-                                        className="w-4 h-4 text-primary rounded focus:ring-primary cursor-pointer accent-primary"
+                                        className="w-4 h-4 text-primary rounded accent-primary cursor-pointer"
                                     />
                                     <span>Show Badges</span>
                                 </label>
@@ -1509,7 +1554,7 @@ export default function PrintOffersPage() {
                                     />
                                     <label 
                                         htmlFor="sheet-logo-file-input" 
-                                        className="bg-gray-50 border border-gray-300 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-bold text-xs cursor-pointer shadow-sm transition flex items-center gap-1.5 select-none"
+                                        className="bg-gray-50 border border-gray-250 hover:bg-gray-100 text-gray-700 py-1.5 px-3 rounded-xl font-bold text-xs cursor-pointer shadow-xs transition flex items-center gap-1.5 select-none"
                                         title="Upload custom logo for tag headers"
                                     >
                                         <FaImage /> {logoImage ? 'Change Logo' : 'Upload Logo'}
@@ -1518,115 +1563,196 @@ export default function PrintOffersPage() {
                                         <button
                                             type="button"
                                             onClick={handleRemoveLogo}
-                                            className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 py-2 px-2.5 rounded-lg font-bold text-xs transition cursor-pointer select-none"
-                                            title="Reset to default Smile logo"
+                                            className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 py-1.5 px-2.5 rounded-xl font-bold text-xs transition cursor-pointer select-none"
                                         >
-                                            Reset Logo
+                                            Reset
                                         </button>
                                     )}
                                 </div>
                             </div>
-
-                            <div className="flex gap-2 items-center">
-                                <span className="text-[11px] text-gray-500 hidden md:inline-block">
-                                    💡 Click any card to edit price, name, unit, or image
-                                </span>
-                                <button
-                                    onClick={handleSaveAllAsPng}
-                                    disabled={saving}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer disabled:opacity-50"
-                                >
-                                    {saving ? 'Saving...' : 'Save Sheet as PNG'}
-                                </button>
-                                <button
-                                    onClick={() => window.print()}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-all shadow-sm cursor-pointer"
-                                >
-                                    Print / Save as PDF
-                                </button>
-                            </div>
+                            <span className="text-[11px] text-gray-500 hidden sm:inline-block">
+                                💡 Tip: Tap any card to edit price, unit, MRP, or image
+                            </span>
                         </div>
 
-                        {/* Quick Tag Picker Drawer */}
-                        {isSheetPickerOpen && (
-                            <div className="pt-3 pb-1 border-t border-gray-150 space-y-2">
-                                <div className="flex items-center justify-between gap-2 flex-wrap">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-extrabold uppercase text-gray-500 tracking-wider">
-                                            Quick Tag Picker
-                                        </span>
-                                        <span className="text-[11px] font-bold text-gray-500">
-                                            ({selectedProductIds.size} selected)
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                const idsToAdd = selectableProducts.map(p => p.id);
-                                                setSelectedProductIds(prev => {
-                                                    const next = new Set(prev);
-                                                    idsToAdd.forEach(id => next.add(id));
-                                                    return next;
-                                                });
-                                            }}
-                                            className="text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-2 py-1 rounded border border-gray-300 cursor-pointer"
-                                        >
-                                            Select Visible ({selectableProducts.length})
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={clearProductSelection}
-                                            disabled={selectedProductIds.size === 0}
-                                            className="text-[10px] bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded border border-red-200 cursor-pointer disabled:opacity-40"
-                                        >
-                                            Clear Selection
-                                        </button>
-                                    </div>
+                        {/* PRODUCT / TAG PICKER TRAY (ALWAYS VISIBLE & MOBILE FIRST - JUST LIKE NORMAL PRICE POSTER) */}
+                        <div className="space-y-3 pt-3 border-t border-gray-150 bg-emerald-50/40 -mx-3.5 sm:-mx-5 -mb-3.5 sm:-mb-5 p-3.5 sm:p-4 rounded-b-2xl border-t border-emerald-100">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-black uppercase text-emerald-900 tracking-wider flex items-center gap-1">
+                                        <span>🏷️</span> Select Tags to Print
+                                    </span>
+                                    <span className="text-xs px-2.5 py-0.5 rounded-full font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
+                                        {selectedProductIds.size} Selected
+                                    </span>
+                                    <span className="text-[11px] text-gray-500 font-bold">
+                                        ({sheetItemsPerPage} tags per sheet)
+                                    </span>
                                 </div>
-                                <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
-                                    {selectableProducts.length === 0 ? (
-                                        <div className="text-xs text-gray-500 py-3 px-2 italic">
-                                            No products found matching &quot;{searchTerm}&quot;
-                                        </div>
-                                    ) : (
-                                        selectableProducts.map(p => {
-                                            const isSelected = selectedProductIds.has(p.id);
-                                            const sellingPrice = (p.price !== undefined && p.price !== null && parseFloat(p.price) > 0)
-                                                ? parseFloat(p.price)
-                                                : ((p.offerPrice !== undefined && p.offerPrice !== null && parseFloat(p.offerPrice) > 0)
-                                                    ? parseFloat(p.offerPrice)
-                                                    : (parseFloat(p.mrp) || 0));
-                                            return (
-                                                <button
-                                                    key={p.id}
-                                                    type="button"
-                                                    onClick={() => toggleProductSelection(p.id)}
-                                                    className={`flex-shrink-0 flex items-center gap-2 p-2 rounded-lg border-2 transition relative text-left w-44 cursor-pointer select-none ${
-                                                        isSelected 
-                                                            ? 'border-emerald-600 bg-emerald-50/70 shadow-xs' 
-                                                            : 'border-gray-200 bg-white hover:border-gray-300'
-                                                    }`}
-                                                >
-                                                    <div className="relative w-8 h-8 bg-gray-50 rounded overflow-hidden border border-gray-150 flex-shrink-0">
-                                                        <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-contain" alt="" />
-                                                    </div>
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="text-[11px] font-bold text-gray-800 truncate leading-tight">{p.name}</p>
-                                                        <span className="text-[10px] text-emerald-700 font-extrabold">₹{Number(sellingPrice).toFixed(2)}</span>
-                                                    </div>
-                                                    {isSelected && (
-                                                        <span className="absolute top-1 right-1 bg-emerald-600 text-white rounded-full p-0.5 text-[7px] w-3.5 h-3.5 flex items-center justify-center font-bold">
-                                                            <FaCheck />
-                                                        </span>
-                                                    )}
-                                                </button>
-                                            );
-                                        })
-                                    )}
+
+                                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                    {/* Search Bar Input */}
+                                    <div className="relative flex-1 sm:w-72 w-full">
+                                        <input
+                                            type="text"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            placeholder="Search tags by name, brand..."
+                                            className="w-full bg-white border border-gray-300 rounded-xl pl-8 pr-7 py-2 text-xs font-bold text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-xs"
+                                        />
+                                        <FaSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none" />
+                                        {searchTerm && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSearchTerm('')}
+                                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs font-bold p-0.5"
+                                            >
+                                                <FaTimes />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+                                        <button 
+                                            type="button"
+                                            onClick={autoSelectSheetProducts} 
+                                            className="text-[11px] bg-white hover:bg-emerald-50 text-emerald-800 font-extrabold px-3 py-2 rounded-xl border border-emerald-300 shadow-xs cursor-pointer transition active:scale-95 flex items-center gap-1"
+                                            title={`Auto-select first ${sheetItemsPerPage} products`}
+                                        >
+                                            ⚡ Auto-fill {sheetItemsPerPage}
+                                        </button>
+                                        {searchTerm && selectableProducts.length > 0 && (
+                                            <button 
+                                                type="button"
+                                                onClick={selectVisibleSheetProducts} 
+                                                className="text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-3 py-2 rounded-xl shadow-xs cursor-pointer transition active:scale-95"
+                                            >
+                                                + Add Visible ({selectableProducts.length})
+                                            </button>
+                                        )}
+                                        <button 
+                                            type="button"
+                                            onClick={clearProductSelection} 
+                                            disabled={selectedProductIds.size === 0}
+                                            className="text-[11px] bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-2 rounded-xl border border-red-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95"
+                                        >
+                                            Clear All
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        )}
+
+                            {/* SELECTED TAGS CHIPS TRAY: Shows all currently selected items so they never disappear */}
+                            {selectedProductIds.size > 0 && (
+                                <div className="space-y-1 bg-white/80 p-2.5 rounded-xl border border-emerald-200/80">
+                                    <div className="flex items-center justify-between text-[11px] font-bold text-emerald-900 pb-1">
+                                        <span>Currently Selected Tags ({selectedProductIds.size}):</span>
+                                        <span className="text-[10px] text-gray-500">Tap ✕ to remove any tag</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+                                        {(normalProducts.length > 0 ? normalProducts : products)
+                                            .filter(p => selectedProductIds.has(p.id))
+                                            .map(p => {
+                                                const sellingPrice = (p.price !== undefined && p.price !== null && parseFloat(p.price) > 0)
+                                                    ? parseFloat(p.price)
+                                                    : ((p.offerPrice !== undefined && p.offerPrice !== null && parseFloat(p.offerPrice) > 0)
+                                                        ? parseFloat(p.offerPrice)
+                                                        : (parseFloat(p.mrp) || 0));
+                                                return (
+                                                    <div 
+                                                        key={`sel-chip-${p.id}`}
+                                                        className="flex-shrink-0 flex items-center gap-1.5 bg-emerald-100/90 border border-emerald-300 text-emerald-950 px-2 py-1 rounded-lg text-xs font-bold shadow-xs select-none"
+                                                    >
+                                                        <div className="w-4 h-4 bg-white rounded overflow-hidden flex-shrink-0 border border-emerald-200">
+                                                            <img src={getProxiedImageUrl(p.image)} alt="" className="w-full h-full object-contain" />
+                                                        </div>
+                                                        <span className="max-w-[120px] truncate leading-tight">{p.name}</span>
+                                                        <span className="text-emerald-700 font-black text-[11px]">₹{Number(sellingPrice).toFixed(2)}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                toggleProductSelection(p.id);
+                                                            }}
+                                                            className="text-emerald-800 hover:text-red-600 p-0.5 rounded cursor-pointer transition ml-0.5"
+                                                            title="Remove tag"
+                                                        >
+                                                            <FaTimes className="text-[9px]" />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* SELECTABLE PRODUCTS CAROUSEL / CARDS */}
+                            <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin pt-1">
+                                {selectableProducts.length === 0 ? (
+                                    <div className="w-full text-center py-4 px-3 bg-white rounded-xl border border-dashed border-gray-300">
+                                        <p className="text-xs text-gray-500 font-bold">
+                                            No products found matching &quot;{searchTerm}&quot;
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSearchTerm('')}
+                                            className="mt-2 text-[11px] text-emerald-700 hover:text-emerald-900 font-extrabold underline cursor-pointer"
+                                        >
+                                            Clear search to browse all products
+                                        </button>
+                                    </div>
+                                ) : (
+                                    selectableProducts.map(p => {
+                                        const isSelected = selectedProductIds.has(p.id);
+                                        const sellingPrice = (p.price !== undefined && p.price !== null && parseFloat(p.price) > 0)
+                                            ? parseFloat(p.price)
+                                            : ((p.offerPrice !== undefined && p.offerPrice !== null && parseFloat(p.offerPrice) > 0)
+                                                ? parseFloat(p.offerPrice)
+                                                : (parseFloat(p.mrp) || 0));
+                                        return (
+                                            <button
+                                                key={`sheet-picker-${p.id}`}
+                                                type="button"
+                                                onClick={() => toggleProductSelection(p.id)}
+                                                className={`flex-shrink-0 flex items-center gap-2 p-2 rounded-xl border-2 transition-all relative text-left w-44 sm:w-48 cursor-pointer select-none active:scale-98 ${
+                                                    isSelected 
+                                                        ? 'border-emerald-600 bg-emerald-50/90 shadow-sm ring-1 ring-emerald-500' 
+                                                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-xs'
+                                                }`}
+                                            >
+                                                <div 
+                                                    onClick={(e) => handleOpenEditModal(e, p)}
+                                                    className="relative w-10 h-10 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0 cursor-pointer group/pickerImg"
+                                                    title="Click to edit image, price & MRP"
+                                                >
+                                                    <img src={getProxiedImageUrl(p.image)} className="w-full h-full object-contain" alt="" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/pickerImg:opacity-100 transition-opacity flex items-center justify-center text-white text-[9px]">
+                                                        <FaPencilAlt />
+                                                    </div>
+                                                </div>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-[11px] font-bold text-gray-900 truncate leading-tight">{p.name}</p>
+                                                    <div className="flex items-center gap-1 mt-0.5">
+                                                        <span className="text-[11px] text-emerald-700 font-black">₹{Number(sellingPrice).toFixed(2)}</span>
+                                                        <span className="text-[9px] text-gray-400 font-bold">/ {p.unit || 'KG'}</span>
+                                                    </div>
+                                                </div>
+                                                {isSelected ? (
+                                                    <span className="absolute top-1.5 right-1.5 bg-emerald-600 text-white rounded-full p-0.5 text-[8px] w-4 h-4 flex items-center justify-center font-black shadow-xs">
+                                                        <FaCheck />
+                                                    </span>
+                                                ) : (
+                                                    <span className="absolute top-1.5 right-1.5 text-gray-300 text-[10px] opacity-0 group-hover:opacity-100">
+                                                        +
+                                                    </span>
+                                                )}
+                                            </button>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <div className="space-y-4 bg-white p-4 rounded-xl border border-gray-200">
@@ -2076,6 +2202,44 @@ export default function PrintOffersPage() {
                                 </div>
                             </div>
 
+                            {/* Selected Items Pills Strip for Poster */}
+                            {selectedProductIds.size > 0 && (
+                                <div className="space-y-1 bg-gray-50/80 p-2 sm:p-2.5 rounded-xl border border-gray-200">
+                                    <div className="flex items-center justify-between text-[11px] font-bold text-gray-700">
+                                        <span>Currently Selected ({selectedProductIds.size} / {totalRequired}):</span>
+                                        <span className="text-[10px] text-gray-400">Tap ✕ to remove</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+                                        {currentPool.filter(p => selectedProductIds.has(p.id)).map(p => {
+                                            const displayPrice = printMode === 'normal_poster' ? p.price : p.offerPrice;
+                                            return (
+                                                <div 
+                                                    key={`poster-sel-chip-${p.id}`}
+                                                    className="flex-shrink-0 flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-950 px-2 py-0.5 rounded-lg text-xs font-bold select-none"
+                                                >
+                                                    <div className="w-4 h-4 bg-white rounded overflow-hidden flex-shrink-0 border border-indigo-150">
+                                                        <img src={getProxiedImageUrl(p.image)} alt="" className="w-full h-full object-contain" />
+                                                    </div>
+                                                    <span className="max-w-[120px] truncate leading-tight">{p.name}</span>
+                                                    <span className="text-indigo-700 font-extrabold text-[11px]">₹{displayPrice || '0'}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleProductSelection(p.id);
+                                                        }}
+                                                        className="text-indigo-500 hover:text-red-600 p-0.5 rounded cursor-pointer transition ml-0.5"
+                                                        title="Remove product"
+                                                    >
+                                                        <FaTimes className="text-[9px]" />
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
                                 {selectableProducts.length === 0 ? (
                                     <div className="text-xs text-gray-500 py-3 px-2 italic">
@@ -2148,8 +2312,16 @@ export default function PrintOffersPage() {
                 )}
             </div>
 
-            {/* A4 Printable Container */}
-            <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${isPageLandscape ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white'}`}>
+            {/* Mobile-Friendly A4 Printable Preview Wrapper */}
+            <div className="w-full overflow-x-auto pb-8 scrollbar-thin -mx-1 px-1 sm:mx-0 sm:px-0 print:overflow-visible print:m-0 print:p-0">
+                <div className="sm:hidden flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mb-3 text-xs text-emerald-800 font-semibold shadow-xs print:hidden">
+                    <span className="flex items-center gap-1.5">
+                        📱 <span>Swipe horizontally to preview full A4 sheet</span>
+                    </span>
+                    <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-black">100% Print</span>
+                </div>
+                {/* A4 Printable Container */}
+                <div id="print-offers-container" className={`mx-auto w-full print:p-0 print:max-w-none ${isPageLandscape ? 'max-w-[297mm] p-2 bg-white' : 'max-w-[210mm] p-2 bg-white'}`}>
                 
                 {(printMode === 'poster' || printMode === 'normal_poster') ? (
                     /* POSTER LAYOUT CONTAINER (PROMOTIONAL OFFERS & NORMAL PRICE POSTERS) */
@@ -2651,15 +2823,14 @@ export default function PrintOffersPage() {
                             
                             // Pool: prioritize normalProducts with normal prices, fallback to products
                             const pool = normalProducts.length > 0 ? normalProducts : products;
-                            const sourcePool = showSelectedOnly
+                            const hasSelection = selectedProductIds.size > 0;
+                            // When showSelectedOnly is true (default when tags selected), render selected tags
+                            // CRUCIAL: Do NOT filter sheet by searchTerm! searchTerm only filters the Tag Picker tray.
+                            const sourcePool = (showSelectedOnly || hasSelection)
                                 ? pool.filter(p => selectedProductIds.has(p.id))
                                 : pool;
-                            const filteredPool = sourcePool.filter(p => 
-                                (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                (p.brand || '').toLowerCase().includes(searchTerm.toLowerCase())
-                            );
 
-                            const sheetProducts = [...filteredPool];
+                            const sheetProducts = [...sourcePool];
                             const remainder = sheetProducts.length % itemsPerPage;
                             if (remainder !== 0) {
                                 const padCount = itemsPerPage - remainder;
@@ -2678,48 +2849,34 @@ export default function PrintOffersPage() {
                                 pages.push(sheetProducts.slice(i, i + itemsPerPage));
                             }
 
-                            if (pages.length === 0) {
+                            if (pages.length === 0 || sourcePool.length === 0) {
                                 return (
-                                    <div className="bg-white p-12 rounded-xl border border-gray-200 text-center space-y-4 my-6 shadow-sm">
+                                    <div className="bg-white p-8 sm:p-12 rounded-2xl border border-gray-200 text-center space-y-4 my-6 shadow-sm">
                                         <div className="text-4xl">🏷️</div>
-                                        <h3 className="text-base font-bold text-gray-800">
-                                            {showSelectedOnly ? "No Tags Selected" : "No Products Found"}
+                                        <h3 className="text-base font-extrabold text-gray-800">
+                                            No Tags Selected Yet
                                         </h3>
                                         <p className="text-xs text-gray-500 max-w-md mx-auto">
-                                            {showSelectedOnly 
-                                                ? "You haven't selected any tags yet. Turn off 'Only Show Selected Tags' to browse and select tags, or select products using the Quick Tag Picker."
-                                                : `No products match "${searchTerm}". Try another search term.`
-                                            }
+                                            Tap any product in the Tag Picker Tray above to select tags for your sheet, or click Auto-fill to load {itemsPerPage} tags immediately.
                                         </p>
-                                        {showSelectedOnly ? (
-                                            <div className="flex justify-center gap-3">
+                                        <div className="flex justify-center gap-3 flex-wrap">
+                                            {pool.length > 0 && (
                                                 <button
-                                                    onClick={() => setShowSelectedOnly(false)}
-                                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm cursor-pointer"
+                                                    type="button"
+                                                    onClick={autoSelectSheetProducts}
+                                                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-extrabold transition shadow-sm cursor-pointer active:scale-95"
                                                 >
-                                                    Show All Tags
+                                                    ⚡ Auto-fill {itemsPerPage} Tags
                                                 </button>
-                                                {pool.length > 0 && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedProductIds(new Set(pool.slice(0, itemsPerPage).map(p => p.id)));
-                                                        }}
-                                                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition border border-gray-300 cursor-pointer"
-                                                    >
-                                                        Select First {itemsPerPage} Tags
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            searchTerm && (
-                                                <button
-                                                    onClick={() => setSearchTerm('')}
-                                                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition border border-gray-300 cursor-pointer"
-                                                >
-                                                    Clear Search
-                                                </button>
-                                            )
-                                        )}
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowSelectedOnly(false)}
+                                                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-xs font-bold transition border border-gray-300 cursor-pointer active:scale-95"
+                                            >
+                                                Show All Catalog Tags ({pool.length})
+                                            </button>
+                                        </div>
                                     </div>
                                 );
                             }
@@ -2950,6 +3107,7 @@ export default function PrintOffersPage() {
                         })()}
                     </div>
                 )}
+            </div>
             </div>
 
             <style jsx global>{`
@@ -3232,8 +3390,8 @@ export default function PrintOffersPage() {
 
             {/* Quick Edit Price, MRP & Image Modal */}
             {editingProduct && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-4 animate-fadeIn print:hidden">
-                    <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 space-y-5 animate-scaleUp">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-3 sm:p-4 animate-fadeIn print:hidden">
+                    <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-gray-200 space-y-4 sm:space-y-5 animate-scaleUp">
                         <div className="flex justify-between items-start border-b border-gray-150 pb-3">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">

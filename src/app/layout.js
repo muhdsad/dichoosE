@@ -12,6 +12,13 @@ export const metadata = {
   description: "Order 100% organic farm fresh vegetables, fruits, dairy products, and daily groceries delivered to your doorstep within 2 hours.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#16a34a",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
