@@ -3062,7 +3062,10 @@ export default function PrintOffersPage() {
                                                             )}
 
                                                             {/* Top Center Logo (BIG SAVE Smile) */}
-                                                            <div className="w-full flex justify-center items-center shrink-0 z-10 pt-0.5 pointer-events-none">
+                                                            <div 
+                                                                className="w-full flex justify-center items-center shrink-0 relative z-10 pt-0.5 pointer-events-none"
+                                                                style={{ position: 'relative', zIndex: 10 }}
+                                                            >
                                                                 <img
                                                                     src={logoImage || "/images/big_save_smile_logo.png"}
                                                                     alt="BIG SAVE Smile Logo"
@@ -3072,7 +3075,10 @@ export default function PrintOffersPage() {
 
                                                             {/* Product Image Layer */}
                                                             {showProductImages && (
-                                                                <div className="absolute inset-0 z-[1] flex items-center justify-center p-2 pointer-events-none">
+                                                                <div 
+                                                                    className="absolute inset-0 z-[1] flex items-center justify-center p-2 pointer-events-none"
+                                                                    style={{ zIndex: 1 }}
+                                                                >
                                                                     <img
                                                                         src={getProxiedImageUrl(product.image)}
                                                                         alt={product.name}
@@ -3083,7 +3089,10 @@ export default function PrintOffersPage() {
                                                             )}
 
                                                             {/* Bottom/Middle Overlay: Product Title & Normal Price */}
-                                                            <div className="w-full flex flex-col items-center justify-end z-[5] pointer-events-none pb-1 mt-auto">
+                                                            <div 
+                                                                className="w-full flex flex-col items-center justify-end relative z-10 pointer-events-none pb-1 mt-auto"
+                                                                style={{ position: 'relative', zIndex: 10 }}
+                                                            >
                                                                 {/* Product Title */}
                                                                 <h2 
                                                                     className="font-black leading-tight tracking-tight text-center px-1"
