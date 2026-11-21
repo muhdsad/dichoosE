@@ -17,65 +17,62 @@ const getProxiedImageUrl = (url) => {
 };const getDynamicTitleStyle = (name, layout = 'landscape') => {
     const len = (name || '').length;
     let fontSize = '16px';
-    let stroke = '1px #ffffff';
 
-    if (layout === 'landscape_4') {
-        stroke = '2.4px #ffffff';
-        if (len <= 12) fontSize = '56px';
-        else if (len <= 18) fontSize = '48px';
-        else if (len <= 28) fontSize = '38px';
-        else if (len <= 40) fontSize = '30px';
-        else fontSize = '24px';
+    if (layout === 'landscape_3') {
+        if (len <= 10) fontSize = '40px';
+        else if (len <= 16) fontSize = '34px';
+        else if (len <= 24) fontSize = '28px';
+        else if (len <= 34) fontSize = '22px';
+        else fontSize = '18px';
+    } else if (layout === 'landscape_4') {
+        if (len <= 10) fontSize = '36px';
+        else if (len <= 16) fontSize = '30px';
+        else if (len <= 24) fontSize = '24px';
+        else if (len <= 34) fontSize = '20px';
+        else fontSize = '17px';
     } else if (layout === 'landscape_6') {
-        stroke = '2px #ffffff';
-        if (len <= 12) fontSize = '48px';
-        else if (len <= 18) fontSize = '40px';
-        else if (len <= 28) fontSize = '32px';
-        else if (len <= 40) fontSize = '26px';
-        else fontSize = '20px';
+        if (len <= 10) fontSize = '26px';
+        else if (len <= 16) fontSize = '22px';
+        else if (len <= 24) fontSize = '18px';
+        else if (len <= 34) fontSize = '15px';
+        else fontSize = '13px';
     } else if (layout === 'landscape_12') {
-        stroke = '1.4px #ffffff';
-        if (len <= 12) fontSize = '36px';
-        else if (len <= 18) fontSize = '30px';
-        else if (len <= 28) fontSize = '24px';
-        else if (len <= 40) fontSize = '18px';
-        else fontSize = '15px';
+        if (len <= 10) fontSize = '20px';
+        else if (len <= 16) fontSize = '17px';
+        else if (len <= 24) fontSize = '14px';
+        else if (len <= 34) fontSize = '12px';
+        else fontSize = '11px';
     } else if (layout === 'portrait_12') {
         // 3x4 Portrait (12 Tags - Standard Matching Uploaded Tags)
-        stroke = '1.4px #ffffff';
-        if (len <= 10) fontSize = '30px';
-        else if (len <= 16) fontSize = '25px';
-        else if (len <= 24) fontSize = '20px';
-        else if (len <= 34) fontSize = '16px';
-        else fontSize = '13.5px';
+        if (len <= 10) fontSize = '22px';
+        else if (len <= 16) fontSize = '18px';
+        else if (len <= 24) fontSize = '15px';
+        else if (len <= 34) fontSize = '13px';
+        else fontSize = '11.5px';
     } else if (layout === 'portrait') {
-        stroke = '1.2px #ffffff';
-        if (len <= 12) fontSize = '30px';
-        else if (len <= 18) fontSize = '24px';
-        else if (len <= 28) fontSize = '20px';
-        else if (len <= 40) fontSize = '16px';
-        else fontSize = '13px';
+        if (len <= 10) fontSize = '19px';
+        else if (len <= 16) fontSize = '16px';
+        else if (len <= 24) fontSize = '13.5px';
+        else if (len <= 34) fontSize = '12px';
+        else fontSize = '10.5px';
     } else {
         // default 4x4 landscape (16 tags)
-        if (len <= 12) fontSize = '28px';
-        else if (len <= 18) fontSize = '24px';
-        else if (len <= 28) fontSize = '18px';
-        else if (len <= 40) fontSize = '14px';
-        else fontSize = '12px';
+        if (len <= 10) fontSize = '18px';
+        else if (len <= 16) fontSize = '15px';
+        else if (len <= 24) fontSize = '13px';
+        else if (len <= 34) fontSize = '11.5px';
+        else fontSize = '10px';
     }
 
     return {
         fontSize,
-        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
-        fontWeight: 'normal',
-        lineHeight: '1.05',
+        fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+        fontWeight: '900',
+        lineHeight: '1.08',
         color: '#000000',
         textTransform: 'uppercase',
         textAlign: 'center',
         wordBreak: 'break-word',
-        WebkitTextStroke: stroke,
-        paintOrder: 'stroke fill',
-        textShadow: '0px 0px 3px #ffffff, 0px 0px 3px #ffffff, 0px 0px 3px #ffffff'
     };
 };
 
@@ -83,106 +80,97 @@ const getDynamicPriceStyle = (price, layout = 'landscape') => {
     const text = `${Number(price || 0).toFixed(2)}`;
     const len = text.length;
     let fontSize = '24px';
-    let stroke = '1.4px #ffffff';
 
-    if (layout === 'landscape_4') {
-        stroke = '2.6px #ffffff';
-        if (len <= 6) fontSize = '76px';
-        else if (len <= 8) fontSize = '64px';
-        else if (len <= 10) fontSize = '52px';
-        else fontSize = '42px';
-    } else if (layout === 'landscape_6') {
-        stroke = '2.2px #ffffff';
-        if (len <= 6) fontSize = '64px';
-        else if (len <= 8) fontSize = '54px';
-        else if (len <= 10) fontSize = '44px';
+    if (layout === 'landscape_3') {
+        if (len <= 5) fontSize = '58px';
+        else if (len <= 7) fontSize = '50px';
+        else if (len <= 9) fontSize = '42px';
         else fontSize = '36px';
-    } else if (layout === 'landscape_12') {
-        stroke = '1.6px #ffffff';
-        if (len <= 6) fontSize = '46px';
-        else if (len <= 8) fontSize = '38px';
-        else if (len <= 10) fontSize = '32px';
+    } else if (layout === 'landscape_4') {
+        if (len <= 5) fontSize = '52px';
+        else if (len <= 7) fontSize = '44px';
+        else if (len <= 9) fontSize = '38px';
+        else fontSize = '32px';
+    } else if (layout === 'landscape_6') {
+        if (len <= 5) fontSize = '42px';
+        else if (len <= 7) fontSize = '36px';
+        else if (len <= 9) fontSize = '30px';
         else fontSize = '26px';
+    } else if (layout === 'landscape_12') {
+        if (len <= 5) fontSize = '30px';
+        else if (len <= 7) fontSize = '26px';
+        else if (len <= 9) fontSize = '22px';
+        else fontSize = '19px';
     } else if (layout === 'portrait_12') {
         // 3x4 Portrait (12 Tags - Standard Matching Uploaded Tags)
-        stroke = '1.6px #ffffff';
-        if (len <= 5) fontSize = '44px';
-        else if (len <= 7) fontSize = '38px';
-        else if (len <= 9) fontSize = '32px';
-        else fontSize = '26px';
+        if (len <= 5) fontSize = '34px';
+        else if (len <= 7) fontSize = '29px';
+        else if (len <= 9) fontSize = '25px';
+        else fontSize = '22px';
     } else if (layout === 'portrait') {
-        stroke = '1.3px #ffffff';
-        if (len <= 6) fontSize = '36px';
-        else if (len <= 8) fontSize = '30px';
-        else if (len <= 10) fontSize = '25px';
-        else fontSize = '21px';
+        if (len <= 5) fontSize = '28px';
+        else if (len <= 7) fontSize = '24px';
+        else if (len <= 9) fontSize = '21px';
+        else fontSize = '18px';
     } else {
         // default 4x4 landscape (16 tags)
-        if (len <= 6) fontSize = '30px';
-        else if (len <= 8) fontSize = '26px';
-        else if (len <= 10) fontSize = '22px';
-        else fontSize = '18px';
+        if (len <= 5) fontSize = '26px';
+        else if (len <= 7) fontSize = '22px';
+        else if (len <= 9) fontSize = '19px';
+        else fontSize = '16px';
     }
 
     return {
         fontSize,
-        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
-        fontWeight: 'normal',
+        fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+        fontWeight: '900',
         lineHeight: '1',
         color: '#000000',
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-        WebkitTextStroke: stroke,
-        paintOrder: 'stroke fill',
-        textShadow: '0px 0px 4px #ffffff, 0px 0px 4px #ffffff, 0px 0px 4px #ffffff'
     };
 };
 
 const getDynamicUnitStyle = (layout = 'landscape') => {
     let fontSize = '14px';
-    let stroke = '1px #ffffff';
-    if (layout === 'landscape_4') {
-        fontSize = '32px';
-        stroke = '1.8px #ffffff';
+    if (layout === 'landscape_3') {
+        fontSize = '40px';
+    } else if (layout === 'landscape_4') {
+        fontSize = '34px';
     } else if (layout === 'landscape_6') {
-        fontSize = '26px';
-        stroke = '1.5px #ffffff';
+        fontSize = '28px';
     } else if (layout === 'landscape_12') {
-        fontSize = '20px';
-        stroke = '1.2px #ffffff';
+        fontSize = '21px';
     } else if (layout === 'portrait_12') {
         fontSize = '24px';
-        stroke = '1.3px #ffffff';
     } else if (layout === 'portrait') {
-        fontSize = '18px';
-        stroke = '1.1px #ffffff';
+        fontSize = '20px';
     } else {
-        fontSize = '15px';
-        stroke = '1px #ffffff';
+        fontSize = '18px';
     }
     return {
         fontSize,
-        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
-        fontWeight: 'normal',
+        fontFamily: "'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+        fontWeight: '900',
         lineHeight: '1',
         color: '#000000',
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
-        WebkitTextStroke: stroke,
-        paintOrder: 'stroke fill',
-        textShadow: '0px 0px 3px #ffffff, 0px 0px 3px #ffffff'
     };
 };
 
 const getDynamicUnitFontSize = (layout = 'landscape') => {
+    if (layout === 'landscape_3') return '26px';
     if (layout === 'landscape_4') return '22px';
     if (layout === 'landscape_6') return '18px';
     if (layout === 'landscape_12') return '14px';
+    if (layout === 'portrait_12') return '16px';
     if (layout === 'portrait') return '13px';
     return '11px';
 };
 
 const getDynamicBadgeFontSize = (layout = 'landscape') => {
+    if (layout === 'landscape_3') return '16px';
     if (layout === 'landscape_4') return '15px';
     if (layout === 'landscape_6') return '13px';
     if (layout === 'landscape_12') return '11px';
@@ -649,7 +637,7 @@ export default function PrintOffersPage() {
     const [normalProducts, setNormalProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
-    const [layout, setLayout] = useState('portrait_12'); // 'portrait_12' (default 3x4 A4) | 'portrait' | 'landscape_12' | 'landscape' | 'landscape_6' | 'landscape_4'
+    const [layout, setLayout] = useState('portrait_12'); // 'portrait_12' (default 3x4 A4) | 'portrait' | 'landscape_3' | 'landscape_4' | 'landscape_6' | 'landscape_12' | 'landscape'
     const [saving, setSaving] = useState(false);
 
     // Poster Mode States
@@ -1039,6 +1027,8 @@ export default function PrintOffersPage() {
     }, []);
 
     const getSheetItemsPerPage = (layoutName) => {
+        if (layoutName === 'landscape_3') return 3;
+        if (layoutName === 'portrait_12') return 12;
         if (layoutName === 'portrait') return 15;
         if (layoutName === 'landscape_4') return 4;
         if (layoutName === 'landscape_6') return 6;
@@ -1421,7 +1411,7 @@ export default function PrintOffersPage() {
                                 <label className="block text-[10px] font-extrabold uppercase text-gray-500 tracking-wider">
                                     Sheet Layout & Tag Grid
                                 </label>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1.5">
                                     <button
                                         type="button"
                                         onClick={() => setLayout('portrait_12')}
@@ -1440,6 +1430,30 @@ export default function PrintOffersPage() {
                                     </button>
                                     <button
                                         type="button"
+                                        onClick={() => setLayout('landscape_3')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_3' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">1x3 Landscape</span>
+                                        <span className="text-[10px] opacity-80">3 Strip Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('landscape_4')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_4' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">2x2 Landscape</span>
+                                        <span className="text-[10px] opacity-80">4 Heavy Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLayout('landscape_6')}
+                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_6' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
+                                    >
+                                        <span className="leading-tight">3x2 Landscape</span>
+                                        <span className="text-[10px] opacity-80">6 Large Tags</span>
+                                    </button>
+                                    <button
+                                        type="button"
                                         onClick={() => setLayout('landscape_12')}
                                         className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_12' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
                                     >
@@ -1453,22 +1467,6 @@ export default function PrintOffersPage() {
                                     >
                                         <span className="leading-tight">4x4 Landscape</span>
                                         <span className="text-[10px] opacity-80">16 Tags</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setLayout('landscape_6')}
-                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_6' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
-                                    >
-                                        <span className="leading-tight">3x2 Landscape</span>
-                                        <span className="text-[10px] opacity-80">6 Large Tags</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setLayout('landscape_4')}
-                                        className={`px-3 py-2 rounded-xl font-bold text-xs transition-all shadow-xs cursor-pointer flex flex-col items-center justify-center text-center ${layout === 'landscape_4' ? 'bg-primary text-white shadow-green-200 ring-2 ring-emerald-400' : 'bg-gray-50 text-gray-700 border border-gray-200 hover:bg-gray-100'}`}
-                                    >
-                                        <span className="leading-tight">2x2 Landscape</span>
-                                        <span className="text-[10px] opacity-80">4 Heavy Tags</span>
                                     </button>
                                 </div>
                             </div>
@@ -2865,7 +2863,10 @@ export default function PrintOffersPage() {
                             let itemsPerPage = 12;
                             let gridColsClass = 'grid-cols-3';
 
-                            if (layout === 'portrait_12') {
+                            if (layout === 'landscape_3') {
+                                itemsPerPage = 3;
+                                gridColsClass = 'grid-cols-1';
+                            } else if (layout === 'portrait_12') {
                                 itemsPerPage = 12;
                                 gridColsClass = 'grid-cols-3';
                             } else if (layout === 'portrait') {
@@ -2967,8 +2968,8 @@ export default function PrintOffersPage() {
                                         className={`grid gap-0 print:gap-0 flex-grow ${gridColsClass}`}
                                         style={{
                                             display: 'grid',
-                                            gridTemplateColumns: layout === 'portrait_12' || layout === 'portrait' ? 'repeat(3, 1fr)' : (layout === 'landscape_4' ? 'repeat(2, 1fr)' : (layout === 'landscape_6' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)')),
-                                            gridTemplateRows: layout === 'portrait_12' ? 'repeat(4, 1fr)' : (layout === 'portrait' ? 'repeat(5, 1fr)' : (layout === 'landscape_4' || layout === 'landscape_6' ? 'repeat(2, 1fr)' : (layout === 'landscape_12' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)'))),
+                                            gridTemplateColumns: layout === 'landscape_3' ? 'repeat(1, 1fr)' : (layout === 'portrait_12' || layout === 'portrait' ? 'repeat(3, 1fr)' : (layout === 'landscape_4' ? 'repeat(2, 1fr)' : (layout === 'landscape_6' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)'))),
+                                            gridTemplateRows: layout === 'landscape_3' ? 'repeat(3, 1fr)' : (layout === 'portrait_12' ? 'repeat(4, 1fr)' : (layout === 'portrait' ? 'repeat(5, 1fr)' : (layout === 'landscape_4' || layout === 'landscape_6' ? 'repeat(2, 1fr)' : (layout === 'landscape_12' ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)')))),
                                             height: 'calc(100% - 6mm)',
                                             width: '100%',
                                             boxSizing: 'border-box'
@@ -2977,6 +2978,7 @@ export default function PrintOffersPage() {
                                         {pageProducts.map((product) => {
                                             const isPlaceholder = product.isPlaceholder;
                                             const isSelected = !isPlaceholder && selectedProductIds.has(product.id);
+                                            const isHorizontalTag = layout === 'landscape_3' || layout === 'landscape_4';
                                             const mrpVal = (product.mrp !== undefined && product.mrp !== null && parseFloat(product.mrp) > 0)
                                                 ? parseFloat(product.mrp)
                                                 : 0;
@@ -2993,188 +2995,214 @@ export default function PrintOffersPage() {
                                             return (
                                                 <div
                                                     key={product.id}
-                                                    id={`offer-card-${product.id}`}
-                                                    onClick={(e) => handleOpenEditModal(e, product)}
-                                                    className="sheet-tag-card relative overflow-hidden bg-white flex flex-col justify-between items-center text-center p-2 box-border cursor-pointer group select-none transition-all hover:bg-gray-50/50"
-                                                    style={{
-                                                        border: '1px dashed #d1d5db',
-                                                        minHeight: 0,
-                                                        minWidth: 0,
-                                                        height: '100%',
-                                                        width: '100%',
-                                                        boxSizing: 'border-box'
-                                                    }}
-                                                    title={isPlaceholder ? '' : 'Click to edit Product Price, Name, Unit & Image'}
+                                                    className="sheet-tag-cell p-[2.5px] w-full h-full border border-dashed border-gray-400 print:border-gray-400 box-border overflow-hidden"
+                                                    style={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%', boxSizing: 'border-box' }}
                                                 >
-                                                    {isPlaceholder ? (
-                                                        /* Empty placeholder cell with border to maintain print shape for trimming */
-                                                        <div className="w-full h-full bg-white flex items-center justify-center text-gray-200 text-xs font-bold">
-                                                            +
-                                                        </div>
-                                                    ) : (
-                                                        /* Active standard tag card like uploaded tags */
-                                                        <>
-                                                            {/* Screen-only Selection Outline & Tint */}
-                                                            {isSelected && (
-                                                                <div 
-                                                                    data-html2canvas-ignore
-                                                                    className="absolute inset-0 border-2 border-emerald-500 bg-emerald-500/[0.04] pointer-events-none z-[12] print:hidden"
-                                                                />
-                                                            )}
-
-                                                            {/* Top-Left: MRP Badge */}
-                                                            {showBadges && mrpVal > 0 && (
-                                                                <div 
-                                                                    className="absolute top-1.5 left-1.5 z-20 bg-[#ffff00] text-black font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wide shadow-xs flex items-center whitespace-nowrap pointer-events-none"
-                                                                    style={{
-                                                                        fontSize: getDynamicBadgeFontSize(layout),
-                                                                        fontFamily: 'var(--font-sans), sans-serif',
-                                                                        lineHeight: '1.1'
-                                                                    }}
-                                                                >
-                                                                    <span className="text-[0.85em] font-black mr-0.5">MRP</span>
-                                                                    <span className="line-through font-black" style={{ textDecorationColor: '#e11b22', textDecorationThickness: '1.5px' }}>
-                                                                        ₹{mrpVal.toFixed(2)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Top-Right: Discount Percentage in Red Font with Underline (No Fill Color) */}
-                                                            {showBadges && discountPercent > 0 && (
-                                                                <div 
-                                                                    className="absolute top-1.5 right-1.5 z-20 bg-transparent flex items-center whitespace-nowrap pointer-events-none select-none"
-                                                                    style={{
-                                                                        fontSize: layout === 'portrait_12' ? '13px' : (layout === 'portrait' ? '12px' : '15px'),
-                                                                        fontFamily: 'var(--font-anton), Anton, Impact, sans-serif',
-                                                                        color: '#e11b22',
-                                                                        textDecoration: 'underline',
-                                                                        textDecorationColor: '#e11b22',
-                                                                        textDecorationThickness: '2px',
-                                                                        textUnderlineOffset: '2px',
-                                                                        letterSpacing: '0.4px',
-                                                                        lineHeight: '1',
-                                                                        WebkitTextStroke: '0.3px #ffffff',
-                                                                        textShadow: '0 0 2px #ffffff, 0 0 2px #ffffff'
-                                                                    }}
-                                                                >
-                                                                    <span>{discountPercent}% OFF</span>
-                                                                </div>
-                                                            )}
-
-                                                            {/* Top Center Logo (BIG SAVE Smile) */}
-                                                            <div 
-                                                                className="w-full flex justify-center items-center shrink-0 relative z-10 pt-0.5 pointer-events-none"
-                                                                style={{ position: 'relative', zIndex: 10 }}
-                                                            >
-                                                                <img
-                                                                    src={logoImage || "/images/big_save_smile_logo.png"}
-                                                                    alt="BIG SAVE Smile Logo"
-                                                                    className="h-6 sm:h-7 md:h-8 max-w-[65%] object-contain"
-                                                                />
+                                                    <div
+                                                        id={`offer-card-${product.id}`}
+                                                        onClick={(e) => handleOpenEditModal(e, product)}
+                                                        className="sheet-tag-card relative overflow-hidden bg-white border-2 border-black flex box-border cursor-pointer group select-none transition-all hover:bg-gray-50/50"
+                                                        style={{
+                                                            border: '2px solid #000000',
+                                                            minHeight: 0,
+                                                            minWidth: 0,
+                                                            height: '100%',
+                                                            width: '100%',
+                                                            boxSizing: 'border-box'
+                                                        }}
+                                                        title={isPlaceholder ? '' : 'Click to edit Product Price, Name, Unit & Image'}
+                                                    >
+                                                        {isPlaceholder ? (
+                                                            /* Empty placeholder cell with border to maintain print shape for trimming */
+                                                            <div className="w-full h-full bg-white flex items-center justify-center text-gray-300 text-sm font-bold">
+                                                                +
                                                             </div>
-
-                                                            {/* Product Image Layer */}
-                                                            {showProductImages && (
-                                                                <div 
-                                                                    className="absolute inset-0 z-[1] flex items-center justify-center p-2 pointer-events-none"
-                                                                    style={{ zIndex: 1 }}
-                                                                >
-                                                                    <img
-                                                                        src={getProxiedImageUrl(product.image)}
-                                                                        alt={product.name}
-                                                                        className="max-w-[90%] max-h-[78%] object-contain mt-1"
-                                                                        referrerPolicy="no-referrer"
+                                                        ) : (
+                                                            /* Active standard tag card like uploaded tags with border and heavy font */
+                                                            <>
+                                                                {/* Screen-only Selection Outline & Tint */}
+                                                                {isSelected && (
+                                                                    <div 
+                                                                        data-html2canvas-ignore
+                                                                        className="absolute inset-0 border-4 border-emerald-500 bg-emerald-500/[0.06] pointer-events-none z-[15] print:hidden"
                                                                     />
-                                                                </div>
-                                                            )}
-
-                                                            {/* Bottom/Middle Overlay: Product Title & Normal Price */}
-                                                            <div 
-                                                                className="w-full flex flex-col items-center justify-end relative z-10 pointer-events-none pb-1 mt-auto"
-                                                                style={{ position: 'relative', zIndex: 10 }}
-                                                            >
-                                                                {/* Product Title */}
-                                                                <h2 
-                                                                    className="font-black leading-tight tracking-tight text-center px-1"
-                                                                    style={getDynamicTitleStyle(product.name, layout)}
-                                                                >
-                                                                    {product.name}
-                                                                </h2>
-
-                                                                {/* Normal Price & Unit (e.g. 46.00 / KG) */}
-                                                                <div className="flex items-baseline justify-center w-full whitespace-nowrap mt-1">
-                                                                    <span style={getDynamicPriceStyle(sellingPrice, layout)}>
-                                                                        {Number(sellingPrice || 0).toFixed(2)}
-                                                                    </span>
-                                                                    <span className="ml-1" style={getDynamicUnitStyle(layout)}>
-                                                                        / {(product.unit || 'KG').toUpperCase()}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            {/* Select Tag Button / Badge */}
-                                                            <button
-                                                                type="button"
-                                                                data-html2canvas-ignore
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    toggleProductSelection(product.id);
-                                                                }}
-                                                                className={`absolute bottom-1 left-1 z-30 print:hidden transition-all flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer shadow-sm text-[10px] font-bold select-none ${
-                                                                    isSelected 
-                                                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs' 
-                                                                        : 'bg-white hover:bg-emerald-50 text-gray-700 border border-gray-300 hover:border-emerald-500'
-                                                                }`}
-                                                                title={isSelected ? "Click to deselect tag" : "Click to select tag"}
-                                                            >
-                                                                {isSelected ? (
-                                                                    <>
-                                                                        <FaCheck className="text-[8px]" />
-                                                                        <span>Selected</span>
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <span className="text-[11px] font-bold text-gray-400 leading-none">+</span>
-                                                                        <span>Select</span>
-                                                                    </>
                                                                 )}
-                                                            </button>
 
-                                                            {/* Hover indicator for click-to-edit (bottom-6 left-1 to avoid select button) */}
-                                                            <div 
-                                                                data-html2canvas-ignore
-                                                                className="absolute bottom-6 left-1 z-20 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow"
-                                                            >
-                                                                <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price
-                                                            </div>
+                                                                {isHorizontalTag ? (
+                                                                    /* HORIZONTAL TAG LAYOUT (1x3 & 2x2: Left Image, Right Logo + Title + Massive Price) */
+                                                                    <div className="w-full h-full flex flex-row items-center relative z-10 px-1 py-1">
+                                                                        {/* Left: Product Image */}
+                                                                        <div className="w-[42%] sm:w-[45%] h-full flex items-center justify-center p-1.5 relative overflow-hidden shrink-0 z-0">
+                                                                            {showProductImages && (
+                                                                                <img
+                                                                                    src={getProxiedImageUrl(product.image)}
+                                                                                    alt={product.name}
+                                                                                    className="max-w-[95%] max-h-[92%] object-contain"
+                                                                                    referrerPolicy="no-referrer"
+                                                                                />
+                                                                            )}
+                                                                        </div>
 
-                                                            {/* Individual Save as PNG Button */}
-                                                            <button
-                                                                data-html2canvas-ignore
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleSaveCardAsPng(product.id, product.name);
-                                                                }}
-                                                                disabled={saving}
-                                                                className="absolute bottom-1 right-1 z-[20] bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-0.5 px-1.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
-                                                                title="Save this single tag as PNG"
-                                                            >
-                                                                Save PNG
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
+                                                                        {/* Right: Logo, Title, Price */}
+                                                                        <div className="w-[58%] sm:w-[55%] h-full flex flex-col justify-between items-center text-center py-1.5 px-1 box-border min-w-0 relative z-10">
+                                                                            {/* Top: BIG SAVE Smile Logo */}
+                                                                            <div className="w-full flex flex-col items-center justify-center shrink-0 pt-0.5">
+                                                                                <img
+                                                                                    src={logoImage || "/images/big_save_smile_logo.png"}
+                                                                                    alt="BIG SAVE Smile Logo"
+                                                                                    className={`${layout === 'landscape_3' ? 'h-5 sm:h-6 md:h-7' : 'h-6 sm:h-7 md:h-8'} max-w-[65%] object-contain`}
+                                                                                />
+                                                                                {showBadges && mrpVal > 0 && (
+                                                                                    <div className="mt-0.5 text-xs font-black text-black uppercase tracking-tight flex items-center justify-center gap-1.5">
+                                                                                        <span>MRP </span>
+                                                                                        <span className="line-through decoration-red-600 decoration-2">₹{mrpVal.toFixed(2)}</span>
+                                                                                        {discountPercent > 0 && (
+                                                                                            <span className="text-red-600 font-black">{discountPercent}% OFF</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
 
-                                    {/* Sheet Footer matching uploaded tag sheet */}
-                                    <footer className="w-full h-[5mm] shrink-0 flex justify-between items-center text-[9px] text-gray-500 font-medium select-none z-10 px-1 pt-1 border-t border-gray-150 print:border-none">
-                                        <span>SMILE Supermarket</span>
-                                        <span>
-                                            {isSheetLandscape ? 'A4 Landscape Sheet' : 'A4 Portrait Sheet'} ({pageIdx + 1} of {pages.length}) | {layout === 'portrait_12' ? '3×4 Grid (12 Tags)' : (layout === 'landscape_12' ? '4×3 Grid (12 Tags)' : `${itemsPerPage} Tags`)} | 300 DPI Print Quality
-                                        </span>
-                                    </footer>
+                                                                            {/* Middle: Product Title */}
+                                                                            <div className="flex-1 flex items-center justify-center w-full px-1 my-auto min-h-0">
+                                                                                <h2 
+                                                                                    className="font-black leading-tight tracking-tight text-center uppercase"
+                                                                                    style={getDynamicTitleStyle(product.name, layout)}
+                                                                                >
+                                                                                    {product.name}
+                                                                                </h2>
+                                                                            </div>
+
+                                                                            {/* Bottom: Normal Price & Unit (e.g. 45.00 / KG) */}
+                                                                            <div className="flex items-baseline justify-center w-full whitespace-nowrap shrink-0 mt-auto pt-0.5">
+                                                                                <span style={getDynamicPriceStyle(sellingPrice, layout)}>
+                                                                                    {Number(sellingPrice || 0).toFixed(2)}
+                                                                                </span>
+                                                                                <span className="ml-1" style={getDynamicUnitStyle(layout)}>
+                                                                                    / {(product.unit || 'KG').toUpperCase()}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    ) : (
+                                                                        /* VERTICAL TAG LAYOUT (3x4 Portrait, 3x5, 3x2, 4x3, 4x4: Top Logo, Title, Center Image, Bottom Price) */
+                                                                        <div className="w-full h-full flex flex-col justify-between items-center text-center p-1.5 sm:p-2 box-border relative overflow-hidden z-10">
+                                                                            {/* Top: BIG SAVE Smile Logo */}
+                                                                            <div className="w-full flex flex-col items-center justify-center shrink-0 relative z-10 pt-0.5">
+                                                                                <img
+                                                                                    src={logoImage || "/images/big_save_smile_logo.png"}
+                                                                                    alt="BIG SAVE Smile Logo"
+                                                                                    className="h-5 sm:h-6 max-w-[65%] object-contain"
+                                                                                />
+                                                                                {showBadges && mrpVal > 0 && (
+                                                                                    <div className="mt-0.5 text-[10px] font-black text-black uppercase tracking-tight flex items-center justify-center gap-1">
+                                                                                        <span>MRP </span>
+                                                                                        <span className="line-through decoration-red-600 decoration-1.5">₹{mrpVal.toFixed(2)}</span>
+                                                                                        {discountPercent > 0 && (
+                                                                                            <span className="text-red-600 font-black">{discountPercent}% OFF</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+
+                                                                            {/* Upper Middle: Product Title */}
+                                                                            <div className="w-full shrink-0 px-1 my-0.5 relative z-10">
+                                                                                <h2 
+                                                                                    className="font-black leading-tight tracking-tight text-center uppercase"
+                                                                                    style={getDynamicTitleStyle(product.name, layout)}
+                                                                                >
+                                                                                    {product.name}
+                                                                                </h2>
+                                                                            </div>
+
+                                                                            {/* Center: Product Image */}
+                                                                            {showProductImages && (
+                                                                                <div className="flex-1 w-full min-h-0 flex items-center justify-center p-0.5 relative overflow-hidden z-0 my-0.5">
+                                                                                    <img
+                                                                                        src={getProxiedImageUrl(product.image)}
+                                                                                        alt={product.name}
+                                                                                        className="max-w-[95%] max-h-[95%] object-contain relative z-0"
+                                                                                        referrerPolicy="no-referrer"
+                                                                                    />
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* Bottom: Normal Price & Unit (e.g. 15.90 / KG) */}
+                                                                            <div className="flex items-baseline justify-center w-full whitespace-nowrap shrink-0 mt-auto pt-0.5 relative z-10">
+                                                                                <span style={getDynamicPriceStyle(sellingPrice, layout)}>
+                                                                                    {Number(sellingPrice || 0).toFixed(2)}
+                                                                                </span>
+                                                                                <span className="ml-1" style={getDynamicUnitStyle(layout)}>
+                                                                                    / {(product.unit || 'KG').toUpperCase()}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Select Tag Button / Badge */}
+                                                                    <button
+                                                                        type="button"
+                                                                        data-html2canvas-ignore
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toggleProductSelection(product.id);
+                                                                        }}
+                                                                        className={`absolute bottom-1 left-1 z-30 print:hidden transition-all flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer shadow-sm text-[10px] font-bold select-none ${
+                                                                            isSelected 
+                                                                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs' 
+                                                                                : 'bg-white hover:bg-emerald-50 text-gray-700 border border-gray-300 hover:border-emerald-500'
+                                                                        }`}
+                                                                        title={isSelected ? "Click to deselect tag" : "Click to select tag"}
+                                                                    >
+                                                                        {isSelected ? (
+                                                                            <>
+                                                                                <FaCheck className="text-[8px]" />
+                                                                                <span>Selected</span>
+                                                                            </>
+                                                                        ) : (
+                                                                            <>
+                                                                                <span className="text-[11px] font-bold text-gray-400 leading-none">+</span>
+                                                                                <span>Select</span>
+                                                                            </>
+                                                                        )}
+                                                                    </button>
+
+                                                                    {/* Hover indicator for click-to-edit */}
+                                                                    <div 
+                                                                        data-html2canvas-ignore
+                                                                        className="absolute bottom-6 left-1 z-20 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 print:hidden pointer-events-none shadow"
+                                                                    >
+                                                                        <FaPencilAlt className="text-[8px] text-yellow-300" /> Edit Price
+                                                                    </div>
+
+                                                                    {/* Individual Save as PNG Button */}
+                                                                    <button
+                                                                        data-html2canvas-ignore
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleSaveCardAsPng(product.id, product.name);
+                                                                        }}
+                                                                        disabled={saving}
+                                                                        className="absolute bottom-1 right-1 z-[20] bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold py-0.5 px-1.5 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity print:hidden cursor-pointer disabled:opacity-50"
+                                                                        title="Save this single tag as PNG"
+                                                                    >
+                                                                        Save PNG
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Sheet Footer matching uploaded tag sheet */}
+                                        <footer className="w-full h-[5mm] shrink-0 flex justify-between items-center text-[9px] text-gray-500 font-medium select-none z-10 px-1 pt-1 border-t border-gray-150 print:border-none">
+                                            <span>SMILE Supermarket</span>
+                                            <span>
+                                                {isSheetLandscape ? 'A4 Landscape Sheet' : 'A4 Portrait Sheet'} ({pageIdx + 1} of {pages.length}) | {layout === 'portrait_12' ? '3×4 Grid (12 Tags)' : (layout === 'portrait' ? '3×5 Grid (15 Tags)' : (layout === 'landscape_3' ? '1×3 Grid (3 Tags)' : (layout === 'landscape_4' ? '2×2 Grid (4 Tags)' : (layout === 'landscape_6' ? '3×2 Grid (6 Tags)' : (layout === 'landscape_12' ? '4×3 Grid (12 Tags)' : '4×4 Grid (16 Tags)')))))} | 300 DPI Print Quality
+                                            </span>
+                                        </footer>
                                 </div>
                             ));
                         })()}
@@ -3256,8 +3284,14 @@ export default function PrintOffersPage() {
                         border: none !important;
                         box-shadow: none !important;
                     }
-                    .sheet-tag-card {
+                    .sheet-tag-cell {
                         border: 1px dashed #9ca3af !important;
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                        box-sizing: border-box !important;
+                    }
+                    .sheet-tag-card {
+                        border: 2px solid #000000 !important;
                         page-break-inside: avoid !important;
                         break-inside: avoid !important;
                         box-sizing: border-box !important;
